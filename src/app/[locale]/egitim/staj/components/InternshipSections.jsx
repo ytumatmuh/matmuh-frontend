@@ -13,7 +13,7 @@ import PageSection from "@/app/components/PageSection";
 import StatStrip from "@/app/components/StatStrip";
 import DocumentLink from "@/app/components/DocumentLink";
 import Avatar from "@/app/components/Avatar";
-import { findPerson, fullName, useStaff } from "@/app/components/PersonRow";
+import { PersonName, findPerson, fullName, useStaff } from "@/app/components/PersonRow";
 import { contactLine } from "@/lib/person";
 import { safeHref } from "@/lib/href";
 import { useT } from "@/i18n/useT";
@@ -43,11 +43,12 @@ function StaffCard({ person, idx }) {
   const name = fullName(person);
   return (
     <div className="flex items-center gap-3 p-2.5 rounded-lg bg-primary-500/2 border border-primary-500/5">
-      <Avatar name={name} idx={idx} />
+      <Avatar name={name} photo={person.photo} idx={idx} />
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word">
-          {person.academicTitle} {name}
-        </span>
+        <PersonName
+          person={person}
+          className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word"
+        />
         {contactLine(person, t) && (
           <span className="block text-[11px] text-primary-500/70 wrap-break-word">
             {contactLine(person, t)}

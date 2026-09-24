@@ -3,7 +3,7 @@
 import { Mail } from "lucide-react";
 
 import Avatar from "@/app/components/Avatar";
-import { fullName, useStaff } from "@/app/components/PersonRow";
+import { PersonName, fullName, useStaff } from "@/app/components/PersonRow";
 import { byLeadership, contactLine } from "@/lib/person";
 import { useT } from "@/i18n/useT";
 
@@ -21,11 +21,12 @@ export default function ManagementRows({ initialStaff = [] }) {
             key={person.slug}
             className="flex items-center gap-3 p-2.5 rounded-lg bg-primary-500/2 border border-primary-500/5"
           >
-            <Avatar name={name} idx={idx} />
+            <Avatar name={name} photo={person.photo} idx={idx} />
             <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word">
-                {person.academicTitle} {name}
-              </span>
+              <PersonName
+                person={person}
+                className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word"
+              />
               {contactLine(person, t) && (
                 <span className="block text-[11px] text-primary-500/70 wrap-break-word">
                   {contactLine(person, t)}

@@ -45,7 +45,7 @@ export default function YonetimKurullarPage({ initialStaff = [] }) {
             </Panel>
           </PageSection>
 
-          <AdvisoryBoard />
+          <AdvisoryBoard initialStaff={initialStaff} />
         </div>
       </PageLayout>
     </>

@@ -9,6 +9,8 @@ import SubHeader from "@/app/components/Header/SubHeader";
 import Panel from "@/app/components/Panel";
 import PageSection from "@/app/components/PageSection";
 import Avatar from "@/app/components/Avatar";
+import { fullName } from "@/lib/person";
+import { PersonName, findPerson, useStaff } from "@/app/components/PersonRow";
 import DocumentLink from "@/app/components/DocumentLink";
 import { safeHref } from "@/lib/href";
 import { useT } from "@/i18n/useT";
@@ -33,12 +35,14 @@ function parseMembers(text) {
     });
 }
 
-function CommissionCard({ commission }) {
+function CommissionCard({ commission, people }) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const members = parseMembers(commission.members);
   const chair = commission.chair?.trim();
   const total = members.length + (chair ? 1 : 0);
+  const chairPerson = findPerson(people, chair);
+  const rows = chair ? [{ label: chair, tag: t("Başkan") }, ...members] : members;
 
   return (
     <div className="rounded-lg border border-primary-500/5 bg-primary-500/2 overflow-hidden">
@@ -47,13 +51,24 @@ function CommissionCard({ commission }) {
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center gap-3 p-4 text-left hover:bg-primary-500/3 transition-colors"
       >
-        {chair && <Avatar name={personName(chair)} size="size-8" textSize="text-[10px]" />}
+        {chair && (
+          <Avatar
+            name={chairPerson ? fullName(chairPerson) : personName(chair)}
+            photo={chairPerson?.photo}
+            size="size-8"
+            textSize="text-[10px]"
+          />
+        )}
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-semibold text-primary-500 leading-snug">
             {commission.name}
           </span>
           <span className="block text-[11px] text-primary-500/70 wrap-break-word">
-            {chair ? chair : `${total} ${t("üye")}`}
+            {chair
+              ? chairPerson
+                ? `${t(chairPerson.academicTitle ?? "")} ${fullName(chairPerson)}`.trim()
+                : personName(chair)
+              : `${total} ${t("üye")}`}
           </span>
         </span>
         <span className="shrink-0 text-[10px] text-primary-500/70">{total}</span>
@@ -64,26 +79,39 @@ function CommissionCard({ commission }) {
 
       {open && (
         <div className="px-4 pb-4 pt-3 flex flex-col gap-2 border-t border-primary-500/5">
-          {members.map((member, idx) => (
-            <div key={idx} className="flex items-center gap-2.5">
-              <Avatar name={personName(member.label)} idx={idx + 1} size="size-7" textSize="text-[9px]" />
-              <span className="text-[12px] text-primary-500/70 leading-snug">
-                {member.label}
-                {member.tag && (
-                  <span className="ml-1.5 text-[10px] font-medium text-secondary-700">
-                    {member.tag}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
+          {rows.map((member, idx) => {
+            const person = findPerson(people, member.label);
+            return (
+              <div key={idx} className="flex items-center gap-2.5">
+                <Avatar
+                  name={person ? fullName(person) : personName(member.label)}
+                  photo={person?.photo}
+                  idx={idx}
+                  size="size-7"
+                  textSize="text-[9px]"
+                />
+                <span className="text-[12px] text-primary-500/70 leading-snug">
+                  {person ? (
+                    <PersonName person={person} className="text-primary-500" />
+                  ) : (
+                    personName(member.label)
+                  )}
+                  {member.tag && (
+                    <span className="ml-1.5 text-[10px] font-medium text-secondary-700">
+                      {member.tag}
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function CommissionList() {
+function CommissionList({ people }) {
   const { value } = useCmsBlock("commissions.items");
   const count = Array.isArray(value) ? value.length : 0;
 
@@ -112,176 +140,176 @@ function CommissionList() {
           tr: [
             {
               name: "Bilişim ve İletişim Komisyonu",
-              chair: "Prof. Dr. Hale Köçken",
-              members: `Doç. Dr. Arzu Turan Dincel
-Doç. Dr. Mert Bal
-Araş. Gör. Kaan Kemal Polat`,
+              chair: "hgonce@yildiz.edu.tr",
+              members: `artur@yildiz.edu.tr
+mertbal@yildiz.edu.tr
+kemalp@yildiz.edu.tr`,
             },
             {
               name: "Akademik Teşvik ve Değerlendirme Komisyonu",
-              chair: "Prof. Dr. Fatih Taşçı",
-              members: `Prof. Dr. Nazmiye Yahnioğlu
-Prof. Dr. Kevser Özden Köklü
-Doç. Dr. Müslüm Özışık
-Doç. Dr. Nilgün Güler Bayazıt`,
+              chair: "tasci@yildiz.edu.tr",
+              members: `nazmiye@yildiz.edu.tr
+ozkoklu@yildiz.edu.tr
+ozisik@yildiz.edu.tr
+guler@yildiz.edu.tr`,
             },
             {
               name: "Eğitim-Öğretim ve Akreditasyon Komisyonu",
-              chair: "Prof. Dr. Fatma İnci Albayrak",
-              members: `Doç. Dr. Serkan Onar
+              chair: "ibayrak@yildiz.edu.tr",
+              members: `sonar@yildiz.edu.tr
 Doç. Dr. Gökhan Göksu
-Doç. Dr. Birol Aslanyürek | Bologna Koordinatörü`,
+baslan@yildiz.edu.tr | Bologna Koordinatörü`,
             },
             {
               name: "İntibak ve Önceden Kazanılmış Yeterliliklerin Tanınması Komisyonu",
-              chair: "Doç. Dr. Müslüm Özışık",
-              members: `Doç. Dr. Yasemen Uçan
-Dr. Öğr. Üyesi Derya Sekman
-Araş. Gör. Dr. Hayati Ünsal Özer
-Doç. Dr. Bayram Ali İbrahimoğlu | Önceden Kazanılmış Yet. Tanınması Sorumlusu`,
+              chair: "ozisik@yildiz.edu.tr",
+              members: `ucan@yildiz.edu.tr
+derya.sekman@yildiz.edu.tr
+huozer@yildiz.edu.tr
+bibrahim@yildiz.edu.tr | Önceden Kazanılmış Yet. Tanınması Sorumlusu`,
             },
             {
               name: "Bitirme Çalışması Komisyonu",
-              chair: "Prof. Dr. İbrahim Emiroğlu",
-              members: "Prof. Dr. Coşkun Güler",
+              chair: "emir@yildiz.edu.tr",
+              members: "cguler@yildiz.edu.tr",
             },
             {
               name: "Stratejik Planlama Komisyonu",
-              chair: "Doç. Dr. Ramazan Tekercioğlu",
-              members: `Araş. Gör. Handenur Esen
-Doç. Dr. Ramazan Tekercioğlu | Yıllık Faaliyet Sorumlusu`,
+              chair: "tramazan@yildiz.edu.tr",
+              members: `handenur@yildiz.edu.tr
+tramazan@yildiz.edu.tr | Yıllık Faaliyet Sorumlusu`,
             },
             {
               name: "Kalite Komisyonu",
-              chair: "Prof. Dr. Reşat Köşker",
-              members: `Doç. Dr. Ülkü Babuşcu Yeşil
-Araş. Gör. İsmail Önder
+              chair: "kosker@yildiz.edu.tr",
+              members: `ubabuscu@yildiz.edu.tr
+ionder@yildiz.edu.tr
 Arş. Gör. Metehan Turan`,
             },
             {
               name: "Laboratuvar, İş Sağlığı ve Güvenliği Komisyonu",
-              chair: "Prof. Dr. Nazmiye Yahnioğlu",
-              members: "Öğr. Gör. Abdulkadir Şahiner",
+              chair: "nazmiye@yildiz.edu.tr",
+              members: "asahiner@yildiz.edu.tr",
             },
             {
               name: "Anket Hazırlama ve Değerlendirme Komisyonu",
-              chair: "Prof. Dr. Fatma Aydın Akgün",
-              members: "Doç. Dr. Melih Çınar",
+              chair: "fakgun@yildiz.edu.tr",
+              members: "mcinar@yildiz.edu.tr",
             },
             {
               name: "Sosyal Aktiviteler ve Mezunlarla İlişkiler Komisyonu",
               chair: "Prof. Dr. Ayla Şaylı",
-              members: `Doç. Dr. Kadriye Şimşek Alan
-Araş. Gör. Handenur Esen`,
+              members: `ksimsek@yildiz.edu.tr
+handenur@yildiz.edu.tr`,
             },
             {
               name: "Uluslararası İlişkiler ve Değişim Programları Komisyonu",
-              chair: "Doç. Dr. Nilgün Güler Bayazıt",
-              members: `Dr. Öğr. Üyesi Seda Göktepe Körpeoğlu
-Dr. Öğr. Üyesi Fatih Aylıkcı
-Araş. Gör. Emel Uğurlu
-Araş. Gör. Buse Güler`,
+              chair: "guler@yildiz.edu.tr",
+              members: `sgoktepe@yildiz.edu.tr
+faylikci@yildiz.edu.tr
+emel.ugurlu@yildiz.edu.tr
+buse.guler@yildiz.edu.tr`,
             },
             {
               name: "Endüstriyel İlişkiler ve Staj Komisyonu",
-              chair: "Prof. Dr. Hülya Serab",
-              members: `Öğr. Gör. Abdulkadir Şahiner | 1. Staj
-Araş. Gör. İsmail Önder | 1. Staj
-Araş. Gör. Dr. Hayati Ünsal Özer | 1. Staj
-Araş. Gör. Buse Güler | 1. Staj
-Araş. Gör. Emel Uğurlu | 2. Staj
-Araş. Gör. Kaan Kemal Polat | 2. Staj
+              chair: "hsahin@yildiz.edu.tr",
+              members: `asahiner@yildiz.edu.tr | 1. Staj
+ionder@yildiz.edu.tr | 1. Staj
+huozer@yildiz.edu.tr | 1. Staj
+buse.guler@yildiz.edu.tr | 1. Staj
+emel.ugurlu@yildiz.edu.tr | 2. Staj
+kemalp@yildiz.edu.tr | 2. Staj
 Arş. Gör. Metehan Turan | 2. Staj`,
             },
           ],
           en: [
             {
               name: "Information Technology and Communication Committee",
-              chair: "Prof. Dr. Hale Köçken",
-              members: `Assoc. Prof. Dr. Arzu Turan Dincel
-Assoc. Prof. Dr. Mert Bal
-Res. Asst. Kaan Kemal Polat`,
+              chair: "hgonce@yildiz.edu.tr",
+              members: `artur@yildiz.edu.tr
+mertbal@yildiz.edu.tr
+kemalp@yildiz.edu.tr`,
             },
             {
               name: "Academic Incentive and Evaluation Commission",
-              chair: "Prof. Dr. Fatih Taşçı",
-              members: `Prof. Dr. Nazmiye Yahnioğlu
-Prof. Dr. Kevser Özden Köklü
-Assoc. Prof. Dr. Müslüm Özışık
-Assoc. Prof. Dr. Nilgün Güler Bayazıt`,
+              chair: "tasci@yildiz.edu.tr",
+              members: `nazmiye@yildiz.edu.tr
+ozkoklu@yildiz.edu.tr
+ozisik@yildiz.edu.tr
+guler@yildiz.edu.tr`,
             },
             {
               name: "Education-Training and Accreditation Commission",
-              chair: "Prof. Dr. Fatma İnci Albayrak",
-              members: `Assoc. Prof. Dr. Serkan Onar
+              chair: "ibayrak@yildiz.edu.tr",
+              members: `sonar@yildiz.edu.tr
 Assoc. Prof. Dr. Gökhan Göksu
-Assoc. Prof. Dr. Birol Aslanyürek | Bologna Coordinator`,
+baslan@yildiz.edu.tr | Bologna Coordinator`,
             },
             {
               name: "Adjustment and Recognition of Prior Learning Commission",
-              chair: "Assoc. Prof. Dr. Müslüm Özışık",
-              members: `Assoc. Prof. Dr. Yasemen Uçan
-Asst. Prof. Dr. Derya Sekman
-Res. Asst. Dr. Hayati Ünsal Özer
-Assoc. Prof. Dr. Bayram Ali İbrahimoğlu | Officer Responsible for Recognition of Prior Learning`,
+              chair: "ozisik@yildiz.edu.tr",
+              members: `ucan@yildiz.edu.tr
+derya.sekman@yildiz.edu.tr
+huozer@yildiz.edu.tr
+bibrahim@yildiz.edu.tr | Officer Responsible for Recognition of Prior Learning`,
             },
             {
               name: "Graduation Project Committee",
-              chair: "Prof. Dr. İbrahim Emiroğlu",
-              members: "Prof. Dr. Coşkun Güler",
+              chair: "emir@yildiz.edu.tr",
+              members: "cguler@yildiz.edu.tr",
             },
             {
               name: "Strategic Planning Commission",
-              chair: "Assoc. Prof. Dr. Ramazan Tekercioğlu",
-              members: `Res. Asst. Handenur Esen
-Assoc. Prof. Dr. Ramazan Tekercioğlu | Annual Activity Coordinator`,
+              chair: "tramazan@yildiz.edu.tr",
+              members: `handenur@yildiz.edu.tr
+tramazan@yildiz.edu.tr | Annual Activity Coordinator`,
             },
             {
               name: "Quality Commission",
-              chair: "Prof. Dr. Reşat Köşker",
-              members: `Assoc. Prof. Dr. Ülkü Babuşcu Yeşil
-Res. Asst. İsmail Önder
+              chair: "kosker@yildiz.edu.tr",
+              members: `ubabuscu@yildiz.edu.tr
+ionder@yildiz.edu.tr
 Res. Asst. Metehan Turan`,
             },
             {
               name: "Laboratory, Occupational Health and Safety Commission",
-              chair: "Prof. Dr. Nazmiye Yahnioğlu",
-              members: "Lect. Abdulkadir Şahiner",
+              chair: "nazmiye@yildiz.edu.tr",
+              members: "asahiner@yildiz.edu.tr",
             },
             {
               name: "Survey Preparation and Evaluation Commission",
-              chair: "Prof. Dr. Fatma Aydın Akgün",
-              members: "Assoc. Prof. Dr. Melih Çınar",
+              chair: "fakgun@yildiz.edu.tr",
+              members: "mcinar@yildiz.edu.tr",
             },
             {
               name: "Social Activities and Alumni Relations Committee",
               chair: "Prof. Dr. Ayla Şaylı",
-              members: `Assoc. Prof. Dr. Kadriye Şimşek Alan
-Res. Asst. Handenur Esen`,
+              members: `ksimsek@yildiz.edu.tr
+handenur@yildiz.edu.tr`,
             },
             {
               name: "International Relations and Exchange Programs Commission",
-              chair: "Assoc. Prof. Dr. Nilgün Güler Bayazıt",
-              members: `Asst. Prof. Dr. Seda Göktepe Körpeoğlu
-Asst. Prof. Dr. Fatih Aylıkcı
-Res. Asst. Emel Uğurlu
-Res. Asst. Buse Güler`,
+              chair: "guler@yildiz.edu.tr",
+              members: `sgoktepe@yildiz.edu.tr
+faylikci@yildiz.edu.tr
+emel.ugurlu@yildiz.edu.tr
+buse.guler@yildiz.edu.tr`,
             },
             {
               name: "Industrial Relations and Internship Committee",
-              chair: "Prof. Dr. Hülya Serab",
-              members: `Lect. Abdulkadir Şahiner | 1st Internship
-Res. Asst. İsmail Önder | 1st Internship
-Res. Asst. Dr. Hayati Ünsal Özer | 1st Internship
-Res. Asst. Buse Güler | 1st Internship
-Res. Asst. Emel Uğurlu | 2nd Internship
-Res. Asst. Kaan Kemal Polat | 2nd Internship
+              chair: "hsahin@yildiz.edu.tr",
+              members: `asahiner@yildiz.edu.tr | 1st Internship
+ionder@yildiz.edu.tr | 1st Internship
+huozer@yildiz.edu.tr | 1st Internship
+buse.guler@yildiz.edu.tr | 1st Internship
+emel.ugurlu@yildiz.edu.tr | 2nd Internship
+kemalp@yildiz.edu.tr | 2nd Internship
 Res. Asst. Metehan Turan | 2nd Internship`,
             },
           ],
         }}
       >
-        {(item, index) => <CommissionCard key={index} commission={item} />}
+        {(item, index) => <CommissionCard people={people} key={index} commission={item} />}
       </EditableList>
     </PageSection>
   );
@@ -335,7 +363,8 @@ function CommissionDocuments() {
   );
 }
 
-export default function CommissionsPage() {
+export default function CommissionsPage({ initialStaff = [] }) {
+  const { people } = useStaff(initialStaff);
   return (
     <>
       <SubHeader
@@ -359,7 +388,7 @@ export default function CommissionsPage() {
       />
       <PageLayout>
         <div className="flex flex-col gap-8">
-          <CommissionList />
+          <CommissionList people={people} />
 
           <PageSection
             title={

@@ -5,17 +5,27 @@ import { EditableList, EditableRegion, useCmsBlock } from "inscribed";
 import PageSection from "@/app/components/PageSection";
 import Panel from "@/app/components/Panel";
 import Avatar from "@/app/components/Avatar";
+import { PersonName, findPerson, useStaff } from "@/app/components/PersonRow";
+import { fullName } from "@/lib/person";
 import { useT } from "@/i18n/useT";
 
-function BoardMemberRow({ member, idx }) {
+function BoardMemberRow({ member, idx, people }) {
+  const person = findPerson(people, member.name);
   return (
     <div className="flex items-center gap-3 p-2.5 rounded-lg bg-primary-500/2 border border-primary-500/5">
-      <Avatar name={member.name} idx={idx} />
+      <Avatar name={person ? fullName(person) : member.name} photo={person?.photo} idx={idx} />
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word">
-          {member.rank && `${member.rank} `}
-          {member.name}
-        </span>
+        {person ? (
+          <PersonName
+            person={person}
+            className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word"
+          />
+        ) : (
+          <span className="block text-[13px] font-medium text-primary-500 leading-snug wrap-break-word">
+            {member.rank && `${member.rank} `}
+            {member.name}
+          </span>
+        )}
         <span className="block text-[11px] text-primary-500/70 wrap-break-word">
           {member.role}
         </span>
@@ -24,8 +34,9 @@ function BoardMemberRow({ member, idx }) {
   );
 }
 
-export default function AdvisoryBoard() {
+export default function AdvisoryBoard({ initialStaff = [] }) {
   const t = useT();
+  const { people } = useStaff(initialStaff);
   const { value } = useCmsBlock("board.members");
   const count = Array.isArray(value) ? value.length : 0;
 
@@ -64,7 +75,7 @@ export default function AdvisoryBoard() {
           defaultValue={{
             tr: [
               {
-                name: "Fatih TAŞÇI",
+                name: "tasci@yildiz.edu.tr",
                 rank: "Prof. Dr.",
                 role: "Bölüm Başkanı",
               },
@@ -106,7 +117,7 @@ export default function AdvisoryBoard() {
             ],
             en: [
               {
-                name: "Fatih TAŞÇI",
+                name: "tasci@yildiz.edu.tr",
                 rank: "Prof. Dr.",
                 role: "Department Head",
               },
@@ -148,7 +159,7 @@ export default function AdvisoryBoard() {
             ],
           }}
         >
-          {(item, index) => <BoardMemberRow key={index} member={item} idx={index} />}
+          {(item, index) => <BoardMemberRow key={index} member={item} idx={index} people={people} />}
         </EditableList>
       </Panel>
     </PageSection>
