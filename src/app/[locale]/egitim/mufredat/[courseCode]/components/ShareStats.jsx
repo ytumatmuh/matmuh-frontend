@@ -66,7 +66,7 @@ function buildCardData({ t, locale, course, termName, instructor, stats, summary
     ],
     legend: [
       { color: STATS_CARD_LEGEND.pass, label: t("geçer") },
-      { color: STATS_CARD_LEGEND.conditional, label: t("koşullu (DC)") },
+      { color: STATS_CARD_LEGEND.conditional, label: t("koşullu") },
       { color: STATS_CARD_LEGEND.fail, label: t("kalır") },
     ],
     exams: (stats.exams ?? []).map((exam) => ({ ...exam, name: t(exam.name) })),
@@ -94,7 +94,7 @@ export default function ShareStats(props) {
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState("");
   const [copied, setCopied] = useState(false);
-  const [capabilities, setCapabilities] = useState({ share: false, copy: false });
+  const [capabilities, setCapabilities] = useState({ share: false, link: false, copy: false, secure: true });
 
   const { course, termName, instructor, stats, summary, showSection } = props;
   const urlRef = useRef(null);
@@ -124,7 +124,9 @@ export default function ShareStats(props) {
       setImage({ url: urlRef.current, blob, file, data });
       setCapabilities({
         share: typeof navigator.canShare === "function" && navigator.canShare({ files: [file] }),
+        link: typeof navigator.share === "function",
         copy: typeof window.ClipboardItem === "function" && !!navigator.clipboard?.write,
+        secure: window.isSecureContext,
       });
     } catch {
       if (run === runRef.current) setStatus(t("Görsel oluşturulamadı."));
@@ -139,6 +141,14 @@ export default function ShareStats(props) {
   const share = async () => {
     try {
       await navigator.share({ files: [image.file], title: image.data.shareText, text: image.data.shareUrl });
+    } catch (error) {
+      if (error?.name !== "AbortError") setStatus(t("Paylaşılamadı; görseli indirip paylaşabilirsin."));
+    }
+  };
+
+  const shareLink = async () => {
+    try {
+      await navigator.share({ title: image.data.shareText, text: image.data.shareText, url: image.data.shareUrl });
     } catch (error) {
       if (error?.name !== "AbortError") setStatus(t("Paylaşılamadı; görseli indirip paylaşabilirsin."));
     }
@@ -196,7 +206,7 @@ export default function ShareStats(props) {
           </div>
 
           <div
-            className="mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 bg-primary-500/3"
+            className="mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 bg-primary-500"
             style={{
               aspectRatio: `${STATS_CARD_SIZE.width} / ${STATS_CARD_SIZE.height}`,
               maxWidth: `min(24rem, calc(52svh * ${STATS_CARD_SIZE.width / STATS_CARD_SIZE.height}))`,
@@ -205,7 +215,7 @@ export default function ShareStats(props) {
             {image ? (
               <img src={image.url} alt={image.data.shareText} className="size-full object-contain" />
             ) : (
-              <div className="flex size-full items-center justify-center text-primary-500/50">
+              <div className="flex size-full items-center justify-center text-white/60">
                 <LoaderCircle size={20} className="animate-spin" aria-label={t("Hazırlanıyor")} />
               </div>
             )}
@@ -216,6 +226,12 @@ export default function ShareStats(props) {
               <button type="button" onClick={share} disabled={!image} className={primary}>
                 <Share2 size={15} />
                 {t("Paylaş")}
+              </button>
+            )}
+            {!capabilities.share && capabilities.link && (
+              <button type="button" onClick={shareLink} disabled={!image} className={secondary}>
+                <Share2 size={15} />
+                {t("Bağlantıyı paylaş")}
               </button>
             )}
             {capabilities.copy && (
@@ -239,6 +255,14 @@ export default function ShareStats(props) {
               {t("İndir")}
             </button>
           </div>
+
+          {image && !capabilities.share && (
+            <p className="text-xs text-primary-500/70">
+              {capabilities.secure
+                ? t("Bu tarayıcı görseli doğrudan paylaşamıyor; indirip ya da kopyalayıp paylaşabilirsin.")
+                : t("Görseli doğrudan paylaşmak yalnızca güvenli (https) bağlantıda çalışır; indirip paylaşabilirsin.")}
+            </p>
+          )}
 
           <p className="min-h-5 text-xs text-primary-500/70" role="status" aria-live="polite">
             {status}

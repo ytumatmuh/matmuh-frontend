@@ -6,17 +6,16 @@ const PAD = 52;
 const GAP = 18;
 const RADIUS = 18;
 
-const PAGE = "#E7EAF0";
-const CARD = "#F7F8FA";
-const INK = "#1D2445";
+const PAGE = "#1D2445";
+const CARD = "#232B52";
 const GOLD = "#AD976F";
-const GOLD_DARK = "#8E7B5A";
 const GOLD_SOFT = "#D4C5A9";
-const ink = (a) => `rgba(29,36,69,${a})`;
-const LINE = ink(0.1);
-const TRACK = ink(0.06);
-const PASS = INK;
-const FAIL = ink(0.2);
+const WHITE = "#FFFFFF";
+const white = (a) => `rgba(255,255,255,${a})`;
+const LINE = white(0.08);
+const TRACK = white(0.07);
+const PASS = white(0.88);
+const FAIL = white(0.26);
 const CONDITIONAL = GOLD;
 
 function fontFamilies() {
@@ -91,7 +90,7 @@ function heading(ctx, font, x, y, w, label, upper) {
   ctx.fill();
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
-  ctx.fillStyle = INK;
+  ctx.fillStyle = WHITE;
   const text = fit(ctx, upper(label), w - 24, 19, 700, font, false, 14);
   ctx.save();
   ctx.letterSpacing = "2px";
@@ -107,7 +106,7 @@ function drawLegend(ctx, font, x, y, legend) {
   for (const item of legend) {
     pill(ctx, left, y - 5, 22, 10, item.color);
     left += 22 + 8;
-    ctx.fillStyle = ink(0.6);
+    ctx.fillStyle = white(0.6);
     ctx.fillText(item.label, left, y);
     left += ctx.measureText(item.label).width + 22;
   }
@@ -118,10 +117,7 @@ function drawKpis(ctx, font, kpis, y, upper) {
   const w = (W - PAD * 2 - GAP * (kpis.length - 1)) / kpis.length;
   kpis.forEach((kpi, i) => {
     const x = PAD + i * (w + GAP);
-    ctx.fillStyle = INK;
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, RADIUS);
-    ctx.fill();
+    card(ctx, x, y, w, h);
     ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left";
     ctx.fillStyle = GOLD_SOFT;
@@ -129,9 +125,9 @@ function drawKpis(ctx, font, kpis, y, upper) {
     ctx.letterSpacing = "1.5px";
     ctx.fillText(fit(ctx, upper(kpi.label), w - 44, 16, 700, font, false, 12), x + 22, y + 38);
     ctx.restore();
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = WHITE;
     ctx.fillText(fit(ctx, kpi.value, w - 44, 60, 700, font, true, 28), x + 22, y + 112);
-    ctx.fillStyle = "rgba(255,255,255,0.62)";
+    ctx.fillStyle = white(0.6);
     ctx.fillText(fit(ctx, kpi.sub, w - 44, 20, 500, font, false, 13), x + 22, y + 146);
   });
   return y + h;
@@ -176,16 +172,16 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
     ctx.textBaseline = "middle";
 
     if (i > 0) {
-      ctx.fillStyle = ink(0.05);
+      ctx.fillStyle = white(0.05);
       ctx.fillRect(inX, cy - rowH / 2, inW, 1);
     }
 
     ctx.textAlign = "left";
-    ctx.fillStyle = low ? ink(0.5) : INK;
+    ctx.fillStyle = low ? white(0.5) : WHITE;
     ctx.font = font(size, 700, true);
     ctx.fillText(row.grade, inX, cy);
 
-    ctx.fillStyle = ink(0.5);
+    ctx.fillStyle = white(0.5);
     ctx.font = font(small, 500, true);
     ctx.fillText(ranges[i], inX + gradeW, cy);
 
@@ -197,10 +193,10 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
     }
 
     ctx.textAlign = "right";
-    ctx.fillStyle = INK;
+    ctx.fillStyle = WHITE;
     ctx.font = font(size, 700, true);
     ctx.fillText(String(count), inX + inW - pctW, cy);
-    ctx.fillStyle = ink(0.55);
+    ctx.fillStyle = white(0.55);
     ctx.font = font(small, 500, true);
     ctx.fillText(total ? pct(fmt((count / total) * 100, 1)) : "", inX + inW, cy);
   });
@@ -221,7 +217,7 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
   exams.forEach((exam, i) => {
     const ty = top + i * tileH;
     if (i > 0) {
-      ctx.fillStyle = ink(0.07);
+      ctx.fillStyle = white(0.07);
       ctx.fillRect(inX, ty, inW, 1.5);
     }
     const name = exam.name;
@@ -239,16 +235,16 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
       const nameSize = Math.max(17, Math.min(23, tileH * 0.32));
       ctx.textBaseline = "middle";
       ctx.textAlign = "left";
-      ctx.fillStyle = INK;
+      ctx.fillStyle = WHITE;
       ctx.fillText(fit(ctx, name, inW * 0.58, nameSize, 600, font, false, 14), inX, cy - nameSize * 0.55);
-      ctx.fillStyle = ink(0.55);
+      ctx.fillStyle = white(0.55);
       ctx.fillText(
         fit(ctx, [weight, attended].filter(Boolean).join("  ·  "), inW * 0.6, nameSize - 4, 500, font, false, 12),
         inX,
         cy + nameSize * 0.62,
       );
       ctx.textAlign = "right";
-      ctx.fillStyle = INK;
+      ctx.fillStyle = WHITE;
       ctx.fillText(fit(ctx, avg, inW * 0.36, Math.min(48, tileH * 0.56), 700, font, true, 20), inX + inW, cy + 2);
       return;
     }
@@ -257,11 +253,11 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
     const barsH = tall ? 80 : 0;
     ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left";
-    ctx.fillStyle = INK;
+    ctx.fillStyle = WHITE;
     ctx.fillText(fit(ctx, name, inW - 100, 25, 600, font, false, 16), inX, ty + 44);
     if (weight) {
       ctx.textAlign = "right";
-      ctx.fillStyle = GOLD_DARK;
+      ctx.fillStyle = GOLD_SOFT;
       ctx.font = font(22, 700, true);
       ctx.fillText(weight, inX + inW, ty + 44);
     }
@@ -274,10 +270,10 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
       : ty + tileH - 24;
 
     ctx.textAlign = "left";
-    ctx.fillStyle = INK;
+    ctx.fillStyle = WHITE;
     ctx.fillText(fit(ctx, avg, inW * 0.5, big, 700, font, true, 26), inX, base);
     const avgWidth = ctx.measureText(avg).width;
-    ctx.fillStyle = ink(0.55);
+    ctx.fillStyle = white(0.55);
     ctx.font = font(19, 500);
     ctx.fillText(labels.average, inX + avgWidth + 10, base - 2);
     if (attended) {
@@ -302,7 +298,7 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
       const by = base + 38 + r * 34;
       ctx.textBaseline = "middle";
       ctx.textAlign = "left";
-      ctx.fillStyle = ink(0.6);
+      ctx.fillStyle = white(0.6);
       ctx.font = font(17, 500);
       ctx.fillText(bar.label, inX, by);
       const trackX = inX + 140;
@@ -311,7 +307,7 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, up
       const ratio = bar.value == null ? 0 : Math.max(0, Math.min(1, bar.value / bar.max));
       if (ratio > 0) pill(ctx, trackX, by - 5, Math.max(10, trackW * ratio), 10, bar.color);
       ctx.textAlign = "right";
-      ctx.fillStyle = INK;
+      ctx.fillStyle = WHITE;
       ctx.font = font(19, 600, true);
       ctx.fillText(bar.text, inX + inW, by);
     });
@@ -339,14 +335,14 @@ export async function renderStatsCard(data) {
 
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
-  ctx.fillStyle = GOLD_DARK;
+  ctx.fillStyle = GOLD_SOFT;
   ctx.save();
   ctx.letterSpacing = "2.5px";
   ctx.font = font(18, 700);
   ctx.fillText(data.labels.eyebrow, PAD, PAD + 22);
   ctx.restore();
 
-  ctx.fillStyle = INK;
+  ctx.fillStyle = WHITE;
   ctx.font = font(70, 700, true);
   ctx.fillText(data.code, PAD, PAD + 104);
   const codeWidth = ctx.measureText(data.code).width;
@@ -354,10 +350,10 @@ export async function renderStatsCard(data) {
   ctx.font = font(34, 600);
   const nameLines = wrap(ctx, data.name, W - PAD * 2 - codeWidth - 28, 2);
   const nameTop = nameLines.length === 1 ? PAD + 96 : PAD + 74;
-  ctx.fillStyle = INK;
+  ctx.fillStyle = WHITE;
   nameLines.forEach((line, i) => ctx.fillText(line, PAD + codeWidth + 28, nameTop + i * 40));
 
-  ctx.fillStyle = ink(0.65);
+  ctx.fillStyle = white(0.65);
   ctx.fillText(fit(ctx, data.meta, W - PAD * 2, 27, 500, font, false, 18), PAD, PAD + 156);
 
   const kpiBottom = drawKpis(ctx, font, data.kpis, PAD + 190, upper);
@@ -392,7 +388,7 @@ export async function renderStatsCard(data) {
 
   if (!hasDist && !hasExams) {
     card(ctx, PAD, bodyTop, W - PAD * 2, bodyH);
-    ctx.fillStyle = ink(0.55);
+    ctx.fillStyle = white(0.55);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = font(26, 500);
@@ -401,11 +397,11 @@ export async function renderStatsCard(data) {
 
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
-  ctx.fillStyle = INK;
+  ctx.fillStyle = WHITE;
   ctx.font = font(21, 600);
   ctx.fillText(data.url, PAD, H - PAD);
   ctx.textAlign = "right";
-  ctx.fillStyle = ink(0.5);
+  ctx.fillStyle = white(0.5);
   ctx.font = font(19, 500);
   ctx.fillText(data.labels.footer, W - PAD, H - PAD);
 
