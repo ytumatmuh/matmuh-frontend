@@ -1,5 +1,14 @@
 "use client";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Link from "@/app/components/LocaleLink";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -267,7 +276,7 @@ function GroupDetail({ entry, single }) {
   );
 }
 
-function Strip({ entry, color, slim, fill, showRange, active, href, opensList, courseHref, onToggle }) {
+function Strip({ entry, color, slim, fill, joined, showRange, active, href, opensList, courseHref, onToggle }) {
   const t = useT();
   const buttonRef = useRef(null);
   const side = usePanelSide(buttonRef, opensList);
@@ -291,7 +300,7 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, c
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-md ${fill ? "flex-1" : ""}`}
+      className={`flex flex-col overflow-hidden ${joined ? "" : "rounded-md"} ${fill ? "flex-1" : ""}`}
       style={{
         backgroundColor: tintOf(elective, false),
         borderLeft: `2.5px solid ${color}`,
@@ -439,7 +448,7 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, c
   );
 }
 
-function PoolStrip({ block, fill, showRange, active, palette, courseHref, onToggle }) {
+function PoolStrip({ block, fill, joined, showRange, active, palette, courseHref, onToggle }) {
   const t = useT();
   const buttonRef = useRef(null);
   const side = usePanelSide(buttonRef, true);
@@ -455,7 +464,7 @@ function PoolStrip({ block, fill, showRange, active, palette, courseHref, onTogg
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-md ${fill ? "flex-1" : ""}`}
+      className={`flex flex-col overflow-hidden ${joined ? "" : "rounded-md"} ${fill ? "flex-1" : ""}`}
       style={{
         backgroundColor: tintOf(true, false),
         borderLeft: `2.5px solid rgb(${GOLD})`,
@@ -593,24 +602,50 @@ const OFFSETS = {
   right: `translateX(-${SLIDE}px)`,
   left: `translateX(${SLIDE}px)`,
   below: `translateY(-${SLIDE}px)`,
-  bottom: "translateY(24px)",
 };
+
+const SHEET_MS = 260;
+const SHEET_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+const DRAG_CLOSE = 90;
+
+const PanelCloseContext = createContext(null);
 
 function AnchoredPanel({ anchorRef, label, onClose, children }) {
   const panelRef = useRef(null);
   const closeRef = useRef(onClose);
+  const sheetRef = useRef(false);
+  const dragRef = useRef(null);
   const [placement, setPlacement] = useState(null);
   const [shown, setShown] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [drag, setDrag] = useState(0);
+  const [dragActive, setDragActive] = useState(false);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     closeRef.current = onClose;
   }, [onClose]);
 
+  const requestClose = useCallback(() => {
+    if (!sheetRef.current || reduceMotion) {
+      closeRef.current();
+      return;
+    }
+    setClosing(true);
+    setTimeout(() => closeRef.current(), SHEET_MS);
+  }, [reduceMotion]);
+
+  const requestCloseRef = useRef(requestClose);
+  useEffect(() => {
+    requestCloseRef.current = requestClose;
+  }, [requestClose]);
+
   useLayoutEffect(() => {
     const place = () => {
       if (!anchorRef.current || !panelRef.current) return;
-      setPlacement(placePanel(anchorRef.current, panelRef.current));
+      const next = placePanel(anchorRef.current, panelRef.current);
+      sheetRef.current = next.side === "bottom";
+      setPlacement(next);
     };
 
     place();
@@ -624,11 +659,11 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
     };
     const onPointer = (event) => {
       if (panelRef.current?.contains(event.target) || anchorRef.current?.contains(event.target)) return;
-      closeRef.current();
+      requestCloseRef.current();
     };
     const onKey = (event) => {
       if (event.key !== "Escape") return;
-      closeRef.current();
+      requestCloseRef.current();
       anchorRef.current?.focus();
     };
 
@@ -647,35 +682,98 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
   }, [anchorRef]);
 
   const sheet = placement?.side === "bottom";
-  const visible = Boolean(placement) && shown;
+
+  useEffect(() => {
+    if (!sheet) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [sheet]);
+
+  const onPointerDown = (event) => {
+    if (!sheet || !event.target.closest("[data-drag-area]") || event.target.closest("button, a")) return;
+    dragRef.current = { y: event.clientY, time: performance.now() };
+    setDragActive(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const onPointerMove = (event) => {
+    if (dragRef.current) setDrag(Math.max(0, event.clientY - dragRef.current.y));
+  };
+  const onPointerUp = (event) => {
+    if (!dragRef.current) return;
+    const distance = Math.max(0, event.clientY - dragRef.current.y);
+    const speed = distance / Math.max(1, performance.now() - dragRef.current.time);
+    dragRef.current = null;
+    setDragActive(false);
+    if (distance > DRAG_CLOSE || speed > 0.6) requestClose();
+    else setDrag(0);
+  };
+
+  const visible = Boolean(placement) && shown && !closing;
+  const dragging = sheet && dragActive && drag > 0;
+
+  let transform = "none";
+  let transition = reduceMotion
+    ? "opacity 120ms ease-out"
+    : "opacity 150ms ease-out, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)";
+  if (sheet) {
+    transform = dragging ? `translateY(${drag}px)` : visible || reduceMotion ? "translateY(0)" : "translateY(100%)";
+    transition = dragging || reduceMotion ? "none" : `transform ${SHEET_MS}ms ${SHEET_EASE}`;
+  } else if (!visible && !reduceMotion && placement) {
+    transform = OFFSETS[placement.side];
+  }
 
   return createPortal(
-    <div
-      ref={panelRef}
-      role="dialog"
-      aria-label={label}
-      className={`fixed z-[10040] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
-        sheet ? "rounded-t-2xl pb-[env(safe-area-inset-bottom)]" : "rounded-xl"
-      }`}
-      style={{
-        ...(placement?.style ?? { left: 0, top: 0, width: PANEL_WIDTH, maxHeight: 460 }),
-        opacity: visible ? 1 : 0,
-        transform: visible || reduceMotion || !placement ? "none" : OFFSETS[placement.side],
-        transition: reduceMotion ? "opacity 120ms ease-out" : "opacity 150ms ease-out, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)",
-        visibility: placement ? "visible" : "hidden",
-      }}
-    >
-      {sheet && <span aria-hidden className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-primary-500/15" />}
-      {children}
-    </div>,
+    <PanelCloseContext.Provider value={requestClose}>
+      {sheet && (
+        <div
+          aria-hidden
+          className="fixed inset-0 z-[10039] bg-primary-700/80"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: reduceMotion ? "none" : `opacity ${SHEET_MS}ms ease-out`,
+          }}
+        />
+      )}
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-label={label}
+        aria-modal={sheet || undefined}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className={`fixed z-[10040] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
+          sheet ? "rounded-t-2xl pb-[env(safe-area-inset-bottom)]" : "rounded-xl"
+        }`}
+        style={{
+          ...(placement?.style ?? { left: 0, top: 0, width: PANEL_WIDTH, maxHeight: 460 }),
+          opacity: sheet || visible ? 1 : 0,
+          transform,
+          transition,
+          visibility: placement ? "visible" : "hidden",
+        }}
+      >
+        {sheet && (
+          <span data-drag-area className="flex shrink-0 touch-none justify-center pt-3 pb-1.5">
+            <span aria-hidden className="h-1.5 w-16 rounded-full bg-primary-500/20" />
+          </span>
+        )}
+        {children}
+      </div>
+    </PanelCloseContext.Provider>,
     document.body,
   );
 }
 
 function PanelHeader({ eyebrow, title, subtitle, onClose }) {
   const t = useT();
+  const requestClose = useContext(PanelCloseContext) ?? onClose;
   return (
-    <div className="flex items-start gap-2 border-b border-primary-500/8 px-3.5 py-3">
+    <div data-drag-area className="flex touch-none items-start gap-2 border-b border-primary-500/8 px-3.5 py-3">
       <div className="min-w-0 flex-1">
         {eyebrow && (
           <span className="flex items-center gap-1 text-[9.5px] font-semibold tracking-wider text-secondary-700 uppercase">
@@ -688,7 +786,7 @@ function PanelHeader({ eyebrow, title, subtitle, onClose }) {
       </div>
       <button
         type="button"
-        onClick={onClose}
+        onClick={requestClose}
         aria-label={t("Kapat")}
         className="-mr-1 rounded-md p-1 text-primary-500/60 transition-colors hover:bg-primary-500/6 hover:text-primary-500"
       >
@@ -909,39 +1007,49 @@ function Cluster({
         </span>
       )}
 
-      {shown.map((entry, index) => {
-        const id = `${clusterKey}#${index}`;
-        const toggle = () => onOpen(openId === id ? null : id);
-        if (entry.kind === "pool") {
+      <div
+        className={
+          single
+            ? "flex flex-1 flex-col"
+            : "flex flex-col gap-px overflow-hidden rounded-md bg-primary-500/12 shadow-[0_0_0_1px_rgba(29,36,69,0.08)]"
+        }
+      >
+        {shown.map((entry, index) => {
+          const id = `${clusterKey}#${index}`;
+          const toggle = () => onOpen(openId === id ? null : id);
+          if (entry.kind === "pool") {
+            return (
+              <PoolStrip
+                key={entry.code}
+                block={entry}
+                fill={single}
+                joined={!single}
+                showRange={!single}
+                active={openId === id}
+                palette={palette}
+                courseHref={courseHref}
+                onToggle={toggle}
+              />
+            );
+          }
           return (
-            <PoolStrip
-              key={entry.code}
-              block={entry}
+            <Strip
+              key={`${entry.code}-${entry.slot}-${entry.span}`}
+              entry={entry}
+              color={colorOf(palette, entry.code)}
+              slim={index >= VISIBLE}
               fill={single}
-              showRange={!single}
+              joined={!single}
+              showRange={!single || entry.span > 1}
               active={openId === id}
-              palette={palette}
+              href={courseHref?.(entry.code) || null}
+              opensList={(entry.groups?.length ?? 1) > INLINE_GROUPS}
               courseHref={courseHref}
               onToggle={toggle}
             />
           );
-        }
-        return (
-          <Strip
-            key={`${entry.code}-${entry.slot}-${entry.span}`}
-            entry={entry}
-            color={colorOf(palette, entry.code)}
-            slim={index >= VISIBLE}
-            fill={single}
-            showRange={!single || entry.span > 1}
-            active={openId === id}
-            href={courseHref?.(entry.code) || null}
-            opensList={(entry.groups?.length ?? 1) > INLINE_GROUPS}
-            courseHref={courseHref}
-            onToggle={toggle}
-          />
-        );
-      })}
+        })}
+      </div>
 
       {overflow && (
         <button
