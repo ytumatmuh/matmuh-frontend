@@ -2,20 +2,25 @@ import { isLowGrade } from "@/app/components/GradeDistribution";
 
 const W = 1080;
 const H = 1350;
-const PAD = 48;
-const GAP = 16;
+const PAD = 52;
+const GAP = 18;
+const RADIUS = 18;
 
+const PAGE = "#F4F5F7";
+const CARD = "#FFFFFF";
 const INK = "#1D2445";
-const INK_2 = "#262E55";
 const GOLD = "#AD976F";
-const GOLD_SOFT = "#D4C5A9";
-const WHITE = "#FFFFFF";
-const white = (a) => `rgba(255,255,255,${a})`;
+const GOLD_DARK = "#8E7B5A";
+const ink = (a) => `rgba(29,36,69,${a})`;
+const LINE = ink(0.1);
+const TRACK = ink(0.06);
+const PASS = INK;
+const FAIL = ink(0.22);
 
 function fontFamilies() {
   const root = getComputedStyle(document.documentElement);
-  const sans = root.getPropertyValue("--font-inter").trim() || "Inter, system-ui, sans-serif";
-  const mono = root.getPropertyValue("--font-jb-mono").trim() || "ui-monospace, monospace";
+  const sans = root.getPropertyValue("--font-inter").trim() || "Inter";
+  const mono = root.getPropertyValue("--font-jb-mono").trim() || "ui-monospace";
   return { sans: `${sans}, system-ui, sans-serif`, mono: `${mono}, ui-monospace, monospace` };
 }
 
@@ -58,80 +63,89 @@ function wrap(ctx, text, maxWidth, maxLines) {
   return kept;
 }
 
-function roundRect(ctx, x, y, w, h, r) {
+function pill(ctx, x, y, w, h, color) {
+  ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
+  ctx.roundRect(x, y, w, h, h / 2);
+  ctx.fill();
 }
 
-function strip(ctx, font, x, y, w, h, label, legend = null) {
-  ctx.fillStyle = GOLD;
-  roundRect(ctx, x, y, w, h, [10, 10, 0, 0]);
+function card(ctx, x, y, w, h) {
+  ctx.fillStyle = CARD;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, RADIUS);
   ctx.fill();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(x + 0.75, y + 0.75, w - 1.5, h - 1.5, RADIUS);
+  ctx.stroke();
+}
+
+function heading(ctx, font, x, y, w, label, legend = null) {
+  ctx.fillStyle = GOLD;
+  ctx.beginPath();
+  ctx.roundRect(x, y - 11, 5, 22, 2.5);
+  ctx.fill();
+
   ctx.textBaseline = "middle";
-  const cy = y + h / 2 + 1;
-  let right = x + w - 18;
+  let right = x + w;
   if (legend) {
-    ctx.font = font(18, 600);
+    ctx.font = font(18, 500);
     for (const item of [...legend].reverse()) {
-      ctx.fillStyle = INK;
+      ctx.fillStyle = ink(0.6);
       ctx.textAlign = "right";
-      ctx.fillText(item.label, right, cy);
+      ctx.fillText(item.label, right, y);
       right -= ctx.measureText(item.label).width + 8;
-      ctx.fillStyle = INK_2;
-      roundRect(ctx, right - 40, cy - 7, 40, 14, 7);
-      ctx.fill();
-      ctx.fillStyle = item.color;
-      roundRect(ctx, right - 40, cy - 7, 26, 14, 7);
-      ctx.fill();
-      ctx.strokeStyle = INK;
-      ctx.lineWidth = 2;
-      roundRect(ctx, right - 40, cy - 7, 40, 14, 7);
-      ctx.stroke();
-      right -= 40 + 20;
+      pill(ctx, right - 26, y - 5, 26, 10, item.color);
+      right -= 26 + 22;
     }
   }
-  ctx.fillStyle = INK;
   ctx.textAlign = "left";
-  ctx.fillText(fit(ctx, label, right - x - 18, 22, 700, font, false, 15), x + 18, cy);
-}
-
-function box(ctx, x, y, w, h, top = false) {
-  ctx.fillStyle = INK_2;
-  roundRect(ctx, x, y, w, h, top ? [0, 0, 10, 10] : 10);
-  ctx.fill();
+  ctx.fillStyle = INK;
+  const text = fit(ctx, label.toLocaleUpperCase("tr-TR"), right - x - 24, 19, 700, font, false, 14);
+  ctx.save();
+  ctx.letterSpacing = "2px";
+  ctx.fillText(text, x + 18, y + 1);
+  ctx.restore();
 }
 
 function drawKpis(ctx, font, kpis, y) {
-  const labelH = 48;
-  const valueH = 138;
+  const h = 168;
   const w = (W - PAD * 2 - GAP * (kpis.length - 1)) / kpis.length;
   kpis.forEach((kpi, i) => {
     const x = PAD + i * (w + GAP);
-    strip(ctx, font, x, y, w, labelH, kpi.label);
-    box(ctx, x, y + labelH, w, valueH, true);
-    ctx.fillStyle = WHITE;
-    ctx.textAlign = "right";
+    card(ctx, x, y, w, h);
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(fit(ctx, kpi.value, w - 36, 66, 700, font, true, 30), x + w - 18, y + labelH + 82);
-    ctx.fillStyle = white(0.62);
-    ctx.fillText(fit(ctx, kpi.sub, w - 36, 22, 500, font, false, 14), x + w - 18, y + labelH + 118);
+    ctx.textAlign = "left";
+    ctx.fillStyle = ink(0.6);
+    ctx.save();
+    ctx.letterSpacing = "1.5px";
+    ctx.fillText(fit(ctx, kpi.label.toLocaleUpperCase("tr-TR"), w - 44, 16, 700, font, false, 12), x + 22, y + 38);
+    ctx.restore();
+    ctx.fillStyle = INK;
+    ctx.fillText(fit(ctx, kpi.value, w - 44, 60, 700, font, true, 28), x + 22, y + 112);
+    ctx.fillStyle = ink(0.6);
+    ctx.fillText(fit(ctx, kpi.sub, w - 44, 20, 500, font, false, 13), x + 22, y + 146);
   });
-  return y + labelH + valueH;
+  return y + h;
 }
 
 function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, pct) {
-  const headH = 48;
-  strip(ctx, font, x, y, w, headH, title, legend);
-  box(ctx, x, y + headH, w, h - headH, true);
+  card(ctx, x, y, w, h);
+  const inX = x + 24;
+  const inW = w - 48;
+  heading(ctx, font, inX, y + 38, inW, title, legend);
   if (rows.length === 0) return;
 
   const total = rows.reduce((s, r) => s + (Number(r.count) || 0), 0);
   const max = Math.max(1, ...rows.map((r) => Number(r.count) || 0));
-  const avail = h - headH - 20;
-  const rowH = Math.min(84, avail / rows.length);
-  const innerTop = y + headH + 10 + (avail - rowH * rows.length) / 2;
-  const size = Math.max(20, Math.min(32, Math.floor(rowH * 0.5)));
-  const small = Math.max(16, size - 8);
+  const top = y + 70;
+  const avail = h - 70 - 18;
+  const rowH = Math.min(80, avail / rows.length);
+  const innerTop = top + (avail - rowH * rows.length) / 2;
+  const size = Math.max(19, Math.min(30, Math.floor(rowH * 0.5)));
+  const small = Math.max(15, size - 8);
 
   const ranges = rows.map((row) =>
     row.start != null && row.end != null ? `${fmt(row.start)}–${fmt(row.end)}` : "",
@@ -144,8 +158,8 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
   const countW = ctx.measureText(String(max)).width + 16;
   ctx.font = font(small, 500, true);
   const pctW = ctx.measureText(pct("100,0")).width + 8;
-  const barX = x + 18 + gradeW + rangeW;
-  const barMax = Math.max(40, w - 36 - gradeW - rangeW - countW - pctW);
+  const barX = inX + gradeW + rangeW;
+  const barMax = Math.max(40, inW - gradeW - rangeW - countW - pctW);
 
   rows.forEach((row, i) => {
     const cy = innerTop + i * rowH + rowH / 2;
@@ -153,51 +167,53 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
     const low = isLowGrade(row.grade);
     ctx.textBaseline = "middle";
 
-    ctx.fillStyle = low ? white(0.55) : WHITE;
+    if (i > 0) {
+      ctx.fillStyle = ink(0.05);
+      ctx.fillRect(inX, cy - rowH / 2, inW, 1);
+    }
+
     ctx.textAlign = "left";
+    ctx.fillStyle = low ? ink(0.5) : INK;
     ctx.font = font(size, 700, true);
-    ctx.fillText(row.grade, x + 18, cy);
+    ctx.fillText(row.grade, inX, cy);
 
-    ctx.fillStyle = white(0.5);
+    ctx.fillStyle = ink(0.5);
     ctx.font = font(small, 500, true);
-    ctx.fillText(ranges[i], x + 18 + gradeW, cy);
+    ctx.fillText(ranges[i], inX + gradeW, cy);
 
-    const barH = Math.max(8, Math.min(24, rowH * 0.34));
-    ctx.fillStyle = white(0.08);
-    roundRect(ctx, barX, cy - barH / 2, barMax, barH, barH / 2);
-    ctx.fill();
+    const barH = Math.max(8, Math.min(18, rowH * 0.26));
+    pill(ctx, barX, cy - barH / 2, barMax, barH, TRACK);
     if (count > 0) {
-      ctx.fillStyle = low ? white(0.32) : GOLD;
-      roundRect(ctx, barX, cy - barH / 2, Math.max(barH, (count / max) * barMax), barH, barH / 2);
-      ctx.fill();
+      pill(ctx, barX, cy - barH / 2, Math.max(barH, (count / max) * barMax), barH, low ? FAIL : PASS);
     }
 
     ctx.textAlign = "right";
-    ctx.fillStyle = WHITE;
+    ctx.fillStyle = INK;
     ctx.font = font(size, 700, true);
-    ctx.fillText(String(count), x + w - 18 - pctW, cy);
-    ctx.fillStyle = white(0.6);
+    ctx.fillText(String(count), inX + inW - pctW, cy);
+    ctx.fillStyle = ink(0.55);
     ctx.font = font(small, 500, true);
-    ctx.fillText(total ? pct(fmt((count / total) * 100, 1)) : "", x + w - 18, cy);
+    ctx.fillText(total ? pct(fmt((count / total) * 100, 1)) : "", inX + inW, cy);
   });
 }
 
 function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct) {
-  const headH = 48;
-  strip(ctx, font, x, y, w, headH, title);
-  const top = y + headH;
-  const avail = h - headH;
-  const tileGap = 10;
+  card(ctx, x, y, w, h);
+  const inX = x + 24;
+  const inW = w - 48;
+  heading(ctx, font, inX, y + 38, inW, title);
+
+  const top = y + 70;
+  const avail = h - 70 - 12;
   const n = exams.length;
-  const tileH = (avail - tileGap * (n - 1)) / n;
+  const tileH = avail / n;
   const compact = tileH < 118;
 
   exams.forEach((exam, i) => {
-    const ty = top + i * (tileH + tileGap);
-    box(ctx, x, ty, w, tileH, i === 0);
-    if (i === 0) {
-      ctx.fillStyle = INK_2;
-      ctx.fillRect(x, ty, w, 10);
+    const ty = top + i * tileH;
+    if (i > 0) {
+      ctx.fillStyle = ink(0.07);
+      ctx.fillRect(inX, ty, inW, 1.5);
     }
     const name = exam.name;
     const weight = exam.weight != null ? pct(fmt(exam.weight)) : "";
@@ -211,93 +227,85 @@ function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct) {
 
     if (compact) {
       const cy = ty + tileH / 2;
+      const nameSize = Math.max(17, Math.min(23, tileH * 0.32));
       ctx.textBaseline = "middle";
       ctx.textAlign = "left";
-      ctx.fillStyle = WHITE;
-      const nameSize = Math.max(18, Math.min(24, tileH * 0.34));
-      ctx.fillText(fit(ctx, name, w * 0.5, nameSize, 600, font, false, 14), x + 18, cy - (attended ? nameSize * 0.5 : 0));
-      if (attended || weight) {
-        ctx.fillStyle = white(0.55);
-        ctx.fillText(
-          fit(ctx, [weight, attended].filter(Boolean).join(" · "), w * 0.55, nameSize - 5, 500, font, false, 12),
-          x + 18,
-          cy + nameSize * 0.62,
-        );
-      }
+      ctx.fillStyle = INK;
+      ctx.fillText(fit(ctx, name, inW * 0.58, nameSize, 600, font, false, 14), inX, cy - nameSize * 0.55);
+      ctx.fillStyle = ink(0.55);
+      ctx.fillText(
+        fit(ctx, [weight, attended].filter(Boolean).join("  ·  "), inW * 0.6, nameSize - 4, 500, font, false, 12),
+        inX,
+        cy + nameSize * 0.62,
+      );
       ctx.textAlign = "right";
-      ctx.fillStyle = GOLD_SOFT;
-      ctx.fillText(fit(ctx, avg, w * 0.36, Math.min(52, tileH * 0.62), 700, font, true, 20), x + w - 18, cy + 2);
+      ctx.fillStyle = INK;
+      ctx.fillText(fit(ctx, avg, inW * 0.36, Math.min(48, tileH * 0.56), 700, font, true, 20), inX + inW, cy + 2);
       return;
     }
 
     const tall = tileH >= 230;
-    const barsH = tall ? 86 : 0;
+    const barsH = tall ? 80 : 0;
     ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left";
-    ctx.fillStyle = WHITE;
-    ctx.fillText(fit(ctx, name, w - 36 - 90, 26, 600, font, false, 16), x + 18, ty + 42);
+    ctx.fillStyle = INK;
+    ctx.fillText(fit(ctx, name, inW - 100, 25, 600, font, false, 16), inX, ty + 44);
     if (weight) {
       ctx.textAlign = "right";
-      ctx.fillStyle = GOLD_SOFT;
-      ctx.font = font(24, 700, true);
-      ctx.fillText(weight, x + w - 18, ty + 42);
-    }
-    const big = Math.max(40, Math.min(112, (tileH - barsH) * 0.46, tileH - barsH - 70));
-    const headRoom = 60;
-    const block = big + (tall ? 24 + barsH : 0);
-    const base = tall
-      ? ty + headRoom + Math.max(0, (tileH - headRoom - block - 16) / 2) + big
-      : ty + tileH - 22;
-    ctx.textAlign = "left";
-    ctx.fillStyle = WHITE;
-    ctx.fillText(fit(ctx, avg, w * 0.5, big, 700, font, true, 28), x + 18, base);
-    const avgWidth = ctx.measureText(avg).width;
-    ctx.fillStyle = white(0.55);
-    ctx.font = font(20, 500);
-    ctx.fillText(labels.average, x + 18 + avgWidth + 10, base - 2);
-    if (attended) {
-      ctx.textAlign = "right";
-      ctx.fillText(fit(ctx, attended, w * 0.45, 22, 500, font, false, 14), x + w - 18, base - 2);
+      ctx.fillStyle = GOLD_DARK;
+      ctx.font = font(22, 700, true);
+      ctx.fillText(weight, inX + inW, ty + 44);
     }
 
-    if (tall) {
-      const rows = [
-        { label: labels.averageBar, value: exam.average, max: 100, color: GOLD, text: avg },
-        exam.attended != null && exam.total
-          ? {
-              label: labels.attendance,
-              value: exam.attended,
-              max: exam.total,
-              color: white(0.45),
-              text: pct(fmt((exam.attended / exam.total) * 100, 0)),
-            }
-          : null,
-      ].filter(Boolean);
-      rows.forEach((row, r) => {
-        const by = base + 36 + r * 36;
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
-        ctx.fillStyle = white(0.6);
-        ctx.font = font(18, 500);
-        ctx.fillText(row.label, x + 18, by);
-        const labelW = 150;
-        const trackX = x + 18 + labelW;
-        const trackW = w - 36 - labelW - 80;
-        ctx.fillStyle = white(0.08);
-        roundRect(ctx, trackX, by - 6, trackW, 12, 6);
-        ctx.fill();
-        const ratio = row.value == null ? 0 : Math.max(0, Math.min(1, row.value / row.max));
-        if (ratio > 0) {
-          ctx.fillStyle = row.color;
-          roundRect(ctx, trackX, by - 6, Math.max(12, trackW * ratio), 12, 6);
-          ctx.fill();
-        }
-        ctx.textAlign = "right";
-        ctx.fillStyle = WHITE;
-        ctx.font = font(20, 600, true);
-        ctx.fillText(row.text, x + w - 18, by);
-      });
+    const big = Math.max(38, Math.min(104, (tileH - barsH) * 0.44, tileH - barsH - 76));
+    const headRoom = 62;
+    const block = big + (tall ? 26 + barsH : 0);
+    const base = tall
+      ? ty + headRoom + Math.max(0, (tileH - headRoom - block - 16) / 2) + big
+      : ty + tileH - 24;
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = INK;
+    ctx.fillText(fit(ctx, avg, inW * 0.5, big, 700, font, true, 26), inX, base);
+    const avgWidth = ctx.measureText(avg).width;
+    ctx.fillStyle = ink(0.55);
+    ctx.font = font(19, 500);
+    ctx.fillText(labels.average, inX + avgWidth + 10, base - 2);
+    if (attended) {
+      ctx.textAlign = "right";
+      ctx.fillText(fit(ctx, attended, inW * 0.45, 20, 500, font, false, 13), inX + inW, base - 2);
     }
+
+    if (!tall) return;
+    const bars = [
+      { label: labels.averageBar, value: exam.average, max: 100, color: PASS, text: avg },
+      exam.attended != null && exam.total
+        ? {
+            label: labels.attendance,
+            value: exam.attended,
+            max: exam.total,
+            color: GOLD,
+            text: pct(fmt((exam.attended / exam.total) * 100, 0)),
+          }
+        : null,
+    ].filter(Boolean);
+    bars.forEach((bar, r) => {
+      const by = base + 38 + r * 34;
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
+      ctx.fillStyle = ink(0.6);
+      ctx.font = font(17, 500);
+      ctx.fillText(bar.label, inX, by);
+      const trackX = inX + 140;
+      const trackW = inW - 140 - 76;
+      pill(ctx, trackX, by - 5, trackW, 10, TRACK);
+      const ratio = bar.value == null ? 0 : Math.max(0, Math.min(1, bar.value / bar.max));
+      if (ratio > 0) pill(ctx, trackX, by - 5, Math.max(10, trackW * ratio), 10, bar.color);
+      ctx.textAlign = "right";
+      ctx.fillStyle = INK;
+      ctx.font = font(19, 600, true);
+      ctx.fillText(bar.text, inX + inW, by);
+    });
   });
 }
 
@@ -316,57 +324,55 @@ export async function renderStatsCard(data) {
   const pct = (text) => (data.locale === "en" ? `${text}%` : `%${text}`);
   const fmt = (value, digits = 2) => (value == null || value === "" ? "—" : nf(digits).format(Number(value)));
 
+  ctx.fillStyle = PAGE;
+  ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = INK;
-  ctx.fillRect(0, 0, W, H);
-
-  const glow = ctx.createRadialGradient(W, 0, 0, W, 0, 700);
-  glow.addColorStop(0, "rgba(173,151,111,0.16)");
-  glow.addColorStop(1, "rgba(173,151,111,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, W, 8);
 
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
-  ctx.fillStyle = GOLD;
-  ctx.font = font(22, 700);
-  ctx.fillText(data.labels.eyebrow, PAD, PAD + 20);
+  ctx.fillStyle = GOLD_DARK;
+  ctx.save();
+  ctx.letterSpacing = "2.5px";
+  ctx.font = font(18, 700);
+  ctx.fillText(data.labels.eyebrow, PAD, PAD + 22);
+  ctx.restore();
 
-  ctx.fillStyle = WHITE;
-  ctx.font = font(72, 800, true);
-  ctx.fillText(data.code, PAD, PAD + 100);
+  ctx.fillStyle = INK;
+  ctx.font = font(70, 700, true);
+  ctx.fillText(data.code, PAD, PAD + 104);
   const codeWidth = ctx.measureText(data.code).width;
 
   ctx.font = font(34, 600);
   const nameLines = wrap(ctx, data.name, W - PAD * 2 - codeWidth - 28, 2);
-  const nameTop = nameLines.length === 1 ? PAD + 90 : PAD + 68;
+  const nameTop = nameLines.length === 1 ? PAD + 96 : PAD + 74;
+  ctx.fillStyle = INK;
   nameLines.forEach((line, i) => ctx.fillText(line, PAD + codeWidth + 28, nameTop + i * 40));
 
-  ctx.fillStyle = white(0.72);
-  ctx.fillText(fit(ctx, data.meta, W - PAD * 2, 28, 500, font, false, 18), PAD, PAD + 156);
+  ctx.fillStyle = ink(0.65);
+  ctx.fillText(fit(ctx, data.meta, W - PAD * 2, 27, 500, font, false, 18), PAD, PAD + 156);
 
-  ctx.fillStyle = white(0.12);
-  ctx.fillRect(PAD, PAD + 184, W - PAD * 2, 2);
+  const kpiBottom = drawKpis(ctx, font, data.kpis, PAD + 190);
 
-  const kpiBottom = drawKpis(ctx, font, data.kpis, PAD + 212);
-
-  const bodyTop = kpiBottom + 28;
-  const bodyBottom = H - PAD - 50;
+  const bodyTop = kpiBottom + GAP;
+  const bodyBottom = H - PAD - 44;
   const bodyH = bodyBottom - bodyTop;
   const dists = data.distributions.filter((d) => d.rows.length > 0);
   const exams = data.exams;
 
   const hasDist = dists.length > 0;
   const hasExams = exams.length > 0;
-  const leftW = hasExams && hasDist ? Math.round((W - PAD * 2 - GAP) * 0.56) : W - PAD * 2;
+  const leftW = hasExams && hasDist ? Math.round((W - PAD * 2 - GAP) * 0.57) : W - PAD * 2;
   const rightX = hasDist ? PAD + leftW + GAP : PAD;
   const rightW = hasDist ? W - PAD - rightX : W - PAD * 2;
 
   if (hasDist) {
-    const weights = dists.map((d) => d.rows.length + 1.4);
+    const weights = dists.map((d) => d.rows.length + 1.6);
     const sum = weights.reduce((a, b) => a + b, 0);
     let y = bodyTop;
     dists.forEach((dist, i) => {
-      const h = i === dists.length - 1 ? bodyBottom - y : (bodyH - GAP * (dists.length - 1)) * (weights[i] / sum);
+      const h =
+        i === dists.length - 1 ? bodyBottom - y : (bodyH - GAP * (dists.length - 1)) * (weights[i] / sum);
       drawDistribution(ctx, font, { ...dist, legend: i === 0 ? data.legend : null }, PAD, y, leftW, h, fmt, pct);
       y += h + GAP;
     });
@@ -377,22 +383,22 @@ export async function renderStatsCard(data) {
   }
 
   if (!hasDist && !hasExams) {
-    box(ctx, PAD, bodyTop, W - PAD * 2, bodyH);
-    ctx.fillStyle = white(0.55);
+    card(ctx, PAD, bodyTop, W - PAD * 2, bodyH);
+    ctx.fillStyle = ink(0.55);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = font(28, 500);
+    ctx.font = font(26, 500);
     ctx.fillText(data.labels.noDetail, W / 2, bodyTop + bodyH / 2);
   }
 
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
-  ctx.fillStyle = white(0.8);
-  ctx.font = font(22, 600);
+  ctx.fillStyle = INK;
+  ctx.font = font(21, 600);
   ctx.fillText(data.url, PAD, H - PAD);
   ctx.textAlign = "right";
-  ctx.fillStyle = white(0.5);
-  ctx.font = font(20, 500);
+  ctx.fillStyle = ink(0.5);
+  ctx.font = font(19, 500);
   ctx.fillText(data.labels.footer, W - PAD, H - PAD);
 
   return canvas;
@@ -404,6 +410,6 @@ export function canvasToBlob(canvas) {
   );
 }
 
-export const STATS_CARD_LEGEND = { pass: GOLD, fail: white(0.32) };
+export const STATS_CARD_LEGEND = { pass: PASS, fail: FAIL };
 
 export const STATS_CARD_SIZE = { width: W, height: H };

@@ -194,7 +194,7 @@ export default function ShareStats(props) {
           </div>
 
           <div
-            className="mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 bg-primary-600"
+            className="mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 bg-primary-500/3"
             style={{
               aspectRatio: `${STATS_CARD_SIZE.width} / ${STATS_CARD_SIZE.height}`,
               maxWidth: `min(24rem, calc(52svh * ${STATS_CARD_SIZE.width / STATS_CARD_SIZE.height}))`,
@@ -203,7 +203,7 @@ export default function ShareStats(props) {
             {image ? (
               <img src={image.url} alt={image.data.shareText} className="size-full object-contain" />
             ) : (
-              <div className="flex size-full items-center justify-center text-white/60">
+              <div className="flex size-full items-center justify-center text-primary-500/50">
                 <LoaderCircle size={20} className="animate-spin" aria-label={t("Hazırlanıyor")} />
               </div>
             )}
