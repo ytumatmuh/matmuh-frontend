@@ -7,7 +7,7 @@ import { sectionLabel } from "@/lib/section-label";
 import { useT } from "@/i18n/useT";
 import { useCmsRoute } from "inscribed";
 import { localizeTerm } from "@/i18n";
-import { renderStatsCard, canvasToBlob, STATS_CARD_SIZE, STATS_CARD_LEGEND } from "@/lib/stats-card";
+import { renderStatsCard, canvasToBlob, statsCardLegend, STATS_CARD_SIZE } from "@/lib/stats-card";
 
 const SITE_HOST = "matmuh.yildiz.edu.tr";
 
@@ -18,7 +18,8 @@ const slug = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-function buildCardData({ t, locale, course, termName, instructor, stats, summary, showSection }) {
+function buildCardData({ t, locale, theme, course, termName, instructor, stats, summary, showSection }) {
+  const legend = statsCardLegend(theme);
   const term = localizeTerm(t, termName);
   const coursePath = `${locale === "en" ? "/en" : ""}/egitim/mufredat/${course.code}`;
   const pct = (v) => {
@@ -64,10 +65,11 @@ function buildCardData({ t, locale, course, termName, instructor, stats, summary
       { title: t("Harf Dağılımı"), rows: stats.gradeDistribution ?? [] },
       { title: t("Bütünleme Harf Dağılımı"), rows: stats.makeupDistribution ?? [] },
     ],
+    theme,
     legend: [
-      { color: STATS_CARD_LEGEND.pass, label: t("geçer") },
-      { color: STATS_CARD_LEGEND.conditional, label: t("koşullu") },
-      { color: STATS_CARD_LEGEND.fail, label: t("kalır") },
+      { color: legend.pass, label: t("geçer") },
+      { color: legend.conditional, label: t("koşullu") },
+      { color: legend.fail, label: t("kalır") },
     ],
     exams: (stats.exams ?? []).map((exam) => ({ ...exam, name: t(exam.name) })),
     labels: {
@@ -91,37 +93,34 @@ export default function ShareStats(props) {
   const t = useT();
   const { locale } = useCmsRoute();
   const [open, setOpen] = useState(false);
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState({});
+  const [theme, setTheme] = useState("dark");
   const [status, setStatus] = useState("");
   const [copied, setCopied] = useState(false);
   const [capabilities, setCapabilities] = useState({ share: false, link: false, copy: false, secure: true });
 
   const { course, termName, instructor, stats, summary, showSection } = props;
-  const urlRef = useRef(null);
+  const urlsRef = useRef([]);
   const runRef = useRef(0);
+  const image = images[theme] ?? null;
 
-  const releaseUrl = () => {
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    urlRef.current = null;
+  const releaseUrls = () => {
+    for (const url of urlsRef.current) URL.revokeObjectURL(url);
+    urlsRef.current = [];
   };
 
-  useEffect(() => releaseUrl, []);
+  useEffect(() => releaseUrls, []);
 
-  const openShare = async () => {
-    const run = ++runRef.current;
-    releaseUrl();
-    setImage(null);
-    setStatus("");
-    setCopied(false);
-    setOpen(true);
+  const generate = async (name, run) => {
     try {
-      const data = buildCardData({ t, locale, course, termName, instructor, stats, summary, showSection });
+      const data = buildCardData({ t, locale, theme: name, course, termName, instructor, stats, summary, showSection });
       const canvas = await renderStatsCard(data);
       const blob = await canvasToBlob(canvas);
       if (run !== runRef.current) return;
       const file = new File([blob], data.fileName, { type: "image/png" });
-      urlRef.current = URL.createObjectURL(blob);
-      setImage({ url: urlRef.current, blob, file, data });
+      const url = URL.createObjectURL(blob);
+      urlsRef.current.push(url);
+      setImages((prev) => ({ ...prev, [name]: { url, blob, file, data } }));
       setCapabilities({
         share: typeof navigator.canShare === "function" && navigator.canShare({ files: [file] }),
         link: typeof navigator.share === "function",
@@ -131,6 +130,24 @@ export default function ShareStats(props) {
     } catch {
       if (run === runRef.current) setStatus(t("Görsel oluşturulamadı."));
     }
+  };
+
+  const openShare = () => {
+    const run = ++runRef.current;
+    releaseUrls();
+    setImages({});
+    setTheme("dark");
+    setStatus("");
+    setCopied(false);
+    setOpen(true);
+    void generate("dark", run);
+  };
+
+  const chooseTheme = (name) => {
+    setTheme(name);
+    setCopied(false);
+    setStatus("");
+    if (!images[name]) void generate(name, runRef.current);
   };
 
   const closeShare = () => {
@@ -206,7 +223,32 @@ export default function ShareStats(props) {
           </div>
 
           <div
-            className="mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 bg-primary-500"
+            role="group"
+            aria-label={t("Görsel teması")}
+            className="flex self-center rounded-lg border border-primary-500/10 bg-primary-500/3 p-0.5"
+          >
+            {[
+              ["dark", "Koyu"],
+              ["light", "Açık"],
+            ].map(([name, label]) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => chooseTheme(name)}
+                aria-pressed={theme === name}
+                className={`rounded-md px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  theme === name ? "bg-white text-primary-600 shadow-xs" : "text-primary-500/60 hover:text-primary-500"
+                }`}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </div>
+
+          <div
+            className={`mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 ${
+              theme === "dark" ? "bg-primary-500" : "bg-[#E7EAF0]"
+            }`}
             style={{
               aspectRatio: `${STATS_CARD_SIZE.width} / ${STATS_CARD_SIZE.height}`,
               maxWidth: `min(24rem, calc(52svh * ${STATS_CARD_SIZE.width / STATS_CARD_SIZE.height}))`,
