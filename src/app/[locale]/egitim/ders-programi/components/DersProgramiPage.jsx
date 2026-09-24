@@ -49,16 +49,16 @@ export default function DersProgramiPage({ entries: all = [], term }) {
       <PageLayout>
         <div className="space-y-4">
           <div className="rounded-xl border border-primary-500/10 shadow-xs bg-white overflow-hidden">
-            <div className="flex items-center justify-between gap-x-4 px-2 flex-wrap">
+            <div className="flex items-center justify-between gap-x-4 px-1 pt-1 flex-wrap">
               <div className="flex items-center overflow-x-auto no-scrollbar max-w-full">
                 {CLASSES.map((cls) => (
                   <button
                     key={cls.id}
                     onClick={() => setActiveClass(cls.id)}
-                    className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-3.5 text-sm font-semibold transition-colors ${
+                    className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-3 text-[0.8125rem] transition-all duration-200 ${
                       activeClass === cls.id
-                        ? "border-secondary-500 text-secondary-700"
-                        : "border-transparent text-primary-500/70 hover:text-primary-500"
+                        ? "border-secondary-500 font-semibold text-primary-500"
+                        : "border-transparent font-[450] text-primary-500/40 hover:text-primary-500/70"
                     }`}
                     aria-pressed={activeClass === cls.id}
                   >
@@ -66,7 +66,7 @@ export default function DersProgramiPage({ entries: all = [], term }) {
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2 px-2 py-3 text-primary-500/70">
+              <div className="flex items-center gap-2 px-3 py-3 text-primary-500/70">
                 <CalendarDays size={14} strokeWidth={1.5} />
                 <span style={{ fontSize: "0.75rem" }}>
                   {t("{count} ders", { count: courseCount })}
