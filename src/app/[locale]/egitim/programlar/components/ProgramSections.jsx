@@ -92,7 +92,7 @@ export function ProgramList() {
           <EditableRegion
             blockPath="programs.title"
             blockType="ShortText"
-            defaultValue="Lisansüstü Programlar"
+            defaultValue={{ tr: "Lisansüstü Programlar", en: "Graduate Programs" }}
           />
         }
         count={programs.length}
@@ -112,60 +112,108 @@ export function ProgramList() {
             admissionScores: { blockType: "ShortText", defaultValue: "" },
             admissionFields: { blockType: "ShortText", defaultValue: "" },
           }}
-          defaultValue={[
-            {
-              title: "Tezli Yüksek Lisans",
-              duration: "2 yıl (4 yarıyıl)",
-              akts: "120 AKTS",
-              description:
-                "Temel ve uygulamalı matematik bilgisiyle, öğrencinin bilimsel araştırma yaparak bilgiye erişme, bilgiyi değerlendirme ve yorumlama yeteneğini kazanmasını sağlamaktır.",
-              trackTr: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=180&aid=86",
-                label: "Türkçe",
+          defaultValue={{
+            tr: [
+              {
+                title: "Tezli Yüksek Lisans",
+                duration: "2 yıl (4 yarıyıl)",
+                akts: "120 AKTS",
+                description: "Temel ve uygulamalı matematik bilgisiyle, öğrencinin bilimsel araştırma yaparak bilgiye erişme, bilgiyi değerlendirme ve yorumlama yeteneğini kazanmasını sağlamaktır.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=180&aid=86",
+                  label: "Türkçe",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=181&aid=86",
+                  label: "İngilizce",
+                },
+                admissionScores: "",
+                admissionFields: "",
               },
-              trackEn: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=181&aid=86",
-                label: "İngilizce",
+              {
+                title: "Tezsiz Yüksek Lisans (2. Öğretim)",
+                duration: "1 yıl",
+                akts: "92,5 AKTS",
+                description: "Disiplinlerarası bir program olarak kurulması hedeflenen Matematik Mühendisliği 2. Öğretim Tezsiz Yüksek Lisans Programı, farklı disiplinlerden gelen profesyonellerin mühendislik, ekonomi, bilişim ve hizmet sektörlerinde etkin rol alabilmesini hedefler.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=224&aid=86",
+                  label: "Türkçe",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=225&aid=86",
+                  label: "İngilizce",
+                },
+                admissionScores: "",
+                admissionFields: "",
               },
-              admissionScores: "",
-              admissionFields: "",
-            },
-            {
-              title: "Tezsiz Yüksek Lisans (2. Öğretim)",
-              duration: "1 yıl",
-              akts: "92,5 AKTS",
-              description:
-                "Disiplinlerarası bir program olarak kurulması hedeflenen Matematik Mühendisliği 2. Öğretim Tezsiz Yüksek Lisans Programı, farklı disiplinlerden gelen profesyonellerin mühendislik, ekonomi, bilişim ve hizmet sektörlerinde etkin rol alabilmesini hedefler.",
-              trackTr: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=224&aid=86",
-                label: "Türkçe",
+              {
+                title: "Doktora",
+                duration: "4 yıl (8 yarıyıl)",
+                akts: "240 AKTS",
+                description: "Öğrenciye bağımsız araştırma yapma, bilimsel olayları geniş ve derin bir bakış açısıyla irdeleyerek yorum yapabilme ve yeni sentezlere ulaşmak için gerekli adımları belirleme yeteneği kazandırmaktır.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=184&aid=24",
+                  label: "Türkçe",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=226&aid=24",
+                  label: "İngilizce",
+                },
+                admissionScores: "ALES (sayısal) en az 55 · Yabancı dil en az 55",
+                admissionFields: "Bilgisayar Mühendisliği, Endüstri Mühendisliği, Matematik Mühendisliği",
               },
-              trackEn: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=225&aid=86",
-                label: "İngilizce",
+            ],
+            en: [
+              {
+                title: "Master's with Thesis",
+                duration: "2 years (4 semesters)",
+                akts: "120 ECTS",
+                description: "To ensure that students acquire the ability to access, evaluate, and interpret knowledge by conducting scientific research, with foundational and applied mathematics knowledge.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=180&aid=86",
+                  label: "Turkish",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=181&aid=86",
+                  label: "English",
+                },
+                admissionScores: "",
+                admissionFields: "",
               },
-              admissionScores: "",
-              admissionFields: "",
-            },
-            {
-              title: "Doktora",
-              duration: "4 yıl (8 yarıyıl)",
-              akts: "240 AKTS",
-              description:
-                "Öğrenciye bağımsız araştırma yapma, bilimsel olayları geniş ve derin bir bakış açısıyla irdeleyerek yorum yapabilme ve yeni sentezlere ulaşmak için gerekli adımları belirleme yeteneği kazandırmaktır.",
-              trackTr: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=184&aid=24",
-                label: "Türkçe",
+              {
+                title: "Non-Thesis Master's (Evening Education)",
+                duration: "1 year",
+                akts: "92.5 ECTS",
+                description: "Aimed to be established as an interdisciplinary program, the Mathematical Engineering Evening Non-Thesis Master's Program aims to enable professionals from different disciplines to take an active role in the engineering, economics, informatics, and service sectors.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=224&aid=86",
+                  label: "Turkish",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=225&aid=86",
+                  label: "English",
+                },
+                admissionScores: "",
+                admissionFields: "",
               },
-              trackEn: {
-                href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=226&aid=24",
-                label: "İngilizce",
+              {
+                title: "PhD",
+                duration: "4 years (8 semesters)",
+                akts: "240 ECTS",
+                description: "To provide the student with the ability to conduct independent research, to analyze and interpret scientific phenomena from a broad and deep perspective, and to determine the necessary steps to achieve new syntheses.",
+                trackTr: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=184&aid=24",
+                  label: "Turkish",
+                },
+                trackEn: {
+                  href: "https://bologna.yildiz.edu.tr/index.php?r=program/view&id=226&aid=24",
+                  label: "English",
+                },
+                admissionScores: "ALES (quantitative) at least 55 · Foreign language at least 55",
+                admissionFields: "Computer Engineering, Industrial Engineering, Mathematical Engineering",
               },
-              admissionScores: "ALES (sayısal) en az 55 · Yabancı dil en az 55",
-              admissionFields:
-                "Bilgisayar Mühendisliği, Endüstri Mühendisliği, Matematik Mühendisliği",
-            },
-          ]}
+            ],
+          }}
         >
           {(item, index) => <ProgramCard key={index} program={item} />}
         </EditableList>
@@ -181,7 +229,10 @@ export function FbeSection() {
         <EditableRegion
           blockPath="fbe.title"
           blockType="ShortText"
-          defaultValue="Fen Bilimleri Enstitüsü"
+          defaultValue={{
+            tr: "Fen Bilimleri Enstitüsü",
+            en: "Graduate School of Natural and Applied Sciences",
+          }}
         />
       }
     >
@@ -190,7 +241,10 @@ export function FbeSection() {
           <EditableRegion
             blockPath="fbe.body"
             blockType="LongText"
-            defaultValue="Lisansüstü programlar Fen Bilimleri Enstitüsü bünyesinde yürütülür. Başvuru, kayıt ve akademik takvim bilgileri enstitünün kendi sayfasından takip edilir."
+            defaultValue={{
+              tr: "Lisansüstü programlar Fen Bilimleri Enstitüsü bünyesinde yürütülür. Başvuru, kayıt ve akademik takvim bilgileri enstitünün kendi sayfasından takip edilir.",
+              en: "Graduate programs are conducted within the Graduate School of Natural and Applied Sciences. Application, registration, and academic calendar information can be followed on the graduate school's own website.",
+            }}
             as="p"
             className="text-[13px] text-primary-500/70 leading-relaxed"
           />
@@ -202,20 +256,36 @@ export function FbeSection() {
             itemSchema={{
               link: { blockType: "Link", defaultValue: { href: "", label: "" } },
             }}
-            defaultValue={[
-              {
-                link: {
-                  href: "https://fbe.yildiz.edu.tr/lisansustu-programlar",
-                  label: "FBE Lisansüstü Programlar",
+            defaultValue={{
+              tr: [
+                {
+                  link: {
+                    href: "https://fbe.yildiz.edu.tr/lisansustu-programlar",
+                    label: "FBE Lisansüstü Programlar",
+                  },
                 },
-              },
-              {
-                link: {
-                  href: "https://fbe.yildiz.edu.tr/iletisim/program-iletisim-bilgileri",
-                  label: "Program İletişim Bilgileri",
+                {
+                  link: {
+                    href: "https://fbe.yildiz.edu.tr/iletisim/program-iletisim-bilgileri",
+                    label: "Program İletişim Bilgileri",
+                  },
                 },
-              },
-            ]}
+              ],
+              en: [
+                {
+                  link: {
+                    href: "https://fbe.yildiz.edu.tr/lisansustu-programlar",
+                    label: "FBE Graduate Programs",
+                  },
+                },
+                {
+                  link: {
+                    href: "https://fbe.yildiz.edu.tr/iletisim/program-iletisim-bilgileri",
+                    label: "Program Contact Information",
+                  },
+                },
+              ],
+            }}
           >
             {(item, index) => {
               const href = safeHref(item.link?.href);

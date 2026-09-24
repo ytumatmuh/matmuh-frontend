@@ -56,7 +56,7 @@ export default function LaboratoryList() {
         <EditableRegion
           blockPath="labs.title"
           blockType="ShortText"
-          defaultValue="Laboratuvarlar"
+          defaultValue={{ tr: "Laboratuvarlar", en: "Laboratories" }}
         />
       }
       count={count}
@@ -71,13 +71,22 @@ export default function LaboratoryList() {
           capacity: { blockType: "ShortText", defaultValue: "" },
           software: { blockType: "ShortText", defaultValue: "" },
         }}
-        defaultValue={[
-          {
-            name: "Bilgisayar Laboratuvarı",
-            capacity: "40 öğrenci",
-            software: "MATLAB, MAPLE, C++",
-          },
-        ]}
+        defaultValue={{
+          tr: [
+            {
+              name: "Bilgisayar Laboratuvarı",
+              capacity: "40 öğrenci",
+              software: "MATLAB, MAPLE, C++",
+            },
+          ],
+          en: [
+            {
+              name: "Computer Laboratory",
+              capacity: "40 students",
+              software: "MATLAB, MAPLE, C++",
+            },
+          ],
+        }}
       >
         {(item, index) => <LaboratoryCard key={index} lab={item} />}
       </EditableList>

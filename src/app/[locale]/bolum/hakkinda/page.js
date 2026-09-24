@@ -21,14 +21,17 @@ export default async function Page() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Bölüm Hakkında"
+            defaultValue={{ tr: "Bölüm Hakkında", en: "About the Department" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Matematik Mühendisliği; Tarih, Vizyon & Çalışma Alanları"
+            defaultValue={{
+              tr: "Matematik Mühendisliği; Tarih, Vizyon & Çalışma Alanları",
+              en: "Mathematical Engineering; History, Vision & Fields of Study",
+            }}
           />
         }
       />

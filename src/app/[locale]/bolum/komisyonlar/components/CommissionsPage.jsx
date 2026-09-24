@@ -93,7 +93,7 @@ function CommissionList() {
         <EditableRegion
           blockPath="commissions.title"
           blockType="ShortText"
-          defaultValue="Bölüm Komisyonları"
+          defaultValue={{ tr: "Bölüm Komisyonları", en: "Department Committees" }}
         />
       }
       count={count}
@@ -108,20 +108,178 @@ function CommissionList() {
           chair: { blockType: "ShortText", defaultValue: "" },
           members: { blockType: "LongText", defaultValue: "" },
         }}
-        defaultValue={[
-            { name: "Bilişim ve İletişim Komisyonu", chair: "Prof. Dr. Hale Köçken", members: "Doç. Dr. Arzu Turan Dincel\nDoç. Dr. Mert Bal\nAraş. Gör. Kaan Kemal Polat" },
-            { name: "Akademik Teşvik ve Değerlendirme Komisyonu", chair: "Prof. Dr. Fatih Taşçı", members: "Prof. Dr. Nazmiye Yahnioğlu\nProf. Dr. Kevser Özden Köklü\nDoç. Dr. Müslüm Özışık\nDoç. Dr. Nilgün Güler Bayazıt" },
-            { name: "Eğitim-Öğretim ve Akreditasyon Komisyonu", chair: "Prof. Dr. Fatma İnci Albayrak", members: "Doç. Dr. Serkan Onar\nDoç. Dr. Gökhan Göksu\nDoç. Dr. Birol Aslanyürek | Bologna Koordinatörü" },
-            { name: "İntibak ve Önceden Kazanılmış Yeterliliklerin Tanınması Komisyonu", chair: "Doç. Dr. Müslüm Özışık", members: "Doç. Dr. Yasemen Uçan\nDr. Öğr. Üyesi Derya Sekman\nAraş. Gör. Dr. Hayati Ünsal Özer\nDoç. Dr. Bayram Ali İbrahimoğlu | Önceden Kazanılmış Yet. Tanınması Sorumlusu" },
-            { name: "Bitirme Çalışması Komisyonu", chair: "Prof. Dr. İbrahim Emiroğlu", members: "Prof. Dr. Coşkun Güler" },
-            { name: "Stratejik Planlama Komisyonu", chair: "Doç. Dr. Ramazan Tekercioğlu", members: "Araş. Gör. Handenur Esen\nDoç. Dr. Ramazan Tekercioğlu | Yıllık Faaliyet Sorumlusu" },
-            { name: "Kalite Komisyonu", chair: "Prof. Dr. Reşat Köşker", members: "Doç. Dr. Ülkü Babuşcu Yeşil\nAraş. Gör. İsmail Önder\nArş. Gör. Metehan Turan" },
-            { name: "Laboratuvar, İş Sağlığı ve Güvenliği Komisyonu", chair: "Prof. Dr. Nazmiye Yahnioğlu", members: "Öğr. Gör. Abdulkadir Şahiner" },
-            { name: "Anket Hazırlama ve Değerlendirme Komisyonu", chair: "Prof. Dr. Fatma Aydın Akgün", members: "Doç. Dr. Melih Çınar" },
-            { name: "Sosyal Aktiviteler ve Mezunlarla İlişkiler Komisyonu", chair: "Prof. Dr. Ayla Şaylı", members: "Doç. Dr. Kadriye Şimşek Alan\nAraş. Gör. Handenur Esen" },
-            { name: "Uluslararası İlişkiler ve Değişim Programları Komisyonu", chair: "Doç. Dr. Nilgün Güler Bayazıt", members: "Dr. Öğr. Üyesi Seda Göktepe Körpeoğlu\nDr. Öğr. Üyesi Fatih Aylıkcı\nAraş. Gör. Emel Uğurlu\nAraş. Gör. Buse Güler" },
-            { name: "Endüstriyel İlişkiler ve Staj Komisyonu", chair: "Prof. Dr. Hülya Serab", members: "Öğr. Gör. Abdulkadir Şahiner | 1. Staj\nAraş. Gör. İsmail Önder | 1. Staj\nAraş. Gör. Dr. Hayati Ünsal Özer | 1. Staj\nAraş. Gör. Buse Güler | 1. Staj\nAraş. Gör. Emel Uğurlu | 2. Staj\nAraş. Gör. Kaan Kemal Polat | 2. Staj\nArş. Gör. Metehan Turan | 2. Staj" },
-        ]}
+        defaultValue={{
+          tr: [
+            {
+              name: "Bilişim ve İletişim Komisyonu",
+              chair: "Prof. Dr. Hale Köçken",
+              members: `Doç. Dr. Arzu Turan Dincel
+Doç. Dr. Mert Bal
+Araş. Gör. Kaan Kemal Polat`,
+            },
+            {
+              name: "Akademik Teşvik ve Değerlendirme Komisyonu",
+              chair: "Prof. Dr. Fatih Taşçı",
+              members: `Prof. Dr. Nazmiye Yahnioğlu
+Prof. Dr. Kevser Özden Köklü
+Doç. Dr. Müslüm Özışık
+Doç. Dr. Nilgün Güler Bayazıt`,
+            },
+            {
+              name: "Eğitim-Öğretim ve Akreditasyon Komisyonu",
+              chair: "Prof. Dr. Fatma İnci Albayrak",
+              members: `Doç. Dr. Serkan Onar
+Doç. Dr. Gökhan Göksu
+Doç. Dr. Birol Aslanyürek | Bologna Koordinatörü`,
+            },
+            {
+              name: "İntibak ve Önceden Kazanılmış Yeterliliklerin Tanınması Komisyonu",
+              chair: "Doç. Dr. Müslüm Özışık",
+              members: `Doç. Dr. Yasemen Uçan
+Dr. Öğr. Üyesi Derya Sekman
+Araş. Gör. Dr. Hayati Ünsal Özer
+Doç. Dr. Bayram Ali İbrahimoğlu | Önceden Kazanılmış Yet. Tanınması Sorumlusu`,
+            },
+            {
+              name: "Bitirme Çalışması Komisyonu",
+              chair: "Prof. Dr. İbrahim Emiroğlu",
+              members: "Prof. Dr. Coşkun Güler",
+            },
+            {
+              name: "Stratejik Planlama Komisyonu",
+              chair: "Doç. Dr. Ramazan Tekercioğlu",
+              members: `Araş. Gör. Handenur Esen
+Doç. Dr. Ramazan Tekercioğlu | Yıllık Faaliyet Sorumlusu`,
+            },
+            {
+              name: "Kalite Komisyonu",
+              chair: "Prof. Dr. Reşat Köşker",
+              members: `Doç. Dr. Ülkü Babuşcu Yeşil
+Araş. Gör. İsmail Önder
+Arş. Gör. Metehan Turan`,
+            },
+            {
+              name: "Laboratuvar, İş Sağlığı ve Güvenliği Komisyonu",
+              chair: "Prof. Dr. Nazmiye Yahnioğlu",
+              members: "Öğr. Gör. Abdulkadir Şahiner",
+            },
+            {
+              name: "Anket Hazırlama ve Değerlendirme Komisyonu",
+              chair: "Prof. Dr. Fatma Aydın Akgün",
+              members: "Doç. Dr. Melih Çınar",
+            },
+            {
+              name: "Sosyal Aktiviteler ve Mezunlarla İlişkiler Komisyonu",
+              chair: "Prof. Dr. Ayla Şaylı",
+              members: `Doç. Dr. Kadriye Şimşek Alan
+Araş. Gör. Handenur Esen`,
+            },
+            {
+              name: "Uluslararası İlişkiler ve Değişim Programları Komisyonu",
+              chair: "Doç. Dr. Nilgün Güler Bayazıt",
+              members: `Dr. Öğr. Üyesi Seda Göktepe Körpeoğlu
+Dr. Öğr. Üyesi Fatih Aylıkcı
+Araş. Gör. Emel Uğurlu
+Araş. Gör. Buse Güler`,
+            },
+            {
+              name: "Endüstriyel İlişkiler ve Staj Komisyonu",
+              chair: "Prof. Dr. Hülya Serab",
+              members: `Öğr. Gör. Abdulkadir Şahiner | 1. Staj
+Araş. Gör. İsmail Önder | 1. Staj
+Araş. Gör. Dr. Hayati Ünsal Özer | 1. Staj
+Araş. Gör. Buse Güler | 1. Staj
+Araş. Gör. Emel Uğurlu | 2. Staj
+Araş. Gör. Kaan Kemal Polat | 2. Staj
+Arş. Gör. Metehan Turan | 2. Staj`,
+            },
+          ],
+          en: [
+            {
+              name: "Information Technology and Communication Committee",
+              chair: "Prof. Dr. Hale Köçken",
+              members: `Assoc. Prof. Dr. Arzu Turan Dincel
+Assoc. Prof. Dr. Mert Bal
+Res. Asst. Kaan Kemal Polat`,
+            },
+            {
+              name: "Academic Incentive and Evaluation Commission",
+              chair: "Prof. Dr. Fatih Taşçı",
+              members: `Prof. Dr. Nazmiye Yahnioğlu
+Prof. Dr. Kevser Özden Köklü
+Assoc. Prof. Dr. Müslüm Özışık
+Assoc. Prof. Dr. Nilgün Güler Bayazıt`,
+            },
+            {
+              name: "Education-Training and Accreditation Commission",
+              chair: "Prof. Dr. Fatma İnci Albayrak",
+              members: `Assoc. Prof. Dr. Serkan Onar
+Assoc. Prof. Dr. Gökhan Göksu
+Assoc. Prof. Dr. Birol Aslanyürek | Bologna Coordinator`,
+            },
+            {
+              name: "Adjustment and Recognition of Prior Learning Commission",
+              chair: "Assoc. Prof. Dr. Müslüm Özışık",
+              members: `Assoc. Prof. Dr. Yasemen Uçan
+Asst. Prof. Dr. Derya Sekman
+Res. Asst. Dr. Hayati Ünsal Özer
+Assoc. Prof. Dr. Bayram Ali İbrahimoğlu | Officer Responsible for Recognition of Prior Learning`,
+            },
+            {
+              name: "Graduation Project Committee",
+              chair: "Prof. Dr. İbrahim Emiroğlu",
+              members: "Prof. Dr. Coşkun Güler",
+            },
+            {
+              name: "Strategic Planning Commission",
+              chair: "Assoc. Prof. Dr. Ramazan Tekercioğlu",
+              members: `Res. Asst. Handenur Esen
+Assoc. Prof. Dr. Ramazan Tekercioğlu | Annual Activity Coordinator`,
+            },
+            {
+              name: "Quality Commission",
+              chair: "Prof. Dr. Reşat Köşker",
+              members: `Assoc. Prof. Dr. Ülkü Babuşcu Yeşil
+Res. Asst. İsmail Önder
+Res. Asst. Metehan Turan`,
+            },
+            {
+              name: "Laboratory, Occupational Health and Safety Commission",
+              chair: "Prof. Dr. Nazmiye Yahnioğlu",
+              members: "Lect. Abdulkadir Şahiner",
+            },
+            {
+              name: "Survey Preparation and Evaluation Commission",
+              chair: "Prof. Dr. Fatma Aydın Akgün",
+              members: "Assoc. Prof. Dr. Melih Çınar",
+            },
+            {
+              name: "Social Activities and Alumni Relations Committee",
+              chair: "Prof. Dr. Ayla Şaylı",
+              members: `Assoc. Prof. Dr. Kadriye Şimşek Alan
+Res. Asst. Handenur Esen`,
+            },
+            {
+              name: "International Relations and Exchange Programs Commission",
+              chair: "Assoc. Prof. Dr. Nilgün Güler Bayazıt",
+              members: `Asst. Prof. Dr. Seda Göktepe Körpeoğlu
+Asst. Prof. Dr. Fatih Aylıkcı
+Res. Asst. Emel Uğurlu
+Res. Asst. Buse Güler`,
+            },
+            {
+              name: "Industrial Relations and Internship Committee",
+              chair: "Prof. Dr. Hülya Serab",
+              members: `Lect. Abdulkadir Şahiner | 1st Internship
+Res. Asst. İsmail Önder | 1st Internship
+Res. Asst. Dr. Hayati Ünsal Özer | 1st Internship
+Res. Asst. Buse Güler | 1st Internship
+Res. Asst. Emel Uğurlu | 2nd Internship
+Res. Asst. Kaan Kemal Polat | 2nd Internship
+Res. Asst. Metehan Turan | 2nd Internship`,
+            },
+          ],
+        }}
       >
         {(item, index) => <CommissionCard key={index} commission={item} />}
       </EditableList>
@@ -141,16 +299,28 @@ function CommissionDocuments() {
         kind: { blockType: "ShortText", defaultValue: "pdf" },
         size: { blockType: "ShortText", defaultValue: "" },
       }}
-      defaultValue={[
-        {
-          file: {
-            href: "https://mtm.yildiz.edu.tr/media/files/B%C3%96L%C3%9CM%20KOM%C4%B0SYONLARI%2019_11_2025(1).pdf",
-            label: "Bölüm Komisyonları (19.11.2025)",
+      defaultValue={{
+        tr: [
+          {
+            file: {
+              href: "https://mtm.yildiz.edu.tr/media/files/B%C3%96L%C3%9CM%20KOM%C4%B0SYONLARI%2019_11_2025(1).pdf",
+              label: "Bölüm Komisyonları (19.11.2025)",
+            },
+            kind: "pdf",
+            size: "76892",
           },
-          kind: "pdf",
-          size: "76892",
-        },
-      ]}
+        ],
+        en: [
+          {
+            file: {
+              href: "https://mtm.yildiz.edu.tr/media/files/B%C3%96L%C3%9CM%20KOM%C4%B0SYONLARI%2019_11_2025(1).pdf",
+              label: "Department Committees (19.11.2025)",
+            },
+            kind: "pdf",
+            size: "76892",
+          },
+        ],
+      }}
     >
       {(item, index) => (
         <DocumentLink
@@ -173,14 +343,17 @@ export default function CommissionsPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Komisyonlar"
+            defaultValue={{ tr: "Komisyonlar", en: "Commissions" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Bölüm komisyonları ve üyeleri · 19.11.2025"
+            defaultValue={{
+              tr: "Bölüm komisyonları ve üyeleri · 19.11.2025",
+              en: "Department commissions and members · 19.11.2025",
+            }}
           />
         }
       />
@@ -193,7 +366,7 @@ export default function CommissionsPage() {
               <EditableRegion
                 blockPath="documents.title"
                 blockType="ShortText"
-                defaultValue="Belgeler"
+                defaultValue={{ tr: "Belgeler", en: "Documents" }}
               />
             }
           >

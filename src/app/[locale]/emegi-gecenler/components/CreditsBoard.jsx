@@ -36,14 +36,14 @@ export default function CreditsBoard() {
         <EditableRegion
           blockPath="credits.title"
           blockType="ShortText"
-          defaultValue="Emeği Geçenler"
+          defaultValue={{ tr: "Emeği Geçenler", en: "Credits" }}
           as="h1"
           className="text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl"
         />
         <EditableRegion
           blockPath="credits.subtitle"
           blockType="ShortText"
-          defaultValue="Bu siteyi dört kişi yaptı"
+          defaultValue={{ tr: "Bu siteyi dört kişi yaptı", en: "This website was built by four people" }}
           as="p"
           className="mt-2 text-[13px] text-neutral-400"
         />
@@ -77,12 +77,52 @@ export default function CreditsBoard() {
             site: { blockType: "Link", defaultValue: { href: "", label: "" } },
             mail: { blockType: "Link", defaultValue: { href: "", label: "" } },
           }}
-          defaultValue={[
-            { name: "Kaan Necip Kalp", role: "Frontend & Tasarım", photo: null },
-            { name: "Egehan", role: "Veri Katmanı & CMS", photo: null },
-            { name: "Yusuf Acımacı", role: "Backend", photo: null },
-            { name: "Fatih Naz", role: "İçerik Yönetim Sistemi", photo: null },
-          ]}
+          defaultValue={{
+            tr: [
+              {
+                name: "Kaan Necip Kalp",
+                role: "Frontend & Tasarım",
+                photo: null,
+              },
+              {
+                name: "Egehan",
+                role: "Veri Katmanı & CMS",
+                photo: null,
+              },
+              {
+                name: "Yusuf Acımacı",
+                role: "Backend",
+                photo: null,
+              },
+              {
+                name: "Fatih Naz",
+                role: "İçerik Yönetim Sistemi",
+                photo: null,
+              },
+            ],
+            en: [
+              {
+                name: "Kaan Necip Kalp",
+                role: "Frontend & Design",
+                photo: null,
+              },
+              {
+                name: "Egehan",
+                role: "Data Layer & CMS",
+                photo: null,
+              },
+              {
+                name: "Yusuf Acımacı",
+                role: "Backend",
+                photo: null,
+              },
+              {
+                name: "Fatih Naz",
+                role: "Content Management System",
+                photo: null,
+              },
+            ],
+          }}
         >
           {(person, index) => {
             const cell = CELLS[index] ?? CELLS[0];

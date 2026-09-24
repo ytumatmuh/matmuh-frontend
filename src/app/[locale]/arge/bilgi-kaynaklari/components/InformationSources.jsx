@@ -136,38 +136,492 @@ export default function InformationSources() {
           link: { blockType: "Link", defaultValue: { href: "", label: "" } },
           icon: { blockType: "ShortText", defaultValue: "" },
         }}
-        defaultValue={[
-        { category: "Akademik", link: { href: "http://tez2.yok.gov.tr/", label: "YÖK Tez Tarama" }, icon: "search" },
-        { category: "Akademik", link: { href: "http://www.ktp.yildiz.edu.tr/", label: "YTÜ Kütüphane" }, icon: "library" },
-        { category: "Akademik", link: { href: "http://www.sciencedirect.com/", label: "Sciencedirect" }, icon: "book-open" },
-        { category: "Akademik", link: { href: "http://www.springerlink.com/", label: "Springerlink" }, icon: "external-link" },
-        { category: "Erasmus", link: { href: "http://www.europa.eu.int/comm/education/erasmus.html", label: "Erasmus+" }, icon: "globe" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.mfa.gov.tr/yerlesik-diplomatik-ve-konsuler-misyonlar.tr.mfa", label: "Elçilikler ve Konsolosluklar" }, icon: "building-2" },
-        { category: "Eğitim", link: { href: "http://www.europa.eu.int/comm/education/socrates/ects.html", label: "Avrupa Kredi Transfer Sistemi (ECTS)" }, icon: "graduation-cap" },
-        { category: "Eğitim", link: { href: "http://www.europa.eu.int/comm/education/ilpc/index_en.html", label: "Intensive Language Program (ILPC)" }, icon: "languages" },
-        { category: "Erasmus", link: { href: "http://www.esn.org/", label: "Erasmus Student Network" }, icon: "users" },
-        { category: "Erasmus", link: { href: "http://www.erasmus.ac.uk/", label: "UK Socrates-Erasmus Council" }, icon: "map-pin" },
-        { category: "Birlikler", link: { href: "http://www.eua.org/", label: "European University Association (EUA)" }, icon: "school" },
-        { category: "Birlikler", link: { href: "http://www.eaie.org/", label: "Int. Education Association (EAIE)" }, icon: "earth" },
-        { category: "Birlikler", link: { href: "http://www.enqa.net/", label: "Quality Assurance (ENQA)" }, icon: "shield-check" },
-        { category: "Araçlar", link: { href: "http://partbase.eupro.se/", label: "Partbase Partner Finding Tool" }, icon: "user-plus" },
-        { category: "Araçlar", link: { href: "http://www.siu.no/socpart", label: "Norveç Ulusal Ajansı Ortak Bulma" }, icon: "database" },
-        { category: "Birlikler", link: { href: "http://eunbrux02.eun.org/portal/index-en.cfm", label: "European Schoolnet" }, icon: "network" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.yok.gov.tr/", label: "Yüksek Öğretim Kurumu (YÖK)" }, icon: "landmark" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.mfa.gov.tr/default.tr.mfa", label: "Dışişleri Bakanlığı" }, icon: "flag" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.abgs.gov.tr/", label: "AB Genel Sekreterliği" }, icon: "briefcase" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.ua.gov.tr/", label: "Ulusal Ajans" }, icon: "award" },
-        { category: "Sosyal Medya", link: { href: "http://twitter.com/ulusalajans", label: "Ulusal Ajans Twitter" }, icon: "twitter" },
-        { category: "Araçlar", link: { href: "http://partnersearch.ua.gov.tr/", label: "Ortak Arama Portalı" }, icon: "search-code" },
-        { category: "Burslar", link: { href: "http://www.jeanmonnet.org.tr/web/", label: "Jean Monnet Burs Programı" }, icon: "history" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.cfcu.gov.tr/", label: "Merkezi Finans ve İhale Birimi" }, icon: "wallet" },
-        { category: "Resmi Kurumlar", link: { href: "http://ec.europa.eu/education/index_en.htm", label: "European Commission" }, icon: "euro" },
-        { category: "Resmi Kurumlar", link: { href: "http://www.coe.int/", label: "Council of Europe" }, icon: "scale" },
-        { category: "Birlikler", link: { href: "http://www.iau-aiu.net/", label: "Int. Association of Universities" }, icon: "globe" },
-        { category: "Birlikler", link: { href: "http://www.esib.org/", label: "European Students' Union" }, icon: "contact-round" },
-        { category: "Araçlar", link: { href: "http://www.enic-naric.net/index.aspx?s=n&r=g&d=about", label: "ENIC - NARIC Networks" }, icon: "link" },
-        { category: "Yayınlar", link: { href: "http://publications.europa.eu/", label: "EU Publications Portal" }, icon: "file-text" },
-        ]}
+        defaultValue={{
+          tr: [
+            {
+              category: "Akademik",
+              link: {
+                href: "http://tez2.yok.gov.tr/",
+                label: "YÖK Tez Tarama",
+              },
+              icon: "search",
+            },
+            {
+              category: "Akademik",
+              link: {
+                href: "http://www.ktp.yildiz.edu.tr/",
+                label: "YTÜ Kütüphane",
+              },
+              icon: "library",
+            },
+            {
+              category: "Akademik",
+              link: {
+                href: "http://www.sciencedirect.com/",
+                label: "Sciencedirect",
+              },
+              icon: "book-open",
+            },
+            {
+              category: "Akademik",
+              link: {
+                href: "http://www.springerlink.com/",
+                label: "Springerlink",
+              },
+              icon: "external-link",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/erasmus.html",
+                label: "Erasmus+",
+              },
+              icon: "globe",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.mfa.gov.tr/yerlesik-diplomatik-ve-konsuler-misyonlar.tr.mfa",
+                label: "Elçilikler ve Konsolosluklar",
+              },
+              icon: "building-2",
+            },
+            {
+              category: "Eğitim",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/socrates/ects.html",
+                label: "Avrupa Kredi Transfer Sistemi (ECTS)",
+              },
+              icon: "graduation-cap",
+            },
+            {
+              category: "Eğitim",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/ilpc/index_en.html",
+                label: "Intensive Language Program (ILPC)",
+              },
+              icon: "languages",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.esn.org/",
+                label: "Erasmus Student Network",
+              },
+              icon: "users",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.erasmus.ac.uk/",
+                label: "UK Socrates-Erasmus Council",
+              },
+              icon: "map-pin",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://www.eua.org/",
+                label: "European University Association (EUA)",
+              },
+              icon: "school",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://www.eaie.org/",
+                label: "Int. Education Association (EAIE)",
+              },
+              icon: "earth",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://www.enqa.net/",
+                label: "Quality Assurance (ENQA)",
+              },
+              icon: "shield-check",
+            },
+            {
+              category: "Araçlar",
+              link: {
+                href: "http://partbase.eupro.se/",
+                label: "Partbase Partner Finding Tool",
+              },
+              icon: "user-plus",
+            },
+            {
+              category: "Araçlar",
+              link: {
+                href: "http://www.siu.no/socpart",
+                label: "Norveç Ulusal Ajansı Ortak Bulma",
+              },
+              icon: "database",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://eunbrux02.eun.org/portal/index-en.cfm",
+                label: "European Schoolnet",
+              },
+              icon: "network",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.yok.gov.tr/",
+                label: "Yüksek Öğretim Kurumu (YÖK)",
+              },
+              icon: "landmark",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.mfa.gov.tr/default.tr.mfa",
+                label: "Dışişleri Bakanlığı",
+              },
+              icon: "flag",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.abgs.gov.tr/",
+                label: "AB Genel Sekreterliği",
+              },
+              icon: "briefcase",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.ua.gov.tr/",
+                label: "Ulusal Ajans",
+              },
+              icon: "award",
+            },
+            {
+              category: "Sosyal Medya",
+              link: {
+                href: "http://twitter.com/ulusalajans",
+                label: "Ulusal Ajans Twitter",
+              },
+              icon: "twitter",
+            },
+            {
+              category: "Araçlar",
+              link: {
+                href: "http://partnersearch.ua.gov.tr/",
+                label: "Ortak Arama Portalı",
+              },
+              icon: "search-code",
+            },
+            {
+              category: "Burslar",
+              link: {
+                href: "http://www.jeanmonnet.org.tr/web/",
+                label: "Jean Monnet Burs Programı",
+              },
+              icon: "history",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.cfcu.gov.tr/",
+                label: "Merkezi Finans ve İhale Birimi",
+              },
+              icon: "wallet",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://ec.europa.eu/education/index_en.htm",
+                label: "European Commission",
+              },
+              icon: "euro",
+            },
+            {
+              category: "Resmi Kurumlar",
+              link: {
+                href: "http://www.coe.int/",
+                label: "Council of Europe",
+              },
+              icon: "scale",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://www.iau-aiu.net/",
+                label: "Int. Association of Universities",
+              },
+              icon: "globe",
+            },
+            {
+              category: "Birlikler",
+              link: {
+                href: "http://www.esib.org/",
+                label: "European Students' Union",
+              },
+              icon: "contact-round",
+            },
+            {
+              category: "Araçlar",
+              link: {
+                href: "http://www.enic-naric.net/index.aspx?s=n&r=g&d=about",
+                label: "ENIC - NARIC Networks",
+              },
+              icon: "link",
+            },
+            {
+              category: "Yayınlar",
+              link: {
+                href: "http://publications.europa.eu/",
+                label: "EU Publications Portal",
+              },
+              icon: "file-text",
+            },
+          ],
+          en: [
+            {
+              category: "Academic",
+              link: {
+                href: "http://tez2.yok.gov.tr/",
+                label: "YÖK Thesis Search",
+              },
+              icon: "search",
+            },
+            {
+              category: "Academic",
+              link: {
+                href: "http://www.ktp.yildiz.edu.tr/",
+                label: "YTU Library",
+              },
+              icon: "library",
+            },
+            {
+              category: "Academic",
+              link: {
+                href: "http://www.sciencedirect.com/",
+                label: "Sciencedirect",
+              },
+              icon: "book-open",
+            },
+            {
+              category: "Academic",
+              link: {
+                href: "http://www.springerlink.com/",
+                label: "Springerlink",
+              },
+              icon: "external-link",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/erasmus.html",
+                label: "Erasmus+",
+              },
+              icon: "globe",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.mfa.gov.tr/yerlesik-diplomatik-ve-konsuler-misyonlar.tr.mfa",
+                label: "Embassies and Consulates",
+              },
+              icon: "building-2",
+            },
+            {
+              category: "Education",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/socrates/ects.html",
+                label: "European Credit Transfer System (ECTS)",
+              },
+              icon: "graduation-cap",
+            },
+            {
+              category: "Education",
+              link: {
+                href: "http://www.europa.eu.int/comm/education/ilpc/index_en.html",
+                label: "Intensive Language Program (ILPC)",
+              },
+              icon: "languages",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.esn.org/",
+                label: "Erasmus Student Network",
+              },
+              icon: "users",
+            },
+            {
+              category: "Erasmus",
+              link: {
+                href: "http://www.erasmus.ac.uk/",
+                label: "UK Socrates-Erasmus Council",
+              },
+              icon: "map-pin",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://www.eua.org/",
+                label: "European University Association (EUA)",
+              },
+              icon: "school",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://www.eaie.org/",
+                label: "Int. Education Association (EAIE)",
+              },
+              icon: "earth",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://www.enqa.net/",
+                label: "Quality Assurance (ENQA)",
+              },
+              icon: "shield-check",
+            },
+            {
+              category: "Tools",
+              link: {
+                href: "http://partbase.eupro.se/",
+                label: "Partbase Partner Finding Tool",
+              },
+              icon: "user-plus",
+            },
+            {
+              category: "Tools",
+              link: {
+                href: "http://www.siu.no/socpart",
+                label: "Norwegian National Agency Partner Search",
+              },
+              icon: "database",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://eunbrux02.eun.org/portal/index-en.cfm",
+                label: "European Schoolnet",
+              },
+              icon: "network",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.yok.gov.tr/",
+                label: "Council of Higher Education (YÖK)",
+              },
+              icon: "landmark",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.mfa.gov.tr/default.tr.mfa",
+                label: "Ministry of Foreign Affairs",
+              },
+              icon: "flag",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.abgs.gov.tr/",
+                label: "EU General Secretariat",
+              },
+              icon: "briefcase",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.ua.gov.tr/",
+                label: "National Agency",
+              },
+              icon: "award",
+            },
+            {
+              category: "Social Media",
+              link: {
+                href: "http://twitter.com/ulusalajans",
+                label: "National Agency Twitter",
+              },
+              icon: "twitter",
+            },
+            {
+              category: "Tools",
+              link: {
+                href: "http://partnersearch.ua.gov.tr/",
+                label: "Partner Search Portal",
+              },
+              icon: "search-code",
+            },
+            {
+              category: "Scholarships",
+              link: {
+                href: "http://www.jeanmonnet.org.tr/web/",
+                label: "Jean Monnet Scholarship Program",
+              },
+              icon: "history",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.cfcu.gov.tr/",
+                label: "Central Finance and Contracts Unit",
+              },
+              icon: "wallet",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://ec.europa.eu/education/index_en.htm",
+                label: "European Commission",
+              },
+              icon: "euro",
+            },
+            {
+              category: "Official Institutions",
+              link: {
+                href: "http://www.coe.int/",
+                label: "Council of Europe",
+              },
+              icon: "scale",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://www.iau-aiu.net/",
+                label: "Int. Association of Universities",
+              },
+              icon: "globe",
+            },
+            {
+              category: "Unions",
+              link: {
+                href: "http://www.esib.org/",
+                label: "European Students' Union",
+              },
+              icon: "contact-round",
+            },
+            {
+              category: "Tools",
+              link: {
+                href: "http://www.enic-naric.net/index.aspx?s=n&r=g&d=about",
+                label: "ENIC - NARIC Networks",
+              },
+              icon: "link",
+            },
+            {
+              category: "Publications",
+              link: {
+                href: "http://publications.europa.eu/",
+                label: "EU Publications Portal",
+              },
+              icon: "file-text",
+            },
+          ],
+        }}
       >
         {(item, index) => (
           <Fragment key={index}>

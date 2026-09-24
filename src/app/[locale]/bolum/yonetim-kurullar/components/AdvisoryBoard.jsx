@@ -35,7 +35,7 @@ export default function AdvisoryBoard() {
         <EditableRegion
           blockPath="board.title"
           blockType="ShortText"
-          defaultValue="Danışma Kurulu"
+          defaultValue={{ tr: "Danışma Kurulu", en: "Advisory Board" }}
         />
       }
       count={count}
@@ -61,16 +61,92 @@ export default function AdvisoryBoard() {
             rank: { blockType: "ShortText", defaultValue: "" },
             role: { blockType: "ShortText", defaultValue: "" },
           }}
-          defaultValue={[
-            { name: "Fatih TAŞÇI", rank: "Prof. Dr.", role: "Bölüm Başkanı" },
-            { name: "Aysun GÜRAN", rank: "Doç. Dr.", role: "Öğretim Üyesi" },
-            { name: "Tansu ALTANLAR", rank: "", role: "Jr Product Manager" },
-            { name: "Zahid GÜRBÜZ", rank: "Dr.", role: "Assistant Professor" },
-            { name: "Oguzhan KIVRAK", rank: "Dr. Öğr. Üyesi", role: "Product Manager" },
-            { name: "Gürkan YERLİKAYAOĞLU", rank: "", role: "Senior Engineering Manager" },
-            { name: "Serkan GESOĞLU", rank: "", role: "Business Analyst Architect" },
-            { name: "Mihriban KARAKOÇ", rank: "", role: "Scrum Master" },
-          ]}
+          defaultValue={{
+            tr: [
+              {
+                name: "Fatih TAŞÇI",
+                rank: "Prof. Dr.",
+                role: "Bölüm Başkanı",
+              },
+              {
+                name: "Aysun GÜRAN",
+                rank: "Doç. Dr.",
+                role: "Öğretim Üyesi",
+              },
+              {
+                name: "Tansu ALTANLAR",
+                rank: "",
+                role: "Jr Product Manager",
+              },
+              {
+                name: "Zahid GÜRBÜZ",
+                rank: "Dr.",
+                role: "Assistant Professor",
+              },
+              {
+                name: "Oguzhan KIVRAK",
+                rank: "Dr. Öğr. Üyesi",
+                role: "Product Manager",
+              },
+              {
+                name: "Gürkan YERLİKAYAOĞLU",
+                rank: "",
+                role: "Senior Engineering Manager",
+              },
+              {
+                name: "Serkan GESOĞLU",
+                rank: "",
+                role: "Business Analyst Architect",
+              },
+              {
+                name: "Mihriban KARAKOÇ",
+                rank: "",
+                role: "Scrum Master",
+              },
+            ],
+            en: [
+              {
+                name: "Fatih TAŞÇI",
+                rank: "Prof. Dr.",
+                role: "Department Head",
+              },
+              {
+                name: "Aysun GÜRAN",
+                rank: "Assoc. Prof. Dr.",
+                role: "Faculty Member",
+              },
+              {
+                name: "Tansu ALTANLAR",
+                rank: "",
+                role: "Jr Product Manager",
+              },
+              {
+                name: "Zahid GÜRBÜZ",
+                rank: "Dr.",
+                role: "Assistant Professor",
+              },
+              {
+                name: "Oguzhan KIVRAK",
+                rank: "Asst. Prof. Dr.",
+                role: "Product Manager",
+              },
+              {
+                name: "Gürkan YERLİKAYAOĞLU",
+                rank: "",
+                role: "Senior Engineering Manager",
+              },
+              {
+                name: "Serkan GESOĞLU",
+                rank: "",
+                role: "Business Analyst Architect",
+              },
+              {
+                name: "Mihriban KARAKOÇ",
+                rank: "",
+                role: "Scrum Master",
+              },
+            ],
+          }}
         >
           {(item, index) => <BoardMemberRow key={index} member={item} idx={index} />}
         </EditableList>

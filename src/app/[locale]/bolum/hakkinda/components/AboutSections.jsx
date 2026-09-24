@@ -20,7 +20,7 @@ export function MissionVision() {
         <EditableRegion
           blockPath="mission.title"
           blockType="ShortText"
-          defaultValue="Misyon & Vizyon"
+          defaultValue={{ tr: "Misyon & Vizyon", en: "Mission & Vision" }}
         />
       }
     >
@@ -31,7 +31,7 @@ export function MissionVision() {
             <EditableRegion
               blockPath="mission.label"
               blockType="ShortText"
-              defaultValue="Misyon"
+              defaultValue={{ tr: "Misyon", en: "Mission" }}
               as="span"
               className="font-semibold text-[14px] text-primary-500"
             />
@@ -39,7 +39,10 @@ export function MissionVision() {
           <EditableRegion
             blockPath="mission.body"
             blockType="LongText"
-            defaultValue="Matematiksel düşünce ve mühendislik yaklaşımını birleştirerek, toplumun ve endüstrinin ihtiyaç duyduğu nitelikli bilim insanları ve mühendisler yetiştirmek; evrensel bilime katkıda bulunmak."
+            defaultValue={{
+              tr: "Matematiksel düşünce ve mühendislik yaklaşımını birleştirerek, toplumun ve endüstrinin ihtiyaç duyduğu nitelikli bilim insanları ve mühendisler yetiştirmek; evrensel bilime katkıda bulunmak.",
+              en: "To educate qualified scientists and engineers needed by society and industry by combining mathematical thinking and an engineering approach; to contribute to universal science.",
+            }}
             as="p"
             className="text-[13px] text-primary-500/70 leading-relaxed"
           />
@@ -50,7 +53,7 @@ export function MissionVision() {
             <EditableRegion
               blockPath="vision.label"
               blockType="ShortText"
-              defaultValue="Vizyon"
+              defaultValue={{ tr: "Vizyon", en: "Vision" }}
               as="span"
               className="font-semibold text-[14px] text-primary-500"
             />
@@ -58,7 +61,10 @@ export function MissionVision() {
           <EditableRegion
             blockPath="vision.body"
             blockType="LongText"
-            defaultValue="Matematik mühendisliği alanında ulusal ve uluslararası düzeyde öncü, yenilikçi araştırmalarıyla tanınan, tercih edilen bir bölüm olmak."
+            defaultValue={{
+              tr: "Matematik mühendisliği alanında ulusal ve uluslararası düzeyde öncü, yenilikçi araştırmalarıyla tanınan, tercih edilen bir bölüm olmak.",
+              en: "To be a leading department at national and international levels in the field of mathematical engineering, recognized for its innovative research, and preferred.",
+            }}
             as="p"
             className="text-[13px] text-primary-500/70 leading-relaxed"
           />
@@ -75,7 +81,7 @@ export function EducationalGoals() {
         <EditableRegion
           blockPath="goals.title"
           blockType="ShortText"
-          defaultValue="Program Eğitim Amaçları"
+          defaultValue={{ tr: "Program Eğitim Amaçları", en: "Program Educational Objectives" }}
         />
       }
     >
@@ -83,7 +89,10 @@ export function EducationalGoals() {
         <EditableRegion
           blockPath="goals.intro"
           blockType="LongText"
-          defaultValue="Matematik Mühendisliği, temel ve uygulamalı matematik bilgisiyle mühendislik, ekonomi ve sosyal hayatta karşılaşılan olayların matematiksel modelini kuran, bu modellere çözüm üreten ve bu amaçla bilgisayar yazılım ve uygulamaları geliştiren mühendisler yetiştirir."
+          defaultValue={{
+            tr: "Matematik Mühendisliği, temel ve uygulamalı matematik bilgisiyle mühendislik, ekonomi ve sosyal hayatta karşılaşılan olayların matematiksel modelini kuran, bu modellere çözüm üreten ve bu amaçla bilgisayar yazılım ve uygulamaları geliştiren mühendisler yetiştirir.",
+            en: "Mathematical Engineering educates engineers who build mathematical models of phenomena encountered in engineering, economics, and social life using basic and applied mathematical knowledge, produce solutions to these models, and develop computer software and applications for this purpose.",
+          }}
           as="p"
           className="text-[13px] text-primary-500/70 leading-relaxed"
         />
@@ -96,18 +105,44 @@ export function EducationalGoals() {
             code: { blockType: "ShortText", defaultValue: "" },
             text: { blockType: "LongText", defaultValue: "" },
           }}
-          defaultValue={[
-            { code: "EA1", text: "Meslek içi ve sürekli eğitim programlarına katılan," },
-            {
-              code: "EA2",
-              text: "Ulusal ve uluslararası özel sektör ya da kamu kuruluşlarında yönetim ve uygulama kadrolarında çalışan,",
-            },
-            { code: "EA3", text: "Yurt içinde veya yurt dışında lisansüstü öğrenim gören," },
-            {
-              code: "EA4",
-              text: "Üniversitelerde akademisyen olarak görev yapan matematik mühendisleri yetiştirmek.",
-            },
-          ]}
+          defaultValue={{
+            tr: [
+              {
+                code: "EA1",
+                text: "Meslek içi ve sürekli eğitim programlarına katılan,",
+              },
+              {
+                code: "EA2",
+                text: "Ulusal ve uluslararası özel sektör ya da kamu kuruluşlarında yönetim ve uygulama kadrolarında çalışan,",
+              },
+              {
+                code: "EA3",
+                text: "Yurt içinde veya yurt dışında lisansüstü öğrenim gören,",
+              },
+              {
+                code: "EA4",
+                text: "Üniversitelerde akademisyen olarak görev yapan matematik mühendisleri yetiştirmek.",
+              },
+            ],
+            en: [
+              {
+                code: "EA1",
+                text: "Participating in in-service and continuing education programs,",
+              },
+              {
+                code: "EA2",
+                text: "Working in administrative and implementation positions in national and international private sector or public institutions,",
+              },
+              {
+                code: "EA3",
+                text: "Pursuing graduate studies domestically or abroad,",
+              },
+              {
+                code: "EA4",
+                text: "To train mathematical engineers who serve as academics at universities.",
+              },
+            ],
+          }}
         >
           {(item, index) => (
             <div
@@ -133,7 +168,7 @@ export function CareerProfile() {
         <EditableRegion
           blockPath="career.title"
           blockType="ShortText"
-          defaultValue="Kariyer ve Mezun Profili"
+          defaultValue={{ tr: "Kariyer ve Mezun Profili", en: "Career and Alumni Profile" }}
         />
       }
     >
@@ -146,25 +181,46 @@ export function CareerProfile() {
           label: { blockType: "ShortText", defaultValue: "" },
           items: { blockType: "LongText", defaultValue: "" },
         }}
-        defaultValue={[
-          {
-            label: "Çalışılan Kurumlar",
-            items: `TÜBİTAK
+        defaultValue={{
+          tr: [
+            {
+              label: "Çalışılan Kurumlar",
+              items: `TÜBİTAK
 MTA
 TÜİK
 Üniversite araştırma laboratuvarları
 Sigorta ve finans kuruluşları
 Bilgi işlem birimleri`,
-          },
-          {
-            label: "Görev Alanları",
-            items: `Yazılım Uzmanı / Mühendisi
+            },
+            {
+              label: "Görev Alanları",
+              items: `Yazılım Uzmanı / Mühendisi
 Veri Tabanı Uzmanı
 Sistem ve İş Analisti
 İstatistiksel Analist
 Matematikçi`,
-          },
-        ]}
+            },
+          ],
+          en: [
+            {
+              label: "Institutions of Employment",
+              items: `TÜBİTAK
+MTA
+TÜİK
+University research laboratories
+Insurance and financial institutions
+Information technology departments`,
+            },
+            {
+              label: "Areas of Responsibility",
+              items: `Software Specialist / Engineer
+Database Specialist
+System and Business Analyst
+Statistical Analyst
+Mathematician`,
+            },
+          ],
+        }}
       >
         {(group, index) => (
           <div key={index} className="flex-1">
@@ -200,7 +256,7 @@ export function Milestones() {
         <EditableRegion
           blockPath="milestones.title"
           blockType="ShortText"
-          defaultValue="Kilometre Taşları"
+          defaultValue={{ tr: "Kilometre Taşları", en: "Milestones" }}
         />
       }
     >
@@ -215,21 +271,60 @@ export function Milestones() {
             year: { blockType: "ShortText", defaultValue: "" },
             event: { blockType: "LongText", defaultValue: "" },
           }}
-          defaultValue={[
-            { year: "1911", event: "Kondüktör Mekteb-i Âlîsi adıyla kuruluş" },
-            { year: "1922", event: "Nafia Fen Mektebi'ne dönüşüm" },
-            { year: "1937", event: "İstanbul Teknik Okulu adını alması" },
-            {
-              year: "1969",
-              event: "İstanbul Devlet Mühendislik ve Mimarlık Akademisi'ne dönüşüm",
-            },
-            { year: "1982", event: "Yıldız Üniversitesi'nin kurulması" },
-            {
-              year: "1992",
-              event:
-                "Yıldız Teknik Üniversitesi adının alınması ve Kimya-Metalurji Fakültesi'nin kurulması",
-            },
-          ]}
+          defaultValue={{
+            tr: [
+              {
+                year: "1911",
+                event: "Kondüktör Mekteb-i Âlîsi adıyla kuruluş",
+              },
+              {
+                year: "1922",
+                event: "Nafia Fen Mektebi'ne dönüşüm",
+              },
+              {
+                year: "1937",
+                event: "İstanbul Teknik Okulu adını alması",
+              },
+              {
+                year: "1969",
+                event: "İstanbul Devlet Mühendislik ve Mimarlık Akademisi'ne dönüşüm",
+              },
+              {
+                year: "1982",
+                event: "Yıldız Üniversitesi'nin kurulması",
+              },
+              {
+                year: "1992",
+                event: "Yıldız Teknik Üniversitesi adının alınması ve Kimya-Metalurji Fakültesi'nin kurulması",
+              },
+            ],
+            en: [
+              {
+                year: "1911",
+                event: "Establishment under the name Kondüktör Mekteb-i Âlîsi",
+              },
+              {
+                year: "1922",
+                event: "Transformation into Nafia Fen Mektebi",
+              },
+              {
+                year: "1937",
+                event: "Taking the name Istanbul Technical School",
+              },
+              {
+                year: "1969",
+                event: "Transformation into Istanbul State Academy of Engineering and Architecture",
+              },
+              {
+                year: "1982",
+                event: "Establishment of Yildiz University",
+              },
+              {
+                year: "1992",
+                event: "Adoption of the name Yildiz Technical University and establishment of the Faculty of Chemical and Metallurgical Engineering",
+              },
+            ],
+          }}
         >
           {(item, index) => (
             <div key={index} className="relative flex items-start gap-4 py-3 group">
@@ -266,7 +361,7 @@ export function InternshipSummary() {
         <EditableRegion
           blockPath="internship.title"
           blockType="ShortText"
-          defaultValue="Staj Sistemi"
+          defaultValue={{ tr: "Staj Sistemi", en: "Internship System" }}
         />
       }
       buttonTitle={t("Staj Sayfası")}
@@ -277,7 +372,10 @@ export function InternshipSummary() {
           <EditableRegion
             blockPath="internship.intro"
             blockType="RichText"
-            defaultValue="<p>Öğrenciler eğitimleri boyunca toplam <strong>40 iş günü</strong> zorunlu staj yapar. Staj yapılan departmanda en az bir mühendis bulunmalıdır.</p>"
+            defaultValue={{
+              tr: "<p>Öğrenciler eğitimleri boyunca toplam <strong>40 iş günü</strong> zorunlu staj yapar. Staj yapılan departmanda en az bir mühendis bulunmalıdır.</p>",
+              en: "<p>Students complete a total of <strong>40 working days</strong> of compulsory internship throughout their education. There must be at least one engineer in the department where the internship is carried out.</p>",
+            }}
           />
         </div>
         <EditableList
@@ -291,20 +389,36 @@ export function InternshipSummary() {
             days: { blockType: "ShortText", defaultValue: "" },
             note: { blockType: "LongText", defaultValue: "" },
           }}
-          defaultValue={[
-            {
-              code: "MTM2002",
-              title: "Bilgisayar Donanımı ve Temel Uygulamaları Stajı",
-              days: "20 iş günü",
-              note: "Birinci aşama",
-            },
-            {
-              code: "MTM3002",
-              title: "Sorun Çözüm Teknikleri Stajı",
-              days: "20 iş günü",
-              note: "1. staj tamamlandıktan sonra, en az dört departmanlı orta/büyük ölçekli bir işletmede",
-            },
-          ]}
+          defaultValue={{
+            tr: [
+              {
+                code: "MTM2002",
+                title: "Bilgisayar Donanımı ve Temel Uygulamaları Stajı",
+                days: "20 iş günü",
+                note: "Birinci aşama",
+              },
+              {
+                code: "MTM3002",
+                title: "Sorun Çözüm Teknikleri Stajı",
+                days: "20 iş günü",
+                note: "1. staj tamamlandıktan sonra, en az dört departmanlı orta/büyük ölçekli bir işletmede",
+              },
+            ],
+            en: [
+              {
+                code: "MTM2002",
+                title: "Computer Hardware and Basic Applications Internship",
+                days: "20 working days",
+                note: "First stage",
+              },
+              {
+                code: "MTM3002",
+                title: "Problem Solving Techniques Internship",
+                days: "20 working days",
+                note: "after the completion of the 1st internship, in a medium/large-scale enterprise with at least four departments",
+              },
+            ],
+          }}
         >
           {(item, index) => (
             <div
@@ -341,7 +455,7 @@ export function MinorPrograms() {
         <EditableRegion
           blockPath="minor.title"
           blockType="ShortText"
-          defaultValue="Çift Anadal ve Yandal"
+          defaultValue={{ tr: "Çift Anadal ve Yandal", en: "Double Major and Minor" }}
         />
       }
     >
@@ -350,13 +464,19 @@ export function MinorPrograms() {
           <EditableRegion
             blockPath="minor.body"
             blockType="RichText"
-            defaultValue="<p>Çift Anadal (ÇAP) ve Yandal başvuruları, <strong>YÖ-098 sayılı YTÜ Lisans Düzeyindeki Programlar Arasında Geçiş ile Çift Anadal ve Yan Dal Yönergesi</strong> çerçevesinde yürütülür. Bölümün yayımlanmış bir Yandal Programı ders planı bulunmaktadır.</p>"
+            defaultValue={{
+              tr: "<p>Çift Anadal (ÇAP) ve Yandal başvuruları, <strong>YÖ-098 sayılı YTÜ Lisans Düzeyindeki Programlar Arasında Geçiş ile Çift Anadal ve Yan Dal Yönergesi</strong> çerçevesinde yürütülür. Bölümün yayımlanmış bir Yandal Programı ders planı bulunmaktadır.</p>",
+              en: "<p>Double Major and Minor applications are conducted within the framework of <strong>YTU Directive No. YÖ-098 on Transfers Between Undergraduate Programs, Double Majors, and Minors</strong>. The department has a published Minor Program curriculum.</p>",
+            }}
           />
         </div>
         <EditableRegion
           blockPath="minor.note"
           blockType="LongText"
-          defaultValue="Başvuru koşulları ve o yıl açılan program listesi her akademik yıl güncellendiğinden, güncel bilgi için Öğrenci İşleri Daire Başkanlığı duyurularını takip ediniz."
+          defaultValue={{
+            tr: "Başvuru koşulları ve o yıl açılan program listesi her akademik yıl güncellendiğinden, güncel bilgi için Öğrenci İşleri Daire Başkanlığı duyurularını takip ediniz.",
+            en: "Since application requirements and the list of programs offered that year are updated every academic year, please follow the announcements of the Department of Student Affairs for up-to-date information.",
+          }}
           as="p"
           className="text-[12px] text-primary-500/70 leading-relaxed"
         />
@@ -373,8 +493,14 @@ function MinorLink() {
         blockPath="minor.link"
         blockType="Link"
         defaultValue={{
-          href: "https://ogi.yildiz.edu.tr",
-          label: "Öğrenci İşleri Daire Başkanlığı",
+          tr: {
+            href: "https://ogi.yildiz.edu.tr",
+            label: "Öğrenci İşleri Daire Başkanlığı",
+          },
+          en: {
+            href: "https://ogi.yildiz.edu.tr",
+            label: "Department of Student Affairs",
+          },
         }}
         className="hover:text-secondary-700 transition-colors"
       />

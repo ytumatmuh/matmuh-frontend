@@ -35,14 +35,17 @@ export default function SummerSchoolPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Yaz Okulu"
+            defaultValue={{ tr: "Yaz Okulu", en: "Summer School" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Başka üniversiteden ve başka bölümden ders alma · 2025-2026"
+            defaultValue={{
+              tr: "Başka üniversiteden ve başka bölümden ders alma · 2025-2026",
+              en: "Taking courses from another university and another department · 2025-2026",
+            }}
           />
         }
       />
@@ -54,14 +57,20 @@ export default function SummerSchoolPage() {
               <EditableRegion
                 blockPath="warning.title"
                 blockType="ShortText"
-                defaultValue="Yaz okulunda alınan derslerin toplam kredisi 9’u geçemez"
+                defaultValue={{
+                  tr: "Yaz okulunda alınan derslerin toplam kredisi 9’u geçemez",
+                  en: "The total credits of courses taken in summer school cannot exceed 9",
+                }}
                 as="span"
                 className="text-[14px] font-semibold text-primary-600"
               />
               <EditableRegion
                 blockPath="warning.body"
                 blockType="LongText"
-                defaultValue="9 krediyi geçmesi durumunda diğer üniversitelerden veya diğer bölümlerden alınan dersler hiçbir şekilde kabul edilmez."
+                defaultValue={{
+                  tr: "9 krediyi geçmesi durumunda diğer üniversitelerden veya diğer bölümlerden alınan dersler hiçbir şekilde kabul edilmez.",
+                  en: "If it exceeds 9 credits, courses taken from other universities or other departments will not be accepted under any circumstances.",
+                }}
                 as="span"
                 className="text-[13px] text-primary-500/70 leading-relaxed"
               />

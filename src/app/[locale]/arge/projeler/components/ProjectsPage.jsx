@@ -14,14 +14,17 @@ export default function ProjectsPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Devam Eden Projeler"
+            defaultValue={{ tr: "Devam Eden Projeler", en: "Ongoing Projects" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Bölümde yürütülen araştırma projeleri"
+            defaultValue={{
+              tr: "Bölümde yürütülen araştırma projeleri",
+              en: "Research projects conducted in the department",
+            }}
           />
         }
       />
@@ -31,7 +34,10 @@ export default function ProjectsPage() {
             <EditableRegion
               blockPath="pending.body"
               blockType="LongText"
-              defaultValue="Devam eden proje listesi güncellenmektedir. Bölüm öğretim üyelerinin yürüttüğü güncel projelere aşağıdaki kaynaklardan ulaşabilirsiniz."
+              defaultValue={{
+                tr: "Devam eden proje listesi güncellenmektedir. Bölüm öğretim üyelerinin yürüttüğü güncel projelere aşağıdaki kaynaklardan ulaşabilirsiniz.",
+                en: "The list of ongoing projects is being updated. You can access current projects conducted by department faculty members from the sources below.",
+              }}
             />
           </PendingContent>
 
@@ -40,7 +46,7 @@ export default function ProjectsPage() {
               <EditableRegion
                 blockPath="resources.title"
                 blockType="ShortText"
-                defaultValue="Proje Kaynakları"
+                defaultValue={{ tr: "Proje Kaynakları", en: "Project Resources" }}
               />
             }
           >

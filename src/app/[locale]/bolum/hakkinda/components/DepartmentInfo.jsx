@@ -312,7 +312,7 @@ export default function DepartmentInfo({ staff, curriculum }) {
               <EditableRegion
                 blockPath="areas.title"
                 blockType="ShortText"
-                defaultValue="Çalışma ve Araştırma Alanları"
+                defaultValue={{ tr: "Çalışma ve Araştırma Alanları", en: "Fields of Study and Research" }}
               />
             }
           >

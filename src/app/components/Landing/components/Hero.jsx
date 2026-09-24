@@ -238,7 +238,7 @@ export default function Hero({ highlights = [] }) {
               <EditableRegion
                 blockPath="hero.title"
                 blockType="ShortText"
-                defaultValue="YILDIZ TEKNİK ÜNİVERSİTESİ"
+                defaultValue={{ tr: "YILDIZ TEKNİK ÜNİVERSİTESİ", en: "YILDIZ TECHNICAL UNIVERSITY" }}
                 as="h1"
                 className="text-[clamp(0.85rem,4.4vw,1.1rem)] sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight uppercase text-center whitespace-nowrap [text-shadow:0_2px_18px_rgba(13,17,43,0.9)]"
               />
@@ -258,7 +258,7 @@ export default function Hero({ highlights = [] }) {
             <EditableRegion
               blockPath="hero.subtitle"
               blockType="ShortText"
-              defaultValue="MATEMATİK MÜHENDİSLİĞİ"
+              defaultValue={{ tr: "MATEMATİK MÜHENDİSLİĞİ", en: "DEPARTMENT OF MATHEMATICAL ENGINEERING" }}
               as="h2"
               className="text-[0.95rem] sm:text-2xl md:text-3xl lg:text-4xl font-medium text-secondary-500 tracking-[0.15em] uppercase text-center [text-shadow:0_2px_14px_rgba(13,17,43,0.95),0_0_28px_rgba(13,17,43,0.8)]"
             />

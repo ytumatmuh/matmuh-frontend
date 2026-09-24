@@ -15,14 +15,17 @@ export default function YonetimKurullarPage({ initialStaff = [] }) {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Yönetim & Kurullar"
+            defaultValue={{ tr: "Yönetim & Kurullar", en: "Management & Boards" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Bölüm yönetimi ve Danışma Kurulu"
+            defaultValue={{
+              tr: "Bölüm yönetimi ve Danışma Kurulu",
+              en: "Department administration and Advisory Board",
+            }}
           />
         }
       />
@@ -33,7 +36,7 @@ export default function YonetimKurullarPage({ initialStaff = [] }) {
               <EditableRegion
                 blockPath="management.title"
                 blockType="ShortText"
-                defaultValue="Bölüm Yönetimi"
+                defaultValue={{ tr: "Bölüm Yönetimi", en: "Department Administration" }}
               />
             }
           >

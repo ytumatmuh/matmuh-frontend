@@ -15,7 +15,7 @@ export default function Footer() {
               <EditableRegion
                 blockPath="footer.address.title"
                 blockType="ShortText"
-                defaultValue="Adres"
+                defaultValue={{ tr: "Adres", en: "Address" }}
                 scope="global"
               />
             </h2>
@@ -23,10 +23,16 @@ export default function Footer() {
               <EditableRegion
                 blockPath="footer.address.body"
                 blockType="LongText"
-                defaultValue={`Yıldız Teknik Üniversitesi
+                defaultValue={{
+                  tr: `Yıldız Teknik Üniversitesi
 Matematik Mühendisliği Bölümü
 Davutpaşa Kampüsü
-34220 Esenler, İstanbul`}
+34220 Esenler, İstanbul`,
+                  en: `Yildiz Technical University
+Department of Mathematical Engineering
+Davutpaşa Campus
+34220 Esenler, Istanbul`,
+                }}
                 scope="global"
                 as="p"
               />
@@ -38,7 +44,7 @@ Davutpaşa Kampüsü
               <EditableRegion
                 blockPath="footer.contact.title"
                 blockType="ShortText"
-                defaultValue="İletişim"
+                defaultValue={{ tr: "İletişim", en: "Contact" }}
                 scope="global"
               />
             </h2>
@@ -62,7 +68,7 @@ Davutpaşa Kampüsü
               <EditableRegion
                 blockPath="footer.links.title"
                 blockType="ShortText"
-                defaultValue="Bağlantılar"
+                defaultValue={{ tr: "Bağlantılar", en: "Links" }}
                 scope="global"
               />
             </h2>
@@ -80,7 +86,7 @@ Davutpaşa Kampüsü
             <EditableRegion
               blockPath="footer.copyright"
               blockType="ShortText"
-              defaultValue="Yıldız Teknik Üniversitesi · Matematik Mühendisliği Bölümü"
+              defaultValue={{ tr: "Yıldız Teknik Üniversitesi · Matematik Mühendisliği Bölümü", en: "Yıldız Technical University · Department of Mathematical Engineering" }}
               scope="global"
             />
             {" · "}

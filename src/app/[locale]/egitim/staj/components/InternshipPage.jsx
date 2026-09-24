@@ -39,14 +39,17 @@ export default function InternshipPage({ initialStaff = [] }) {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Staj İşlemleri"
+            defaultValue={{ tr: "Staj İşlemleri", en: "Internship Procedures" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Zorunlu staj esasları, süreç ve belgeler"
+            defaultValue={{
+              tr: "Zorunlu staj esasları, süreç ve belgeler",
+              en: "Compulsory internship guidelines, process and documents",
+            }}
           />
         }
       />

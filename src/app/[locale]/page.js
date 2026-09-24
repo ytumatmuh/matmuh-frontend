@@ -61,7 +61,7 @@ export default async function LandingPage({ params }) {
               <EditableRegion
                 blockPath="announcements.title"
                 blockType="ShortText"
-                defaultValue="Duyurular"
+                defaultValue={{ tr: "Duyurular", en: "Announcements" }}
               />
             }
             icon={Bell}
@@ -89,7 +89,7 @@ export default async function LandingPage({ params }) {
               <EditableRegion
                 blockPath="news.title"
                 blockType="ShortText"
-                defaultValue="Haberler ve Etkinlikler"
+                defaultValue={{ tr: "Haberler ve Etkinlikler", en: "News and Events" }}
               />
             }
             icon={Newspaper}

@@ -34,14 +34,14 @@ export default function GraduateProgramsPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Programlar"
+            defaultValue={{ tr: "Programlar", en: "Programmes" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Yüksek lisans ve doktora programları"
+            defaultValue={{ tr: "Yüksek lisans ve doktora programları", en: "Master's and PhD programs" }}
           />
         }
       />

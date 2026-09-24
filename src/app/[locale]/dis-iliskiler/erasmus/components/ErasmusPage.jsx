@@ -32,14 +32,20 @@ export default function ErasmusPage({ initialStaff = [] }) {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Erasmus+"
+            defaultValue={{
+              tr: "Erasmus+",
+              en: "Erasmus+",
+            }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Değişim programları, bölüm koordinatörleri ve ikili anlaşmalar"
+            defaultValue={{
+              tr: "Değişim programları, bölüm koordinatörleri ve ikili anlaşmalar",
+              en: "Exchange programs, department coordinators and bilateral agreements",
+            }}
           />
         }
       />

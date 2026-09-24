@@ -16,14 +16,17 @@ export default function InformationSourcesPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Bilgi Kaynakları"
+            defaultValue={{ tr: "Bilgi Kaynakları", en: "Information Resources" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Eğitim ve araştırma süreçlerinizi destekleyen dijital kaynaklar"
+            defaultValue={{
+              tr: "Eğitim ve araştırma süreçlerinizi destekleyen dijital kaynaklar",
+              en: "Digital resources supporting your education and research processes",
+            }}
           />
         }
       />

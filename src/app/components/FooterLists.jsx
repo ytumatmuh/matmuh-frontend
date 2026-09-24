@@ -16,11 +16,36 @@ export function FooterPhones() {
         number: { blockType: "ShortText", defaultValue: "" },
         note: { blockType: "ShortText", defaultValue: "" },
       }}
-      defaultValue={[
-        { number: "+90 (212) 383 45 90", note: "Bölüm Başkanlığı" },
-        { number: "+90 (212) 383 45 92", note: "Bölüm Öğrenci İşleri" },
-        { number: "+90 (212) 383 45 91", note: "Bölüm Sekreterliği" },
-      ]}
+      defaultValue={{
+        tr: [
+          {
+            number: "+90 (212) 383 45 90",
+            note: "Bölüm Başkanlığı",
+          },
+          {
+            number: "+90 (212) 383 45 92",
+            note: "Bölüm Öğrenci İşleri",
+          },
+          {
+            number: "+90 (212) 383 45 91",
+            note: "Bölüm Sekreterliği",
+          },
+        ],
+        en: [
+          {
+            number: "+90 (212) 383 45 90",
+            note: "Department Head's Office",
+          },
+          {
+            number: "+90 (212) 383 45 92",
+            note: "Department Student Affairs",
+          },
+          {
+            number: "+90 (212) 383 45 91",
+            note: "Department Secretariat",
+          },
+        ],
+      }}
     >
       {(item, index) => (
         <div key={index} className="flex items-center gap-2">
@@ -45,12 +70,60 @@ export function FooterLinks() {
       itemSchema={{
         link: { blockType: "Link", defaultValue: { href: "", label: "" } },
       }}
-      defaultValue={[
-        { link: { href: "https://www.yildiz.edu.tr", label: "YTÜ Ana Sayfa" } },
-        { link: { href: "https://kmf.yildiz.edu.tr", label: "Kimya-Metalurji Fakültesi" } },
-        { link: { href: "https://ois.yildiz.edu.tr", label: "Öğrenci İşleri" } },
-        { link: { href: "https://kutuphane.yildiz.edu.tr", label: "Kütüphane" } },
-      ]}
+      defaultValue={{
+        tr: [
+          {
+            link: {
+              href: "https://www.yildiz.edu.tr",
+              label: "YTÜ Ana Sayfa",
+            },
+          },
+          {
+            link: {
+              href: "https://kmf.yildiz.edu.tr",
+              label: "Kimya-Metalurji Fakültesi",
+            },
+          },
+          {
+            link: {
+              href: "https://ois.yildiz.edu.tr",
+              label: "Öğrenci İşleri",
+            },
+          },
+          {
+            link: {
+              href: "https://kutuphane.yildiz.edu.tr",
+              label: "Kütüphane",
+            },
+          },
+        ],
+        en: [
+          {
+            link: {
+              href: "https://www.yildiz.edu.tr",
+              label: "YTU Homepage",
+            },
+          },
+          {
+            link: {
+              href: "https://kmf.yildiz.edu.tr",
+              label: "Faculty of Chemical and Metallurgical Engineering",
+            },
+          },
+          {
+            link: {
+              href: "https://ois.yildiz.edu.tr",
+              label: "Student Affairs",
+            },
+          },
+          {
+            link: {
+              href: "https://kutuphane.yildiz.edu.tr",
+              label: "Library",
+            },
+          },
+        ],
+      }}
     >
       {(item, index) => {
         const href = safeHref(item.link?.href);
@@ -91,13 +164,92 @@ export function FooterSocial() {
         label: { blockType: "ShortText", defaultValue: "" },
         link: { blockType: "Link", defaultValue: { href: "", label: "" } },
       }}
-      defaultValue={[
-        { platform: "facebook", label: "YTÜ Facebook", link: { href: "https://www.facebook.com/YildizEdu", label: "Facebook" } },
-        { platform: "instagram", label: "YTÜ Instagram", link: { href: "https://www.instagram.com/yildizedu", label: "Instagram" } },
-        { platform: "x", label: "YTÜ X", link: { href: "https://x.com/YildizEdu", label: "X" } },
-        { platform: "linkedin", label: "YTÜ LinkedIn", link: { href: "https://www.linkedin.com/school/15100152", label: "LinkedIn" } },
-        { platform: "youtube", label: "YTÜ YouTube", link: { href: "https://www.youtube.com/channel/UC2qKn25cUwpgBK6O1tGPjkA", label: "YouTube" } },
-      ]}
+      defaultValue={{
+        tr: [
+          {
+            platform: "facebook",
+            label: "YTÜ Facebook",
+            link: {
+              href: "https://www.facebook.com/YildizEdu",
+              label: "Facebook",
+            },
+          },
+          {
+            platform: "instagram",
+            label: "YTÜ Instagram",
+            link: {
+              href: "https://www.instagram.com/yildizedu",
+              label: "Instagram",
+            },
+          },
+          {
+            platform: "x",
+            label: "YTÜ X",
+            link: {
+              href: "https://x.com/YildizEdu",
+              label: "X",
+            },
+          },
+          {
+            platform: "linkedin",
+            label: "YTÜ LinkedIn",
+            link: {
+              href: "https://www.linkedin.com/school/15100152",
+              label: "LinkedIn",
+            },
+          },
+          {
+            platform: "youtube",
+            label: "YTÜ YouTube",
+            link: {
+              href: "https://www.youtube.com/channel/UC2qKn25cUwpgBK6O1tGPjkA",
+              label: "YouTube",
+            },
+          },
+        ],
+        en: [
+          {
+            platform: "facebook",
+            label: "YTU Facebook",
+            link: {
+              href: "https://www.facebook.com/YildizEdu",
+              label: "Facebook",
+            },
+          },
+          {
+            platform: "instagram",
+            label: "YTU Instagram",
+            link: {
+              href: "https://www.instagram.com/yildizedu",
+              label: "Instagram",
+            },
+          },
+          {
+            platform: "x",
+            label: "YTU X",
+            link: {
+              href: "https://x.com/YildizEdu",
+              label: "X",
+            },
+          },
+          {
+            platform: "linkedin",
+            label: "YTU LinkedIn",
+            link: {
+              href: "https://www.linkedin.com/school/15100152",
+              label: "LinkedIn",
+            },
+          },
+          {
+            platform: "youtube",
+            label: "YTU YouTube",
+            link: {
+              href: "https://www.youtube.com/channel/UC2qKn25cUwpgBK6O1tGPjkA",
+              label: "YouTube",
+            },
+          },
+        ],
+      }}
     >
       {(item, index) => {
         const Icon = SOCIAL_ICONS[item.platform] ?? ExternalLink;

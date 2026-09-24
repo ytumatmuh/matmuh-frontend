@@ -16,22 +16,40 @@ export default function ResearchLinks() {
         link: { blockType: "Link", defaultValue: { href: "", label: "" } },
         description: { blockType: "ShortText", defaultValue: "" },
       }}
-      defaultValue={[
-        {
-          link: {
-            href: "https://bap.yildiz.edu.tr/",
-            label: "YTÜ Bilimsel Araştırma Projeleri Koordinatörlüğü",
+      defaultValue={{
+        tr: [
+          {
+            link: {
+              href: "https://bap.yildiz.edu.tr/",
+              label: "YTÜ Bilimsel Araştırma Projeleri Koordinatörlüğü",
+            },
+            description: "Proje başvuru ve destek süreçleri",
           },
-          description: "Proje başvuru ve destek süreçleri",
-        },
-        {
-          link: {
-            href: "https://avesis.yildiz.edu.tr/",
-            label: "AVESİS - Akademik Veri Yönetim Sistemi",
+          {
+            link: {
+              href: "https://avesis.yildiz.edu.tr/",
+              label: "AVESİS - Akademik Veri Yönetim Sistemi",
+            },
+            description: "Öğretim üyelerinin güncel projeleri ve yayınları",
           },
-          description: "Öğretim üyelerinin güncel projeleri ve yayınları",
-        },
-      ]}
+        ],
+        en: [
+          {
+            link: {
+              href: "https://bap.yildiz.edu.tr/",
+              label: "YTU Scientific Research Projects Coordinatorship",
+            },
+            description: "Project application and support processes",
+          },
+          {
+            link: {
+              href: "https://avesis.yildiz.edu.tr/",
+              label: "AVESİS - Academic Data Management System",
+            },
+            description: "Current projects and publications of faculty members",
+          },
+        ],
+      }}
     >
       {(item, index) => {
         const href = safeHref(item.link?.href);

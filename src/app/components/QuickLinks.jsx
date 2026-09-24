@@ -149,60 +149,140 @@ function QuickLinksFull({ title }) {
               shortLabel: { blockType: "ShortText", defaultValue: "" },
               icon: { blockType: "ShortText", defaultValue: "" },
             }}
-            defaultValue={[
-              {
-                link: {
-                  href: "https://obs.yildiz.edu.tr/oibs/std/login.aspx",
-                  label: "Öğrenci Bilgi Sistemi (OBS)",
+            defaultValue={{
+              tr: [
+                {
+                  link: {
+                    href: "https://obs.yildiz.edu.tr/oibs/std/login.aspx",
+                    label: "Öğrenci Bilgi Sistemi (OBS)",
+                  },
+                  shortLabel: "OBS",
+                  icon: "monitor",
                 },
-                shortLabel: "OBS",
-                icon: "monitor",
-              },
-              {
-                link: {
-                  href: "https://ogi.yildiz.edu.tr/akademik-takvim",
-                  label: "Akademik Takvim",
+                {
+                  link: {
+                    href: "https://ogi.yildiz.edu.tr/akademik-takvim",
+                    label: "Akademik Takvim",
+                  },
+                  shortLabel: "Takvim",
+                  icon: "calendar",
                 },
-                shortLabel: "Takvim",
-                icon: "calendar",
-              },
-              {
-                link: { href: "/egitim/mufredat", label: "Müfredat" },
-                shortLabel: "Müfredat",
-                icon: "book-open",
-              },
-              {
-                link: { href: "/egitim/ders-programi", label: "Ders Programı" },
-                shortLabel: "Program",
-                icon: "calendar-days",
-              },
-              {
-                link: { href: "/egitim/staj", label: "Staj İşlemleri" },
-                shortLabel: "Staj",
-                icon: "briefcase",
-              },
-              {
-                link: { href: "/egitim/formlar", label: "Formlar / Belgeler" },
-                shortLabel: "Formlar",
-                icon: "file",
-              },
-              {
-                link: {
-                  href: "https://ogi.yildiz.edu.tr/iletisim/hizli-erisim/yonetmelik-ve-yonergeler",
-                  label: "Yönetmelik ve Yönergeler",
+                {
+                  link: {
+                    href: "/egitim/mufredat",
+                    label: "Müfredat",
+                  },
+                  shortLabel: "Müfredat",
+                  icon: "book-open",
                 },
-                shortLabel: "Mevzuat",
-                icon: "scale",
-              },
-              {
-                link: {
-                  href: "https://teknikdestek.yildiz.edu.tr/kb/index.php",
-                  label: "OBS Şifresi ve Öğrenci E-postası",
+                {
+                  link: {
+                    href: "/egitim/ders-programi",
+                    label: "Ders Programı",
+                  },
+                  shortLabel: "Program",
+                  icon: "calendar-days",
                 },
-                shortLabel: "OBS Şifre",
-                icon: "key-round",
-              },
-            ]}
+                {
+                  link: {
+                    href: "/egitim/staj",
+                    label: "Staj İşlemleri",
+                  },
+                  shortLabel: "Staj",
+                  icon: "briefcase",
+                },
+                {
+                  link: {
+                    href: "/egitim/formlar",
+                    label: "Formlar / Belgeler",
+                  },
+                  shortLabel: "Formlar",
+                  icon: "file",
+                },
+                {
+                  link: {
+                    href: "https://ogi.yildiz.edu.tr/iletisim/hizli-erisim/yonetmelik-ve-yonergeler",
+                    label: "Yönetmelik ve Yönergeler",
+                  },
+                  shortLabel: "Mevzuat",
+                  icon: "scale",
+                },
+                {
+                  link: {
+                    href: "https://teknikdestek.yildiz.edu.tr/kb/index.php",
+                    label: "OBS Şifresi ve Öğrenci E-postası",
+                  },
+                  shortLabel: "OBS Şifre",
+                  icon: "key-round",
+                },
+              ],
+              en: [
+                {
+                  link: {
+                    href: "https://obs.yildiz.edu.tr/oibs/std/login.aspx",
+                    label: "Student Information System (OBS)",
+                  },
+                  shortLabel: "OBS",
+                  icon: "monitor",
+                },
+                {
+                  link: {
+                    href: "https://ogi.yildiz.edu.tr/akademik-takvim",
+                    label: "Academic Calendar",
+                  },
+                  shortLabel: "Calendar",
+                  icon: "calendar",
+                },
+                {
+                  link: {
+                    href: "/egitim/mufredat",
+                    label: "Curriculum",
+                  },
+                  shortLabel: "Curriculum",
+                  icon: "book-open",
+                },
+                {
+                  link: {
+                    href: "/egitim/ders-programi",
+                    label: "Course Schedule",
+                  },
+                  shortLabel: "Program",
+                  icon: "calendar-days",
+                },
+                {
+                  link: {
+                    href: "/egitim/staj",
+                    label: "Internship Procedures",
+                  },
+                  shortLabel: "Internship",
+                  icon: "briefcase",
+                },
+                {
+                  link: {
+                    href: "/egitim/formlar",
+                    label: "Forms / Documents",
+                  },
+                  shortLabel: "Forms",
+                  icon: "file",
+                },
+                {
+                  link: {
+                    href: "https://ogi.yildiz.edu.tr/iletisim/hizli-erisim/yonetmelik-ve-yonergeler",
+                    label: "Regulations and Directives",
+                  },
+                  shortLabel: "Regulations",
+                  icon: "scale",
+                },
+                {
+                  link: {
+                    href: "https://teknikdestek.yildiz.edu.tr/kb/index.php",
+                    label: "OBS Password and Student E-mail",
+                  },
+                  shortLabel: "OBS Password",
+                  icon: "key-round",
+                },
+              ],
+            }}
           >
             {(item, index) => <QuickLinkRow key={index} item={item} />}
           </EditableList>

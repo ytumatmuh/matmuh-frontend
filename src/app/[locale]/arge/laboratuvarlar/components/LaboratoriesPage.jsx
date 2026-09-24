@@ -13,14 +13,17 @@ export default function LaboratoriesPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Laboratuvarlar"
+            defaultValue={{ tr: "Laboratuvarlar", en: "Laboratories" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Bölüm laboratuvarları ve donanımları"
+            defaultValue={{
+              tr: "Bölüm laboratuvarları ve donanımları",
+              en: "Department laboratories and equipment",
+            }}
           />
         }
       />
@@ -32,7 +35,10 @@ export default function LaboratoriesPage() {
             <EditableRegion
               blockPath="pending.body"
               blockType="LongText"
-              defaultValue="Laboratuvar donanım ve yazılım envanteri güncellenmektedir. Ayrıntılı bilgi için bölüm sekreterliğine başvurabilirsiniz."
+              defaultValue={{
+                tr: "Laboratuvar donanım ve yazılım envanteri güncellenmektedir. Ayrıntılı bilgi için bölüm sekreterliğine başvurabilirsiniz.",
+                en: "The laboratory hardware and software inventory is being updated. For detailed information, you can contact the Department Secretariat.",
+              }}
             />
           </PendingContent>
         </div>

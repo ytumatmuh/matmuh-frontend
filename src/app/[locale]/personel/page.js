@@ -20,14 +20,17 @@ export default async function PersonnelPage() {
           <EditableRegion
             blockPath="page.title"
             blockType="ShortText"
-            defaultValue="Akademik Personel"
+            defaultValue={{ tr: "Akademik Personel", en: "Academic Staff" }}
           />
         }
         subTitle={
           <EditableRegion
             blockPath="page.subtitle"
             blockType="ShortText"
-            defaultValue="Bölüm akademik ve idari kadro listesi"
+            defaultValue={{
+              tr: "Bölüm akademik ve idari kadro listesi",
+              en: "Department academic and administrative staff list",
+            }}
           />
         }
       />
