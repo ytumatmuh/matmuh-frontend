@@ -75,6 +75,7 @@ const toSection = (offering) => {
   const final = resultOf(offering, "NORMAL");
   return {
     section: String(offering.groupNumber ?? 1),
+    language: offering.language ?? null,
     summary: {
       average: final?.classAverage ?? null,
       stdDev: final?.standardDeviation ?? null,

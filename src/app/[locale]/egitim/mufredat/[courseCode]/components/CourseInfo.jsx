@@ -35,6 +35,7 @@ import { SkeletonBlock, SkeletonLine } from "@/app/components/Skeleton";
 import LectureNotes from "./LectureNotes";
 import SectionEnroll from "./SectionEnroll";
 import ShareStats from "./ShareStats";
+import { sectionLabel } from "@/lib/section-label";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
@@ -763,7 +764,7 @@ export default function CourseInfo({ course, sections = [] }) {
                             >
                               {availableSections.map((s) => (
                                 <option key={s.section} value={s.section}>
-                                  {t("Şube")} {s.section}
+                                  {sectionLabel(t, s)}
                                 </option>
                               ))}
                             </select>

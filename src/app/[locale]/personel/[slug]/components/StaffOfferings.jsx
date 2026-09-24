@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth";
 import { fetchStaffOfferings } from "@/data/statistics";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
+import { sectionLabel } from "@/lib/section-label";
 
 const STAT = "flex flex-col gap-0.5 rounded-lg bg-primary-500/2 px-3 py-2";
 
@@ -83,7 +84,7 @@ function LectureRow({ lecture, defaultOpen }) {
           {lecture.sections.map((section) => (
             <div key={section.section} className="flex flex-col gap-3">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-primary-500/70">
-                {t("Grup")} {section.section}
+                {sectionLabel(t, section)}
               </span>
               <Summary summary={section.summary} />
               <GradeDistribution data={section.gradeDistribution} />
