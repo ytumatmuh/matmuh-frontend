@@ -213,14 +213,26 @@ function SectionRow({ section, defaultOpen }) {
               {section.instructor}
             </span>
           )}
-          <span className="mt-0.5 block text-[11px] text-primary-500/70">
-            {t("Grup")} {section.groupNo}
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-primary-500/70">
+            <span>
+              {t("Grup")} {section.groupNo}
+            </span>
+            <span
+              className={`rounded-sm px-1.5 py-px text-[10px] font-semibold ${
+                section.english
+                  ? "bg-secondary-500/15 text-secondary-700"
+                  : "bg-primary-500/6 text-primary-500/80"
+              }`}
+            >
+              {section.english ? t("İngilizce") : t("Türkçe")}
+            </span>
             {!open && first && (
               <>
-                <span aria-hidden> · </span>
-                {t(first.day)} {first.time.split(" - ")[0]}
-                {section.schedule.length > 1 &&
-                  ` +${section.schedule.length - 1}`}
+                <span>
+                  {t(first.day)} {first.time.split(" - ")[0]}
+                  {section.schedule.length > 1 &&
+                    ` +${section.schedule.length - 1}`}
+                </span>
               </>
             )}
           </span>

@@ -119,6 +119,7 @@ export const getCourseSections = cache(async (code) => {
         instructor: entry.instructor,
         staffId: entry.staffId,
         staffSlug: entry.staffSlug,
+        english: entry.english,
         schedule: [],
       });
     }
