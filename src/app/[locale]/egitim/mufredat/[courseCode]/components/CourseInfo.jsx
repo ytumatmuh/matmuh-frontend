@@ -34,6 +34,7 @@ import { SkeletonBlock, SkeletonLine } from "@/app/components/Skeleton";
 
 import LectureNotes from "./LectureNotes";
 import SectionEnroll from "./SectionEnroll";
+import ShareStats from "./ShareStats";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
@@ -762,11 +763,21 @@ export default function CourseInfo({ course, sections = [] }) {
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-500/5 border border-primary-500/10 shrink-0">
-                        <Database size={12} className="text-primary-500/70" />
-                        <span className="text-[10px] font-bold text-primary-500/70 uppercase tracking-wider">
-                          OBS Verisi ({searchCode})
-                        </span>
+                      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-500/5 border border-primary-500/10 shrink-0">
+                          <Database size={12} className="text-primary-500/70" />
+                          <span className="text-[10px] font-bold text-primary-500/70 uppercase tracking-wider">
+                            OBS Verisi ({searchCode})
+                          </span>
+                        </div>
+                        <ShareStats
+                          course={course}
+                          termName={activeTerm?.name ?? ""}
+                          instructor={activeInstructor?.name ?? ""}
+                          stats={activeStats}
+                          summary={statsSummary}
+                          showSection={availableSections.length > 1}
+                        />
                       </div>
                     </div>
 
