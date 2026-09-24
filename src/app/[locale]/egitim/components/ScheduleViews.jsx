@@ -17,7 +17,7 @@ import {
 import { DAYS, TIME_SLOTS } from "@/data/schedule-grid";
 import { MyScheduleProvider, useMySchedule } from "@/data/useMySchedule";
 import { WINDOW_LABELS, kindOf, poolBlocks } from "@/data/schedule-pool";
-import { colorOf, courseColors, tintOf } from "@/data/schedule-colors";
+import { blockStyle, colorOf, courseColors } from "@/data/schedule-colors";
 import WeeklySchedule from "./WeeklySchedule";
 import { useT } from "@/i18n/useT";
 
@@ -136,10 +136,7 @@ function ListRow({ block, accent, courseHref }) {
   const body = (
     <div
       className="relative flex items-start gap-3 rounded-lg px-3 py-2.5 transition-[filter] hover:brightness-95 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-secondary-500"
-      style={{
-        backgroundColor: tintOf(isElective),
-        borderLeft: `2.5px solid ${accent}`,
-      }}
+      style={blockStyle(isElective, accent)}
     >
       <span className="w-22 shrink-0 font-mono text-[11px] leading-snug text-primary-500/70">
         {rangeOf(block)}
@@ -193,7 +190,7 @@ function PoolListItem({ block, palette, courseHref }) {
     <li>
       <div
         className="rounded-lg"
-        style={{ backgroundColor: tintOf(true), borderLeft: "2.5px solid var(--color-secondary-500)" }}
+        style={blockStyle(true, "var(--color-secondary-500)")}
       >
         <button
           type="button"
@@ -236,9 +233,10 @@ function PoolListItem({ block, palette, courseHref }) {
   );
 }
 
-function ScheduleList({ entries, courseHref, note }) {
+function ScheduleList({ entries, courseHref, note, palette: fixedPalette }) {
   const t = useT();
-  const palette = useMemo(() => courseColors(entries), [entries]);
+  const ownPalette = useMemo(() => courseColors(entries), [entries]);
+  const palette = fixedPalette ?? ownPalette;
   const days = useMemo(() => dayBlocks(entries), [entries]);
 
   if (days.length === 0) return <Empty />;
@@ -284,9 +282,10 @@ const TH =
   "px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-primary-500/40";
 const TD = "px-3 py-2 align-top";
 
-function ScheduleTable({ entries, courseHref, note }) {
+function ScheduleTable({ entries, courseHref, note, palette: fixedPalette }) {
   const t = useT();
-  const palette = useMemo(() => courseColors(entries), [entries]);
+  const ownPalette = useMemo(() => courseColors(entries), [entries]);
+  const palette = fixedPalette ?? ownPalette;
   const days = useMemo(() => dayBlocks(entries), [entries]);
   const [openPools, setOpenPools] = useState(() => new Set());
 
@@ -574,6 +573,7 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) 
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const kinds = useMemo(() => kindOptions(entries), [entries]);
+  const palette = useMemo(() => courseColors(entries), [entries]);
   const canFit = my?.status === "ready" && my.rows.length > 0;
   const fitting = fitOnly && canFit;
   const active = [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length + (fitting ? 1 : 0);
@@ -679,14 +679,14 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) 
       )}
 
       {view === "grid" ? (
-        <WeeklySchedule entries={shown} courseHref={courseHref} note={note} />
+        <WeeklySchedule entries={shown} palette={palette} courseHref={courseHref} note={note} />
       ) : (
         <>
           <div className="hidden md:block">
-            <ScheduleTable entries={shown} courseHref={courseHref} note={note} />
+            <ScheduleTable entries={shown} palette={palette} courseHref={courseHref} note={note} />
           </div>
           <div className="md:hidden">
-            <ScheduleList entries={shown} courseHref={courseHref} note={note} />
+            <ScheduleList entries={shown} palette={palette} courseHref={courseHref} note={note} />
           </div>
         </>
       )}

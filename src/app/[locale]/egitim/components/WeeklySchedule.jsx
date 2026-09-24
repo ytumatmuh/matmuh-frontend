@@ -35,7 +35,7 @@ import {
   NAVY_RGB as NAVY,
   colorOf,
   courseColors,
-  tintOf,
+  blockStyle,
 } from "@/data/schedule-colors";
 
 const VISIBLE = 3;
@@ -301,10 +301,7 @@ function Strip({ entry, color, slim, fill, joined, showRange, active, href, open
   return (
     <div
       className={`flex flex-col overflow-hidden ${joined ? "" : "rounded-md"} ${fill ? "flex-1" : ""}`}
-      style={{
-        backgroundColor: tintOf(elective, false),
-        borderLeft: `2.5px solid ${color}`,
-      }}
+      style={blockStyle(elective, color)}
     >
       <button
         ref={buttonRef}
@@ -466,8 +463,7 @@ function PoolStrip({ block, fill, joined, showRange, active, palette, courseHref
     <div
       className={`flex flex-col overflow-hidden ${joined ? "" : "rounded-md"} ${fill ? "flex-1" : ""}`}
       style={{
-        backgroundColor: tintOf(true, false),
-        borderLeft: `2.5px solid rgb(${GOLD})`,
+        ...blockStyle(true, `rgb(${GOLD})`),
         boxShadow: active ? `inset 0 0 0 1px rgba(${GOLD},0.6)` : undefined,
       }}
     >
@@ -1088,6 +1084,7 @@ function TimeLabel({ row, children }) {
 
 export default function WeeklySchedule({
   entries = [],
+  palette: fixedPalette = null,
   courseHref,
   note = null,
   clash = false,
@@ -1106,7 +1103,8 @@ export default function WeeklySchedule({
     [rows],
   );
   const dayIndexes = useMemo(() => visibleDayIndexes(entries), [entries]);
-  const palette = useMemo(() => courseColors(entries), [entries]);
+  const ownPalette = useMemo(() => courseColors(entries), [entries]);
+  const palette = fixedPalette ?? ownPalette;
 
   useEffect(() => {
     if (!openId) return undefined;

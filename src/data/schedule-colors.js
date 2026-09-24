@@ -34,3 +34,11 @@ const overWhite = (rgb, alpha) =>
 
 export const tintOf = (elective, faded = false) =>
   overWhite(elective ? GOLD_RGB : NAVY_RGB, faded ? 0.035 : elective ? 0.2 : 0.04);
+
+const DASH = "1px dashed rgba(29,36,69,0.32)";
+
+export const blockStyle = (elective, bar) => ({
+  backgroundColor: tintOf(false),
+  borderLeft: `2.5px solid ${bar}`,
+  ...(elective ? { borderTop: DASH, borderRight: DASH, borderBottom: DASH } : {}),
+});

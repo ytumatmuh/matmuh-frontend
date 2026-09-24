@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, CircleHelp, Layers, MousePointerClick, Wifi } from "lucide-react";
 
-import { COURSE_COLORS, GOLD_RGB, tintOf } from "@/data/schedule-colors";
+import { COURSE_COLORS, GOLD_RGB, blockStyle } from "@/data/schedule-colors";
 import { useT } from "@/i18n/useT";
 
 const OUTLINE = "inset 0 0 0 1px rgba(29,36,69,0.08)";
@@ -15,7 +15,7 @@ function Sample({ elective, bar = COURSE_COLORS[1], children }) {
     <span
       aria-hidden
       className="inline-flex h-4 w-6 shrink-0 items-center justify-center rounded-[3px]"
-      style={{ backgroundColor: tintOf(elective), borderLeft: `2.5px solid ${bar}`, boxShadow: OUTLINE }}
+      style={{ ...blockStyle(elective, bar), boxShadow: elective ? undefined : OUTLINE }}
     >
       {children}
     </span>
@@ -29,8 +29,8 @@ function JoinedSample() {
       className="inline-flex h-4 w-6 shrink-0 flex-col gap-px overflow-hidden rounded-[3px] bg-primary-500/15"
       style={{ boxShadow: OUTLINE }}
     >
-      <span className="flex-1" style={{ backgroundColor: tintOf(false), borderLeft: `2.5px solid ${COURSE_COLORS[1]}` }} />
-      <span className="flex-1" style={{ backgroundColor: tintOf(true), borderLeft: `2.5px solid ${COURSE_COLORS[2]}` }} />
+      <span className="flex-1" style={blockStyle(false, COURSE_COLORS[1])} />
+      <span className="flex-1" style={blockStyle(false, COURSE_COLORS[2])} />
     </span>
   );
 }
@@ -93,7 +93,7 @@ export default function ScheduleLegend({
   }, [help]);
 
   return (
-    <div className="px-1">
+    <div className="relative px-1">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {items.map((item) => (
           <Item key={item.label} sample={<Sample elective={item.elective} bar={COURSE_COLORS[item.elective ? 2 : 1]} />}>
@@ -114,7 +114,7 @@ export default function ScheduleLegend({
         )}
         <div
           ref={helpRef}
-          className="relative"
+          className="sm:relative"
           onPointerEnter={openLater}
           onPointerLeave={closeLater}
           onFocus={(event) => {
@@ -143,7 +143,7 @@ export default function ScheduleLegend({
             id="schedule-help"
             role="tooltip"
             aria-hidden={!help}
-            className={`absolute top-full left-0 z-30 mt-1.5 grid w-[min(40rem,calc(100vw-2rem))] origin-top-left gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,scale,visibility] motion-reduce:transition-none max-sm:-left-2 ${
+            className={`absolute top-full right-0 left-0 z-30 mt-1.5 grid origin-top-left sm:right-auto sm:w-[min(40rem,calc(100vw-2rem))] gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,scale,visibility] motion-reduce:transition-none ${
               help
                 ? "visible scale-100 opacity-100 duration-150 ease-out"
                 : "invisible pointer-events-none scale-[0.97] opacity-0 duration-[120ms] ease-in"
