@@ -57,7 +57,7 @@ export const getLectures = cache(async () =>
   (await fetchAll("lectures")).map((item) => ({ ...item.data, slug: item.slug })),
 );
 
-const getElectiveGroups = cache(async () =>
+export const getElectiveGroups = cache(async () =>
   (await fetchAll("elective-groups")).map((item) => ({ ...item.data, slug: item.slug })),
 );
 

@@ -22,6 +22,16 @@ export default function DersProgramiPage({ entries: all = [], term }) {
     [all, activeClass],
   );
 
+  const pools = useMemo(() => {
+    const seen = new Map();
+    for (const entry of all) {
+      if (entry.pool && !seen.has(entry.pool.id)) seen.set(entry.pool.id, entry.pool);
+    }
+    return [...seen.values()].sort((a, b) => (a.term ?? 0) - (b.term ?? 0));
+  }, [all]);
+
+  const courseCount = useMemo(() => new Set(entries.map((entry) => entry.code)).size, [entries]);
+
   return (
     <>
       <SubHeader
@@ -56,7 +66,7 @@ export default function DersProgramiPage({ entries: all = [], term }) {
               <div className="flex items-center gap-2 text-primary-500/70">
                 <CalendarDays size={14} strokeWidth={1.5} />
                 <span style={{ fontSize: "0.75rem" }}>
-                  {t("{count} ders bloğu", { count: entries.length })}
+                  {t("{count} ders", { count: courseCount })}
                 </span>
               </div>
             </div>
@@ -72,9 +82,20 @@ export default function DersProgramiPage({ entries: all = [], term }) {
                   { color: tintOf(true), label: t("Seçmeli") },
                 ]}
                 showOnline
+                showPool={entries.some((entry) => entry.pool)}
               />
             }
-            note="Üniversite havuzundan seçilen yabancı dil ve sosyal seçmeli dersleri bu programda yer almaz."
+            note={
+              pools.length > 0
+                ? t("Üniversite seçmelileri müfredattaki yerlerine göre listelenir: {list}.", {
+                    list: pools
+                      .map((pool) =>
+                        t("{name} {n}. sınıfta", { name: pool.name, n: Math.ceil((pool.term ?? 1) / 2) }),
+                      )
+                      .join(", "),
+                  })
+                : null
+            }
           />
         </div>
       </PageLayout>
