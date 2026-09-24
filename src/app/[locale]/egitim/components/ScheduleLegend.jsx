@@ -143,8 +143,10 @@ export default function ScheduleLegend({
             id="schedule-help"
             role="tooltip"
             aria-hidden={!help}
-            className={`absolute top-full left-0 z-30 mt-1.5 grid w-[min(40rem,calc(100vw-2rem))] origin-top-left gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,transform,visibility] duration-150 ease-out motion-reduce:transition-none max-sm:-left-2 ${
-              help ? "visible scale-100 opacity-100" : "invisible pointer-events-none scale-95 opacity-0"
+            className={`absolute top-full left-0 z-30 mt-1.5 grid w-[min(40rem,calc(100vw-2rem))] origin-top-left gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,scale,visibility] motion-reduce:transition-none max-sm:-left-2 ${
+              help
+                ? "visible scale-100 opacity-100 duration-150 ease-out"
+                : "invisible pointer-events-none scale-[0.97] opacity-0 duration-[120ms] ease-in"
             }`}
           >
             <Item sample={<StripesSample />}>{t("Sol şeridin rengi dersi gösterir; aynı ders her yerde aynı renktedir.")}</Item>
