@@ -272,7 +272,7 @@ function Strip({ entry, color, slim, fill, showRange, active, href, onToggle }) 
 
   return (
     <div
-      className={`overflow-hidden rounded-md ${fill ? "flex-1" : ""}`}
+      className={`flex flex-col overflow-hidden rounded-md ${fill ? "flex-1" : ""}`}
       style={{
         backgroundColor: tintOf(elective, false),
         borderLeft: `2.5px solid ${color}`,
@@ -283,7 +283,7 @@ function Strip({ entry, color, slim, fill, showRange, active, href, onToggle }) 
         onClick={onToggle}
         aria-expanded={active}
         aria-label={label}
-        className="block min-h-6 w-full py-1.5 pr-1.5 pl-1.5 text-left transition-colors hover:bg-primary-500/4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-secondary-500"
+        className={`flex min-h-6 w-full flex-col justify-start py-1.5 pr-1.5 pl-1.5 text-left transition-colors hover:bg-primary-500/4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-secondary-500 ${fill && !active ? "flex-1" : ""}`}
       >
         <span className="flex items-center gap-1">
           <span
