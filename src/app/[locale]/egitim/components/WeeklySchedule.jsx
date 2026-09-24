@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "@/app/components/LocaleLink";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   Check,
@@ -518,11 +518,58 @@ function PoolStrip({ block, fill, showRange, active, palette, courseHref, onTogg
 const PANEL_WIDTH = 320;
 const PANEL_GAP = 6;
 const EDGE = 12;
+const SHEET_BREAKPOINT = 640;
+const SLIDE = 8;
+
+function placePanel(anchor, panel) {
+  const box = anchor.getBoundingClientRect();
+  const frame = anchor.closest("[data-schedule-grid]")?.getBoundingClientRect();
+  const viewportRight = window.innerWidth - EDGE;
+
+  if (window.innerWidth < SHEET_BREAKPOINT) {
+    return {
+      side: "bottom",
+      style: { left: 0, right: 0, bottom: 0, maxHeight: "70svh" },
+    };
+  }
+
+  const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
+  const maxHeight = Math.min(460, window.innerHeight - EDGE * 2);
+  const height = Math.min(panel.scrollHeight, maxHeight);
+  const limitRight = Math.min(frame?.right ?? viewportRight, viewportRight);
+  const limitLeft = Math.max(frame?.left ?? EDGE, EDGE);
+  const right = box.right + PANEL_GAP;
+  const left = box.left - PANEL_GAP - width;
+
+  let side = "below";
+  let x = Math.min(Math.max(box.left, EDGE), viewportRight - width);
+  let y = box.bottom + PANEL_GAP;
+  if (right + width <= limitRight) {
+    side = "right";
+    x = right;
+    y = box.top;
+  } else if (left >= limitLeft) {
+    side = "left";
+    x = left;
+    y = box.top;
+  }
+  y = Math.min(Math.max(y, EDGE), window.innerHeight - EDGE - height);
+  return { side, style: { left: x, top: y, width, maxHeight } };
+}
+
+const OFFSETS = {
+  right: `translateX(-${SLIDE}px)`,
+  left: `translateX(${SLIDE}px)`,
+  below: `translateY(-${SLIDE}px)`,
+  bottom: "translateY(24px)",
+};
 
 function AnchoredPanel({ anchorRef, label, onClose, children }) {
   const panelRef = useRef(null);
   const closeRef = useRef(onClose);
-  const [position, setPosition] = useState(null);
+  const [placement, setPlacement] = useState(null);
+  const [shown, setShown] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     closeRef.current = onClose;
@@ -530,33 +577,14 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
 
   useLayoutEffect(() => {
     const place = () => {
-      const anchor = anchorRef.current;
-      const panel = panelRef.current;
-      if (!anchor || !panel) return;
-      const box = anchor.getBoundingClientRect();
-      const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
-      const maxHeight = Math.min(460, window.innerHeight - EDGE * 2);
-      const height = Math.min(panel.scrollHeight, maxHeight);
-      const right = box.right + PANEL_GAP;
-      const left = box.left - PANEL_GAP - width;
-
-      let x;
-      let y;
-      if (right + width <= window.innerWidth - EDGE) {
-        x = right;
-        y = box.top;
-      } else if (left >= EDGE) {
-        x = left;
-        y = box.top;
-      } else {
-        x = Math.min(Math.max(box.left, EDGE), window.innerWidth - EDGE - width);
-        y = box.bottom + PANEL_GAP;
-      }
-      y = Math.min(Math.max(y, EDGE), window.innerHeight - EDGE - height);
-      setPosition({ left: x, top: y, width, maxHeight });
+      if (!anchorRef.current || !panelRef.current) return;
+      setPlacement(placePanel(anchorRef.current, panelRef.current));
     };
 
     place();
+    let reveal = requestAnimationFrame(() => {
+      reveal = requestAnimationFrame(() => setShown(true));
+    });
     let frame = 0;
     const schedule = () => {
       cancelAnimationFrame(frame);
@@ -577,6 +605,7 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
     document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);
     return () => {
+      cancelAnimationFrame(reveal);
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule, true);
       window.removeEventListener("resize", schedule);
@@ -585,18 +614,26 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
     };
   }, [anchorRef]);
 
+  const sheet = placement?.side === "bottom";
+  const visible = Boolean(placement) && shown;
+
   return createPortal(
     <div
       ref={panelRef}
       role="dialog"
       aria-label={label}
-      className="fixed z-[10040] flex flex-col overflow-hidden rounded-xl border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)]"
-      style={
-        position
-          ? { left: position.left, top: position.top, width: position.width, maxHeight: position.maxHeight }
-          : { left: 0, top: 0, width: PANEL_WIDTH, maxHeight: 460, visibility: "hidden" }
-      }
+      className={`fixed z-[10040] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
+        sheet ? "rounded-t-2xl pb-[env(safe-area-inset-bottom)]" : "rounded-xl"
+      }`}
+      style={{
+        ...(placement?.style ?? { left: 0, top: 0, width: PANEL_WIDTH, maxHeight: 460 }),
+        opacity: visible ? 1 : 0,
+        transform: visible || reduceMotion || !placement ? "none" : OFFSETS[placement.side],
+        transition: reduceMotion ? "opacity 120ms ease-out" : "opacity 150ms ease-out, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)",
+        visibility: placement ? "visible" : "hidden",
+      }}
     >
+      {sheet && <span aria-hidden className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-primary-500/15" />}
       {children}
     </div>,
     document.body,
@@ -936,7 +973,7 @@ export default function WeeklySchedule({
     });
 
   return (
-    <div className="overflow-hidden rounded-xl border border-primary-500/10 bg-white shadow-xs">
+    <div data-schedule-grid className="overflow-hidden rounded-xl border border-primary-500/10 bg-white shadow-xs">
       <div className="border-b border-primary-500/6 px-4 py-2 text-center sm:hidden">
         <span className="text-[11px] text-primary-500/70">
           {t("← Programı görmek için yatay kaydırın →")}
