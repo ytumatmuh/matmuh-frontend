@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import { CalendarDays } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import SubHeader from "@/app/components/Header/SubHeader";
 import PageLayout from "@/app/components/PageLayout";
 import ScheduleViews from "@/app/[locale]/egitim/components/ScheduleViews";
@@ -18,6 +19,7 @@ const isDoctorate = (entry) => entry.degreeLevels.includes("DOCTORATE");
 
 export default function LisansustuDersProgramiPage({ entries: all = [], term }) {
   const t = useT();
+  const reduceMotion = useReducedMotion();
   const [level, setLevel] = useState("all");
 
   const entries = useMemo(
@@ -47,14 +49,22 @@ export default function LisansustuDersProgramiPage({ entries: all = [], term }) 
                   <button
                     key={lv.id}
                     onClick={() => setLevel(lv.id)}
-                    className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-3 text-[0.8125rem] transition-all duration-200 ${
+                    className={`relative shrink-0 whitespace-nowrap border-b-2 border-transparent px-4 py-3 text-[0.8125rem] transition-colors duration-200 ${
                       level === lv.id
-                        ? "border-secondary-500 font-semibold text-primary-500"
-                        : "border-transparent font-[450] text-primary-500/40 hover:text-primary-500/70"
+                        ? "font-semibold text-primary-500"
+                        : "font-[450] text-primary-500/40 hover:text-primary-500/70"
                     }`}
                     aria-pressed={level === lv.id}
                   >
                     {t(lv.label)}
+                    {level === lv.id && (
+                      <motion.span
+                        layoutId="level-tab"
+                        aria-hidden
+                        className="absolute inset-x-0 -bottom-0.5 h-0.5 bg-secondary-500"
+                        transition={reduceMotion ? { duration: 0 } : { duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                      />
+                    )}
                   </button>
                 ))}
               </div>

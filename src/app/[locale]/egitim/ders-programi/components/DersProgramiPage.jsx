@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { CalendarDays } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import SubHeader from "@/app/components/Header/SubHeader";
 import PageLayout from "@/app/components/PageLayout";
 import ScheduleViews from "@/app/[locale]/egitim/components/ScheduleViews";
@@ -15,6 +16,7 @@ const classOf = (entry) => (entry.term ? Math.ceil(entry.term / 2) : null);
 
 export default function DersProgramiPage({ entries: all = [], term }) {
   const t = useT();
+  const reduceMotion = useReducedMotion();
   const { locale } = useCmsRoute();
   const listFormat = useMemo(
     () => new Intl.ListFormat(locale === "en" ? "en" : "tr", { style: "long", type: "conjunction" }),
@@ -55,14 +57,22 @@ export default function DersProgramiPage({ entries: all = [], term }) {
                   <button
                     key={cls.id}
                     onClick={() => setActiveClass(cls.id)}
-                    className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-3 text-[0.8125rem] transition-all duration-200 ${
+                    className={`relative shrink-0 whitespace-nowrap border-b-2 border-transparent px-4 py-3 text-[0.8125rem] transition-colors duration-200 ${
                       activeClass === cls.id
-                        ? "border-secondary-500 font-semibold text-primary-500"
-                        : "border-transparent font-[450] text-primary-500/40 hover:text-primary-500/70"
+                        ? "font-semibold text-primary-500"
+                        : "font-[450] text-primary-500/40 hover:text-primary-500/70"
                     }`}
                     aria-pressed={activeClass === cls.id}
                   >
                     {t("{n}. Sınıf", { n: cls.id })}
+                    {activeClass === cls.id && (
+                      <motion.span
+                        layoutId="year-tab"
+                        aria-hidden
+                        className="absolute inset-x-0 -bottom-0.5 h-0.5 bg-secondary-500"
+                        transition={reduceMotion ? { duration: 0 } : { duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                      />
+                    )}
                   </button>
                 ))}
               </div>
