@@ -7,6 +7,8 @@ import { COURSE_COLORS, GOLD_RGB, tintOf } from "@/data/schedule-colors";
 import { useT } from "@/i18n/useT";
 
 const OUTLINE = "inset 0 0 0 1px rgba(29,36,69,0.08)";
+const HOVER_OPEN_MS = 200;
+const HOVER_CLOSE_MS = 150;
 
 function Sample({ elective, bar = COURSE_COLORS[1], children }) {
   return (
@@ -61,6 +63,20 @@ export default function ScheduleLegend({
   const t = useT();
   const [help, setHelp] = useState(false);
   const helpRef = useRef(null);
+  const timerRef = useRef(0);
+
+  const openLater = (event) => {
+    if (event.pointerType !== "mouse") return;
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setHelp(true), HOVER_OPEN_MS);
+  };
+  const closeLater = (event) => {
+    if (event.pointerType !== "mouse") return;
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setHelp(false), HOVER_CLOSE_MS);
+  };
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   useEffect(() => {
     if (!help) return undefined;
@@ -96,10 +112,24 @@ export default function ScheduleLegend({
         {showOnline && (
           <Item sample={<Wifi size={12} strokeWidth={2} className="text-secondary-700" />}>{t("Çevrimiçi")}</Item>
         )}
-        <div ref={helpRef} className="relative">
+        <div
+          ref={helpRef}
+          className="relative"
+          onPointerEnter={openLater}
+          onPointerLeave={closeLater}
+          onFocus={(event) => {
+            if (event.target.matches(":focus-visible")) setHelp(true);
+          }}
+          onBlur={(event) => {
+            if (!helpRef.current?.contains(event.relatedTarget)) setHelp(false);
+          }}
+        >
           <button
             type="button"
-            onClick={() => setHelp((prev) => !prev)}
+            onClick={() => {
+              clearTimeout(timerRef.current);
+              setHelp((prev) => !prev);
+            }}
             aria-expanded={help}
             aria-controls="schedule-help"
             className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11.5px] font-medium text-secondary-700 transition-colors hover:bg-secondary-500/10"
@@ -109,10 +139,13 @@ export default function ScheduleLegend({
             <ChevronDown size={12} strokeWidth={2} className={`transition-transform ${help ? "rotate-180" : ""}`} />
           </button>
 
-        {help && (
           <div
             id="schedule-help"
-            className="absolute top-full left-0 z-30 mt-1.5 grid w-[min(40rem,calc(100vw-2rem))] gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] max-sm:-left-2"
+            role="tooltip"
+            aria-hidden={!help}
+            className={`absolute top-full left-0 z-30 mt-1.5 grid w-[min(40rem,calc(100vw-2rem))] origin-top-left gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,transform,visibility] duration-150 ease-out motion-reduce:transition-none max-sm:-left-2 ${
+              help ? "visible scale-100 opacity-100" : "invisible pointer-events-none scale-95 opacity-0"
+            }`}
           >
             <Item sample={<StripesSample />}>{t("Sol şeridin rengi dersi gösterir; aynı ders her yerde aynı renktedir.")}</Item>
             <Item sample={<JoinedSample />}>{t("Aynı saatte birden çok ders varsa tek kutuda alt alta durur.")}</Item>
@@ -137,7 +170,6 @@ export default function ScheduleLegend({
               {t("Hoca, derslik ve programa ekleme için kutuya tıklayın.")}
             </Item>
           </div>
-        )}
         </div>
       </div>
     </div>
