@@ -41,28 +41,24 @@ export default function LisansustuDersProgramiPage({ entries: all = [], term }) 
       <PageLayout>
         <div className="space-y-4">
           <div className="rounded-xl border border-primary-500/10 shadow-xs bg-white overflow-hidden">
-            <div className="flex items-center justify-between gap-4 px-4 py-3 flex-wrap">
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-1 px-1 max-w-full">
+            <div className="flex items-center justify-between gap-x-4 px-2 flex-wrap">
+              <div className="flex items-center overflow-x-auto no-scrollbar max-w-full">
                 {LEVELS.map((lv) => (
                   <button
                     key={lv.id}
                     onClick={() => setLevel(lv.id)}
-                    className="px-4 py-2 rounded-lg transition-colors shrink-0 whitespace-nowrap"
-                    style={{
-                      fontSize: "0.8125rem",
-                      fontWeight: level === lv.id ? 600 : 450,
-                      color: level === lv.id ? "#fff" : "rgba(29,36,69,0.5)",
-                      backgroundColor:
-                        level === lv.id
-                          ? "var(--color-primary-500)"
-                          : "transparent",
-                    }}
+                    className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-3.5 text-sm font-semibold transition-colors ${
+                      level === lv.id
+                        ? "border-secondary-500 text-secondary-700"
+                        : "border-transparent text-primary-500/70 hover:text-primary-500"
+                    }`}
+                    aria-pressed={level === lv.id}
                   >
                     {t(lv.label)}
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2 text-primary-500/70">
+              <div className="flex items-center gap-2 px-2 py-3 text-primary-500/70">
                 <CalendarDays size={14} strokeWidth={1.5} />
                 <span style={{ fontSize: "0.75rem" }}>
                   {t("{count} ders bloğu", { count: entries.length })}
