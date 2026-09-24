@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "@/app/components/LocaleLink";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Check,
   ChevronDown,
-  ChevronRight,
   Layers,
   MapPin,
   Plus,
@@ -15,10 +14,10 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import Modal from "@/app/components/Modal";
+import { createPortal } from "react-dom";
 import { useMySchedule } from "@/data/useMySchedule";
 import { DAYS, TIME_SLOTS, visibleDayIndexes } from "@/data/schedule-grid";
-import { WINDOW_LABELS, byTimeOrder, poolBlocks } from "@/data/schedule-pool";
+import { WINDOW_LABELS, poolBlocks } from "@/data/schedule-pool";
 import { useT } from "@/i18n/useT";
 import {
   GOLD_RGB as GOLD,
@@ -40,21 +39,10 @@ const rangeOf = (entry) =>
 const MINI_BUTTON =
   "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[9.5px] font-semibold transition-colors disabled:opacity-40";
 
-const ENROLL_SIZES = {
-  sm: { button: MINI_BUTTON, icon: 9, text: "text-[9.5px]" },
-  md: {
-    button:
-      "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-semibold transition-colors disabled:opacity-40",
-    icon: 12,
-    text: "text-[11.5px]",
-  },
-};
-
-function EnrollAction({ entry, size = "sm" }) {
+function EnrollAction({ entry }) {
   const t = useT();
   const my = useMySchedule();
   const [clash, setClash] = useState(null);
-  const { button: BUTTON, icon: ICON, text: TEXT } = ENROLL_SIZES[size];
 
   if (!my || my.status !== "ready" || !entry.offeringId) return null;
 
@@ -64,15 +52,15 @@ function EnrollAction({ entry, size = "sm" }) {
   if (my.isEnrolled(entry.offeringId)) {
     return (
       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-        <span className={`inline-flex items-center gap-1 ${TEXT} font-semibold text-secondary-700`}>
-          <Check size={ICON} strokeWidth={2.5} />
+        <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold text-secondary-700">
+          <Check size={9} strokeWidth={2.5} />
           {t("Programımda")}
         </span>
         <button
           type="button"
           onClick={() => void my.remove(entry.offeringId)}
           disabled={busy}
-          className={`${BUTTON} text-primary-500/70 hover:bg-primary-500/6 hover:text-primary-500`}
+          className={`${MINI_BUTTON} text-primary-500/70 hover:bg-primary-500/6 hover:text-primary-500`}
         >
           {busy ? "…" : t("Kaldır")}
         </button>
@@ -94,8 +82,8 @@ function EnrollAction({ entry, size = "sm" }) {
   return (
     <span className="mt-1.5 block">
       {clash && (
-        <span className={`mb-1 flex items-start gap-1 rounded-sm bg-amber-50 px-1.5 py-1 ${TEXT} leading-snug text-amber-800`}>
-          <TriangleAlert size={ICON} strokeWidth={2.25} className="mt-px shrink-0" />
+        <span className="mb-1 flex items-start gap-1 rounded-sm bg-amber-50 px-1.5 py-1 text-[9.5px] leading-snug text-amber-800">
+          <TriangleAlert size={9} strokeWidth={2.25} className="mt-px shrink-0" />
           <span>
             {t("{day} {range} · {code} Gr.{group} ile çakışıyor.", {
               day: t(DAYS[clash.day]),
@@ -112,13 +100,13 @@ function EnrollAction({ entry, size = "sm" }) {
           type="button"
           onClick={onAdd}
           disabled={busy}
-          className={`${BUTTON} border border-secondary-500/40 text-secondary-700 hover:bg-secondary-500/10`}
+          className={`${MINI_BUTTON} border border-secondary-500/40 text-secondary-700 hover:bg-secondary-500/10`}
         >
           {busy ? (
             "…"
           ) : (
             <>
-              <Plus size={ICON} strokeWidth={2.5} />
+              <Plus size={9} strokeWidth={2.5} />
               {clash ? t("Yine de ekle") : t("Programıma ekle")}
             </>
           )}
@@ -127,16 +115,16 @@ function EnrollAction({ entry, size = "sm" }) {
           <button
             type="button"
             onClick={() => setClash(null)}
-            className={`${BUTTON} text-primary-500/70 hover:text-primary-500`}
+            className={`${MINI_BUTTON} text-primary-500/70 hover:text-primary-500`}
           >
-            <X size={ICON} strokeWidth={2.5} />
+            <X size={9} strokeWidth={2.5} />
             {t("Vazgeç")}
           </button>
         )}
       </span>
 
       {failed && (
-        <span className={`mt-1 block ${TEXT} text-red-700/75`}>
+        <span className="mt-1 block text-[9.5px] text-red-700/75">
           {t("İşlem tamamlanamadı.")}
         </span>
       )}
@@ -277,8 +265,9 @@ function GroupDetail({ entry, single }) {
   );
 }
 
-function Strip({ entry, color, slim, fill, showRange, active, href, opensList, onToggle }) {
+function Strip({ entry, color, slim, fill, showRange, active, href, opensList, courseHref, onToggle }) {
   const t = useT();
+  const buttonRef = useRef(null);
   const elective = entry.type === "Seçmeli";
   const groups = entry.groups ?? [entry];
   const single = groups.length === 1;
@@ -306,9 +295,10 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, o
       }}
     >
       <button
+        ref={buttonRef}
         type="button"
         onClick={onToggle}
-        aria-expanded={opensList ? undefined : active}
+        aria-expanded={active}
         aria-haspopup={opensList ? "dialog" : undefined}
         aria-label={label}
         className={`flex min-h-6 w-full flex-col justify-start py-1.5 pr-1.5 pl-1.5 text-left transition-colors hover:bg-primary-500/4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-secondary-500 ${fill && !active ? "flex-1" : ""}`}
@@ -339,15 +329,11 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, o
               {groupLabel(groups)}
             </span>
           )}
-          {opensList ? (
-            <ChevronRight size={10} strokeWidth={2.25} className="shrink-0 text-primary-500/70" />
-          ) : (
-            <ChevronDown
-              size={10}
-              strokeWidth={2.25}
-              className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
-            />
-          )}
+          <ChevronDown
+            size={10}
+            strokeWidth={2.25}
+            className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
+          />
         </span>
         <span
           className="mt-0.5 block text-[11px] leading-snug font-medium text-primary-600"
@@ -361,20 +347,24 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, o
           </span>
         )}
 
-        {showRange && !active && (
+        {showRange && (opensList || !active) && (
           <span className="mt-px block font-mono text-[9px] text-primary-500/70">
             {rangeOf(entry)}
           </span>
         )}
-        {detailed && !active && (
+        {detailed && (opensList || !active) && (
           <span className="mt-px block wrap-break-word text-[9.5px] leading-snug text-primary-500/70">
             {meta.join(" · ")}
           </span>
         )}
       </button>
 
+      {opensList && active && (
+        <GroupsPanel entry={entry} courseHref={courseHref} anchorRef={buttonRef} onClose={onToggle} />
+      )}
+
       <AnimatePresence initial={false}>
-        {active && (
+        {active && !opensList && (
           <motion.div
             key="detail"
             initial={{ height: 0, opacity: 0 }}
@@ -442,8 +432,9 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, o
   );
 }
 
-function PoolStrip({ block, fill, showRange, onOpen }) {
+function PoolStrip({ block, fill, showRange, active, palette, courseHref, onToggle }) {
   const t = useT();
+  const buttonRef = useRef(null);
   const limit = fill ? Math.min(Math.max(block.span + 1, 2), 6) : 2;
   const shown = block.courses.slice(0, limit);
   const rest = block.courses.length - shown.length;
@@ -457,11 +448,17 @@ function PoolStrip({ block, fill, showRange, onOpen }) {
   return (
     <div
       className={`flex flex-col overflow-hidden rounded-md ${fill ? "flex-1" : ""}`}
-      style={{ backgroundColor: tintOf(true, false), borderLeft: `2.5px solid rgb(${GOLD})` }}
+      style={{
+        backgroundColor: tintOf(true, false),
+        borderLeft: `2.5px solid rgb(${GOLD})`,
+        boxShadow: active ? `inset 0 0 0 1px rgba(${GOLD},0.6)` : undefined,
+      }}
     >
       <button
+        ref={buttonRef}
         type="button"
-        onClick={onOpen}
+        onClick={onToggle}
+        aria-expanded={active}
         aria-haspopup="dialog"
         aria-label={label}
         className={`flex min-h-6 w-full flex-col justify-start gap-1 p-1.5 text-left transition-colors hover:bg-primary-500/4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-secondary-500 ${fill ? "flex-1" : ""}`}
@@ -474,7 +471,11 @@ function PoolStrip({ block, fill, showRange, onOpen }) {
           <span className="shrink-0 font-mono text-[9px] text-primary-500/70">
             {t("{count} ders", { count: block.courses.length })}
           </span>
-          <ChevronRight size={10} strokeWidth={2.25} className="shrink-0 text-primary-500/70" />
+          <ChevronDown
+            size={10}
+            strokeWidth={2.25}
+            className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
+          />
         </span>
         <span className="flex flex-col gap-0.5">
           {shown.map((course) => (
@@ -501,157 +502,293 @@ function PoolStrip({ block, fill, showRange, onOpen }) {
           <span className="font-mono text-[9px] text-primary-500/70">{rangeOf(block)}</span>
         )}
       </button>
+      {active && (
+        <PoolPanel
+          block={block}
+          palette={palette}
+          courseHref={courseHref}
+          anchorRef={buttonRef}
+          onClose={onToggle}
+        />
+      )}
     </div>
   );
 }
 
-function LanguageTag({ english }) {
-  const t = useT();
-  return (
-    <span
-      className={`rounded-sm px-1.5 py-px text-[10.5px] font-semibold ${
-        english ? "bg-secondary-500/15 text-secondary-700" : "bg-primary-500/6 text-primary-500/80"
-      }`}
+const PANEL_WIDTH = 320;
+const PANEL_GAP = 6;
+const EDGE = 12;
+
+function AnchoredPanel({ anchorRef, label, onClose, children }) {
+  const panelRef = useRef(null);
+  const closeRef = useRef(onClose);
+  const [position, setPosition] = useState(null);
+
+  useEffect(() => {
+    closeRef.current = onClose;
+  }, [onClose]);
+
+  useLayoutEffect(() => {
+    const place = () => {
+      const anchor = anchorRef.current;
+      const panel = panelRef.current;
+      if (!anchor || !panel) return;
+      const box = anchor.getBoundingClientRect();
+      const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
+      const maxHeight = Math.min(460, window.innerHeight - EDGE * 2);
+      const height = Math.min(panel.scrollHeight, maxHeight);
+      const right = box.right + PANEL_GAP;
+      const left = box.left - PANEL_GAP - width;
+
+      let x;
+      let y;
+      if (right + width <= window.innerWidth - EDGE) {
+        x = right;
+        y = box.top;
+      } else if (left >= EDGE) {
+        x = left;
+        y = box.top;
+      } else {
+        x = Math.min(Math.max(box.left, EDGE), window.innerWidth - EDGE - width);
+        y = box.bottom + PANEL_GAP;
+      }
+      y = Math.min(Math.max(y, EDGE), window.innerHeight - EDGE - height);
+      setPosition({ left: x, top: y, width, maxHeight });
+    };
+
+    place();
+    let frame = 0;
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(place);
+    };
+    const onPointer = (event) => {
+      if (panelRef.current?.contains(event.target) || anchorRef.current?.contains(event.target)) return;
+      closeRef.current();
+    };
+    const onKey = (event) => {
+      if (event.key !== "Escape") return;
+      closeRef.current();
+      anchorRef.current?.focus();
+    };
+
+    window.addEventListener("scroll", schedule, true);
+    window.addEventListener("resize", schedule);
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule, true);
+      window.removeEventListener("resize", schedule);
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [anchorRef]);
+
+  return createPortal(
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-label={label}
+      className="fixed z-[10040] flex flex-col overflow-hidden rounded-xl border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)]"
+      style={
+        position
+          ? { left: position.left, top: position.top, width: position.width, maxHeight: position.maxHeight }
+          : { left: 0, top: 0, width: PANEL_WIDTH, maxHeight: 460, visibility: "hidden" }
+      }
     >
-      {english ? t("İngilizce") : t("Türkçe")}
-    </span>
+      {children}
+    </div>,
+    document.body,
   );
 }
 
-function ListGroup({ group }) {
+function PanelHeader({ eyebrow, title, subtitle, onClose }) {
   const t = useT();
   return (
-    <li className="flex flex-col gap-1.5 border-t border-primary-500/6 pt-2.5 first:border-t-0 first:pt-0">
-      <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] text-primary-500/80">
-        <span className="font-semibold text-primary-600">{t("Grup {group}", { group: group.group })}</span>
-        <LanguageTag english={group.english} />
-        {group.instructor && group.instructor !== "-" && (
-          <span className="inline-flex items-center gap-1">
-            <User size={12} strokeWidth={1.5} className="shrink-0" />
-            {group.staffSlug ? (
-              <Link
-                href={`/personel/${group.staffSlug}`}
-                className="underline decoration-primary-500/20 underline-offset-2 transition-colors hover:text-secondary-700 hover:decoration-secondary-500"
-              >
-                {group.instructor}
-              </Link>
-            ) : (
-              group.instructor
-            )}
+    <div className="flex items-start gap-2 border-b border-primary-500/8 px-3.5 py-3">
+      <div className="min-w-0 flex-1">
+        {eyebrow && (
+          <span className="flex items-center gap-1 text-[9.5px] font-semibold tracking-wider text-secondary-700 uppercase">
+            <Layers size={10} strokeWidth={2} />
+            {eyebrow}
           </span>
         )}
+        <span className="mt-0.5 block text-[13px] leading-snug font-semibold text-primary-600">{title}</span>
+        {subtitle && <span className="block text-[11px] text-primary-500/70">{subtitle}</span>}
+      </div>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={t("Kapat")}
+        className="-mr-1 rounded-md p-1 text-primary-500/60 transition-colors hover:bg-primary-500/6 hover:text-primary-500"
+      >
+        <X size={14} strokeWidth={2} />
+      </button>
+    </div>
+  );
+}
+
+function PanelGroup({ group }) {
+  const t = useT();
+  return (
+    <span className="flex flex-col gap-1 text-[11px] leading-snug text-primary-500/75">
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <span className="font-semibold text-primary-600">{t("Grup {group}", { group: group.group })}</span>
+        <span
+          className={`rounded-sm px-1 py-px text-[9.5px] font-semibold ${
+            group.english ? "bg-secondary-500/15 text-secondary-700" : "bg-primary-500/6 text-primary-500/75"
+          }`}
+        >
+          {group.english ? t("İngilizce") : t("Türkçe")}
+        </span>
         {group.online ? (
           <span className="inline-flex items-center gap-1 text-secondary-700">
-            <Wifi size={12} strokeWidth={1.75} className="shrink-0" />
+            <Wifi size={11} strokeWidth={1.75} />
             {t("Çevrimiçi")}
           </span>
         ) : (
           group.room &&
           group.room !== "-" && (
-            <span className="inline-flex items-center gap-1 font-mono text-[11.5px]">
-              <MapPin size={12} strokeWidth={1.5} className="shrink-0" />
+            <span className="inline-flex items-center gap-1 font-mono text-[10.5px]">
+              <MapPin size={11} strokeWidth={1.5} />
               {group.room}
             </span>
           )
         )}
       </span>
-      <EnrollAction entry={group} size="md" />
+      {group.instructor && group.instructor !== "-" && (
+        <span className="flex items-start gap-1">
+          <User size={11} strokeWidth={1.5} className="mt-px shrink-0" />
+          {group.staffSlug ? (
+            <Link
+              href={`/personel/${group.staffSlug}`}
+              className="underline decoration-primary-500/20 underline-offset-2 transition-colors hover:text-secondary-700 hover:decoration-secondary-500"
+            >
+              {group.instructor}
+            </Link>
+          ) : (
+            group.instructor
+          )}
+        </span>
+      )}
+      <EnrollAction entry={group} />
+    </span>
+  );
+}
+
+function PanelCourse({ course, color, href, open, onToggle }) {
+  const t = useT();
+  return (
+    <li className="border-t border-primary-500/6 first:border-t-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-start gap-2 px-3.5 py-2 text-left transition-colors hover:bg-primary-500/3 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-secondary-500"
+      >
+        <span className="w-9 shrink-0 pt-px font-mono text-[10.5px] text-primary-500/60">
+          {startOf(course.slot)}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[12px] leading-snug font-medium text-primary-600">{course.name}</span>
+          <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[10px] text-primary-500/60">
+            <span style={{ color }}>{course.code}</span>
+            <span>{groupLabel(course.groups)}</span>
+            <span>{rangeOf(course)}</span>
+            {course.english && <span className="font-semibold text-secondary-700">EN</span>}
+          </span>
+        </span>
+        <ChevronDown
+          size={12}
+          strokeWidth={2.25}
+          className={`mt-0.5 shrink-0 text-primary-500/60 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2.5 px-3.5 pb-3 pl-14">
+          {course.groups.map((group) => (
+            <PanelGroup key={`${group.group}-${group.offeringId ?? ""}`} group={group} />
+          ))}
+          {href && (
+            <Link
+              href={href}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-secondary-700 hover:underline"
+            >
+              {t("Ders sayfası")}
+              <ArrowRight size={11} strokeWidth={2} />
+            </Link>
+          )}
+        </div>
+      )}
     </li>
   );
 }
 
-function CourseListDialog({ list, palette, courseHref, onClose }) {
+function PoolPanel({ block, palette, courseHref, anchorRef, onClose }) {
   const t = useT();
-  const sections = [];
-  for (const course of [...(list?.courses ?? [])].sort(byTimeOrder)) {
-    const range = rangeOf(course);
-    const last = sections[sections.length - 1];
-    if (last && last.range === range) last.courses.push(course);
-    else sections.push({ range, courses: [course] });
-  }
-
+  const [openCourse, setOpenCourse] = useState(null);
+  const title = `${t(DAYS[block.day])} · ${t(WINDOW_LABELS[block.window])}`;
   return (
-    <Modal
-      open={Boolean(list)}
-      onClose={onClose}
-      label={list?.title ?? ""}
-      contentClassName="flex items-center justify-center p-4"
-    >
-      {list && (
-        <div className="flex max-h-[85svh] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-          <div className="border-b border-primary-500/8 px-5 pt-4 pb-3.5">
-            {list.eyebrow && (
-              <span className="flex items-center gap-1.5 text-[10.5px] font-semibold tracking-widest text-secondary-700 uppercase">
-                <Layers size={12} strokeWidth={2} />
-                {list.eyebrow}
-              </span>
-            )}
-            <h2 className="mt-1 text-[16px] leading-snug font-semibold text-primary-600">{list.title}</h2>
-            {list.subtitle && <p className="mt-0.5 text-[12.5px] text-primary-500/70">{list.subtitle}</p>}
-          </div>
-          <div className="overflow-y-auto px-5 py-4">
-            <div className="flex flex-col gap-5">
-              {sections.map((section) => (
-                <section key={section.range} className="flex flex-col gap-2">
-                  {list.courses.length > 1 && (
-                    <span className="font-mono text-[11px] font-semibold text-primary-500/70">
-                      {section.range}
-                    </span>
-                  )}
-                  <ul className="flex flex-col gap-2">
-                    {section.courses.map((course) => {
-                      const href = courseHref?.(course.code) || null;
-                      return (
-                        <li
-                          key={`${course.code}-${course.slot}`}
-                          className="rounded-xl border border-primary-500/8 px-3.5 py-3"
-                          style={{ borderLeft: `3px solid ${colorOf(palette, course.code)}` }}
-                        >
-                          {list.courses.length > 1 && (
-                            <span className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                              <span
-                                className="font-mono text-[11.5px] font-semibold"
-                                style={{ color: colorOf(palette, course.code) }}
-                              >
-                                {course.code}
-                              </span>
-                              {href ? (
-                                <Link
-                                  href={href}
-                                  className="text-[13.5px] font-semibold text-primary-600 transition-colors hover:text-secondary-700"
-                                >
-                                  {course.name}
-                                </Link>
-                              ) : (
-                                <span className="text-[13.5px] font-semibold text-primary-600">{course.name}</span>
-                              )}
-                            </span>
-                          )}
-                          <ul className="flex flex-col gap-2.5">
-                            {course.groups.map((group) => (
-                              <ListGroup key={`${group.group}-${group.offeringId ?? ""}`} group={group} />
-                            ))}
-                          </ul>
-                          {list.courses.length === 1 && href && (
-                            <Link
-                              href={href}
-                              className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-secondary-700 hover:underline"
-                            >
-                              {t("Ders sayfası")}
-                              <ArrowRight size={12} strokeWidth={2} />
-                            </Link>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              ))}
-            </div>
-          </div>
+    <AnchoredPanel anchorRef={anchorRef} label={`${block.pool.name}, ${title}`} onClose={onClose}>
+      <PanelHeader
+        eyebrow={block.pool.name}
+        title={title}
+        subtitle={t("{count} ders", { count: block.courses.length })}
+        onClose={onClose}
+      />
+      <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {block.courses.map((course) => {
+          const key = `${course.code}-${course.slot}`;
+          return (
+            <PanelCourse
+              key={key}
+              course={course}
+              color={colorOf(palette, course.code)}
+              href={courseHref?.(course.code) || null}
+              open={openCourse === key}
+              onToggle={() => setOpenCourse(openCourse === key ? null : key)}
+            />
+          );
+        })}
+      </ul>
+    </AnchoredPanel>
+  );
+}
+
+function GroupsPanel({ entry, courseHref, anchorRef, onClose }) {
+  const t = useT();
+  const href = courseHref?.(entry.code) || null;
+  return (
+    <AnchoredPanel anchorRef={anchorRef} label={`${entry.code} ${entry.name}`} onClose={onClose}>
+      <PanelHeader
+        eyebrow={entry.pool?.name ?? null}
+        title={`${entry.code} ${entry.name}`}
+        subtitle={`${t(DAYS[entry.day])} · ${rangeOf(entry)} · ${t("{count} grup", { count: entry.groups.length })}`}
+        onClose={onClose}
+      />
+      <ul className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {entry.groups.map((group) => (
+          <li
+            key={`${group.group}-${group.offeringId ?? ""}`}
+            className="border-t border-primary-500/6 px-3.5 py-2.5 first:border-t-0"
+          >
+            <PanelGroup group={group} />
+          </li>
+        ))}
+      </ul>
+      {href && (
+        <div className="border-t border-primary-500/8 px-3.5 py-2">
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-secondary-700 hover:underline"
+          >
+            {t("Ders sayfası")}
+            <ArrowRight size={11} strokeWidth={2} />
+          </Link>
         </div>
       )}
-    </Modal>
+    </AnchoredPanel>
   );
 }
 
@@ -666,7 +803,6 @@ function Cluster({
   clash,
   openId,
   onOpen,
-  onList,
   expanded,
   onExpand,
 }) {
@@ -695,6 +831,7 @@ function Cluster({
 
       {shown.map((entry, index) => {
         const id = `${clusterKey}#${index}`;
+        const toggle = () => onOpen(openId === id ? null : id);
         if (entry.kind === "pool") {
           return (
             <PoolStrip
@@ -702,18 +839,13 @@ function Cluster({
               block={entry}
               fill={single}
               showRange={!single}
-              onOpen={() =>
-                onList({
-                  eyebrow: entry.pool.name,
-                  title: `${t(DAYS[entry.day])} · ${t(WINDOW_LABELS[entry.window])}`,
-                  subtitle: t("{count} ders", { count: entry.courses.length }),
-                  courses: entry.courses,
-                })
-              }
+              active={openId === id}
+              palette={palette}
+              courseHref={courseHref}
+              onToggle={toggle}
             />
           );
         }
-        const opensList = (entry.groups?.length ?? 1) > INLINE_GROUPS;
         return (
           <Strip
             key={`${entry.code}-${entry.slot}-${entry.span}`}
@@ -722,19 +854,11 @@ function Cluster({
             slim={index >= VISIBLE}
             fill={single}
             showRange={!single || entry.span > 1}
-            active={!opensList && openId === id}
+            active={openId === id}
             href={courseHref?.(entry.code) || null}
-            opensList={opensList}
-            onToggle={() =>
-              opensList
-                ? onList({
-                    eyebrow: entry.pool?.name ?? null,
-                    title: `${entry.code} ${entry.name}`,
-                    subtitle: `${t(DAYS[entry.day])} · ${rangeOf(entry)} · ${t("{count} grup", { count: entry.groups.length })}`,
-                    courses: [entry],
-                  })
-                : onOpen(openId === id ? null : id)
-            }
+            opensList={(entry.groups?.length ?? 1) > INLINE_GROUPS}
+            courseHref={courseHref}
+            onToggle={toggle}
           />
         );
       })}
@@ -782,7 +906,6 @@ export default function WeeklySchedule({
 }) {
   const t = useT();
   const [openId, setOpenId] = useState(null);
-  const [list, setList] = useState(null);
   const [expanded, setExpanded] = useState(() => new Set());
 
   const clusters = useMemo(() => buildClusters(entries), [entries]);
@@ -958,7 +1081,6 @@ export default function WeeklySchedule({
                     clash={clash}
                     openId={openId}
                     onOpen={setOpenId}
-                    onList={setList}
                     expanded={expanded.has(key)}
                     onExpand={() => toggleExpand(key)}
                   />
@@ -968,13 +1090,6 @@ export default function WeeklySchedule({
           </div>
         </div>
       </div>
-
-      <CourseListDialog
-        list={list}
-        palette={palette}
-        courseHref={courseHref}
-        onClose={() => setList(null)}
-      />
 
       {note && (
         <div className="border-t border-primary-500/6 px-4 py-2.5 text-center">

@@ -8,6 +8,7 @@ import { tintOf } from "@/data/schedule-colors";
 import ScheduleLegend from "@/app/[locale]/egitim/components/ScheduleLegend";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
+import { useCmsRoute } from "inscribed";
 
 const CLASSES = [1, 2, 3, 4].map((id) => ({ id }));
 
@@ -15,6 +16,11 @@ const classOf = (entry) => (entry.term ? Math.ceil(entry.term / 2) : null);
 
 export default function DersProgramiPage({ entries: all = [], term }) {
   const t = useT();
+  const { locale } = useCmsRoute();
+  const listFormat = useMemo(
+    () => new Intl.ListFormat(locale === "en" ? "en" : "tr", { style: "long", type: "conjunction" }),
+    [locale],
+  );
   const [activeClass, setActiveClass] = useState(CLASSES[0].id);
 
   const entries = useMemo(
@@ -25,9 +31,12 @@ export default function DersProgramiPage({ entries: all = [], term }) {
   const pools = useMemo(() => {
     const seen = new Map();
     for (const entry of all) {
-      if (entry.pool && !seen.has(entry.pool.id)) seen.set(entry.pool.id, entry.pool);
+      if (entry.pool?.placement !== "code") continue;
+      if (!seen.has(entry.pool.id)) seen.set(entry.pool.id, { name: entry.pool.name, years: new Set() });
+      const year = classOf(entry);
+      if (year) seen.get(entry.pool.id).years.add(year);
     }
-    return [...seen.values()].sort((a, b) => (a.term ?? 0) - (b.term ?? 0));
+    return [...seen.values()].map((pool) => ({ ...pool, years: [...pool.years].sort() }));
   }, [all]);
 
   const courseCount = useMemo(() => new Set(entries.map((entry) => entry.code)).size, [entries]);
@@ -87,12 +96,17 @@ export default function DersProgramiPage({ entries: all = [], term }) {
             }
             note={
               pools.length > 0
-                ? t("Üniversite seçmelileri müfredattaki yerlerine göre listelenir: {list}.", {
+                ? t("Üniversite seçmelileri ders kodundaki sınıf seviyesine göre listelenir: {list}.", {
                     list: pools
                       .map((pool) =>
-                        t("{name} {n}. sınıfta", { name: pool.name, n: Math.ceil((pool.term ?? 1) / 2) }),
+                        t(pool.years.length > 1 ? "{name} {years} sınıflarda" : "{name} {years} sınıfta", {
+                          name: pool.name,
+                          years: listFormat.format(
+                            pool.years.map((year) => (locale === "en" ? String(year) : `${year}.`)),
+                          ),
+                        }),
                       )
-                      .join(", "),
+                      .join("; "),
                   })
                 : null
             }

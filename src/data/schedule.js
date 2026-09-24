@@ -18,6 +18,11 @@ const DEPARTMENT_PREFIX = "MTM";
 
 const prefixOf = (code) => String(code ?? "").toUpperCase().replace(/\d.*$/, "");
 
+const levelOf = (code) => {
+  const digit = Number(/\d/.exec(code ?? "")?.[0]);
+  return digit >= 1 && digit <= 4 ? digit : null;
+};
+
 function poolFinder(groups) {
   const pools = groups.filter((group) => {
     const options = group.options ?? [];
@@ -68,6 +73,13 @@ function degreeOf(lecture, code) {
   return ["DOCTORATE"];
 }
 
+function poolTerm(code, pool) {
+  if (!pool) return null;
+  const level = levelOf(code);
+  if (level) return level * 2 - 1;
+  return pool.term ?? null;
+}
+
 function toEntry(slot, lecture, pool, locale) {
   const day = DAY_KEYS.indexOf(slot.dayOfWeek);
   if (day === -1) return null;
@@ -93,9 +105,18 @@ function toEntry(slot, lecture, pool, locale) {
     english: slot.language === "ENGLISH",
     type: lecture?.type === "ELECTIVE" || pool ? "Seçmeli" : "Zorunlu",
     pool: pool
-      ? { id: pool.code, name: localized(pool.name, pool.nameEn, locale), term: pool.term ?? null }
+      ? {
+          id: pool.code,
+          name: localized(pool.name, pool.nameEn, locale),
+          placement:
+            (slot.term ?? lecture?.term) != null
+              ? "timetable"
+              : levelOf(slot.lectureCode)
+                ? "code"
+                : "curriculum",
+        }
       : null,
-    term: slot.term ?? lecture?.term ?? pool?.term ?? null,
+    term: slot.term ?? lecture?.term ?? poolTerm(slot.lectureCode, pool),
     degreeLevels: degreeOf(lecture, slot.lectureCode),
   };
 }
