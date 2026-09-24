@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Share2, Download, Copy, Check, LoaderCircle } from "lucide-react";
 import Modal from "@/app/components/Modal";
+import { sectionLabel } from "@/lib/section-label";
 import { useT } from "@/i18n/useT";
 import { useCmsRoute } from "inscribed";
 import { localizeTerm } from "@/i18n";
@@ -35,7 +36,7 @@ function buildCardData({ t, locale, course, termName, instructor, stats, summary
     locale,
     code: course.code,
     name: course.title,
-    meta: [term, instructor, showSection ? t("Şube {section}", { section: stats.section }) : null]
+    meta: [term, instructor, showSection ? sectionLabel(t, stats) : null]
       .filter(Boolean)
       .join("  ·  "),
     url: `${SITE_HOST}${coursePath}`,
@@ -65,6 +66,7 @@ function buildCardData({ t, locale, course, termName, instructor, stats, summary
     ],
     legend: [
       { color: STATS_CARD_LEGEND.pass, label: t("geçer") },
+      { color: STATS_CARD_LEGEND.conditional, label: t("koşullu (DC)") },
       { color: STATS_CARD_LEGEND.fail, label: t("kalır") },
     ],
     exams: (stats.exams ?? []).map((exam) => ({ ...exam, name: t(exam.name) })),

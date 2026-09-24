@@ -516,6 +516,7 @@ export const messages = {
     "Geçmiş dönemlere ait not istatistiği bulunmuyor.": "No grade statistics from past terms.",
     "geçer": "pass",
     "kalır": "fail",
+    "koşullu (DC)": "conditional (DC)",
     "harf dağılımı yok": "no grade distribution",
     "Bu şube için ayrıntılı dağılım yok.": "No detailed breakdown for this section.",
     "Kaynak: OBS": "Source: OBS",

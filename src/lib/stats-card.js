@@ -1,4 +1,4 @@
-import { isLowGrade } from "@/app/components/GradeDistribution";
+import { isHighlightGrade, isLowGrade } from "@/app/components/GradeDistribution";
 
 const W = 1080;
 const H = 1350;
@@ -6,16 +6,18 @@ const PAD = 52;
 const GAP = 18;
 const RADIUS = 18;
 
-const PAGE = "#F4F5F7";
-const CARD = "#FFFFFF";
+const PAGE = "#E7EAF0";
+const CARD = "#F7F8FA";
 const INK = "#1D2445";
 const GOLD = "#AD976F";
 const GOLD_DARK = "#8E7B5A";
+const GOLD_SOFT = "#D4C5A9";
 const ink = (a) => `rgba(29,36,69,${a})`;
 const LINE = ink(0.1);
 const TRACK = ink(0.06);
 const PASS = INK;
-const FAIL = ink(0.22);
+const FAIL = ink(0.2);
+const CONDITIONAL = GOLD;
 
 function fontFamilies() {
   const root = getComputedStyle(document.documentElement);
@@ -82,66 +84,72 @@ function card(ctx, x, y, w, h) {
   ctx.stroke();
 }
 
-function heading(ctx, font, x, y, w, label, legend = null) {
+function heading(ctx, font, x, y, w, label, upper) {
   ctx.fillStyle = GOLD;
   ctx.beginPath();
   ctx.roundRect(x, y - 11, 5, 22, 2.5);
   ctx.fill();
-
   ctx.textBaseline = "middle";
-  let right = x + w;
-  if (legend) {
-    ctx.font = font(18, 500);
-    for (const item of [...legend].reverse()) {
-      ctx.fillStyle = ink(0.6);
-      ctx.textAlign = "right";
-      ctx.fillText(item.label, right, y);
-      right -= ctx.measureText(item.label).width + 8;
-      pill(ctx, right - 26, y - 5, 26, 10, item.color);
-      right -= 26 + 22;
-    }
-  }
   ctx.textAlign = "left";
   ctx.fillStyle = INK;
-  const text = fit(ctx, label.toLocaleUpperCase("tr-TR"), right - x - 24, 19, 700, font, false, 14);
+  const text = fit(ctx, upper(label), w - 24, 19, 700, font, false, 14);
   ctx.save();
   ctx.letterSpacing = "2px";
   ctx.fillText(text, x + 18, y + 1);
   ctx.restore();
 }
 
-function drawKpis(ctx, font, kpis, y) {
+function drawLegend(ctx, font, x, y, legend) {
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  ctx.font = font(17, 500);
+  let left = x;
+  for (const item of legend) {
+    pill(ctx, left, y - 5, 22, 10, item.color);
+    left += 22 + 8;
+    ctx.fillStyle = ink(0.6);
+    ctx.fillText(item.label, left, y);
+    left += ctx.measureText(item.label).width + 22;
+  }
+}
+
+function drawKpis(ctx, font, kpis, y, upper) {
   const h = 168;
   const w = (W - PAD * 2 - GAP * (kpis.length - 1)) / kpis.length;
   kpis.forEach((kpi, i) => {
     const x = PAD + i * (w + GAP);
-    card(ctx, x, y, w, h);
+    ctx.fillStyle = INK;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, RADIUS);
+    ctx.fill();
     ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left";
-    ctx.fillStyle = ink(0.6);
+    ctx.fillStyle = GOLD_SOFT;
     ctx.save();
     ctx.letterSpacing = "1.5px";
-    ctx.fillText(fit(ctx, kpi.label.toLocaleUpperCase("tr-TR"), w - 44, 16, 700, font, false, 12), x + 22, y + 38);
+    ctx.fillText(fit(ctx, upper(kpi.label), w - 44, 16, 700, font, false, 12), x + 22, y + 38);
     ctx.restore();
-    ctx.fillStyle = INK;
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(fit(ctx, kpi.value, w - 44, 60, 700, font, true, 28), x + 22, y + 112);
-    ctx.fillStyle = ink(0.6);
+    ctx.fillStyle = "rgba(255,255,255,0.62)";
     ctx.fillText(fit(ctx, kpi.sub, w - 44, 20, 500, font, false, 13), x + 22, y + 146);
   });
   return y + h;
 }
 
-function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, pct) {
+function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, pct, upper) {
   card(ctx, x, y, w, h);
   const inX = x + 24;
   const inW = w - 48;
-  heading(ctx, font, inX, y + 38, inW, title, legend);
+  heading(ctx, font, inX, y + 38, inW, title, upper);
+  if (legend) drawLegend(ctx, font, inX, y + 72, legend);
   if (rows.length === 0) return;
 
   const total = rows.reduce((s, r) => s + (Number(r.count) || 0), 0);
   const max = Math.max(1, ...rows.map((r) => Number(r.count) || 0));
-  const top = y + 70;
-  const avail = h - 70 - 18;
+  const headerH = legend ? 96 : 70;
+  const top = y + headerH;
+  const avail = h - headerH - 18;
   const rowH = Math.min(80, avail / rows.length);
   const innerTop = top + (avail - rowH * rows.length) / 2;
   const size = Math.max(19, Math.min(30, Math.floor(rowH * 0.5)));
@@ -184,7 +192,8 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
     const barH = Math.max(8, Math.min(18, rowH * 0.26));
     pill(ctx, barX, cy - barH / 2, barMax, barH, TRACK);
     if (count > 0) {
-      pill(ctx, barX, cy - barH / 2, Math.max(barH, (count / max) * barMax), barH, low ? FAIL : PASS);
+      const color = low ? FAIL : isHighlightGrade(row.grade) ? CONDITIONAL : PASS;
+      pill(ctx, barX, cy - barH / 2, Math.max(barH, (count / max) * barMax), barH, color);
     }
 
     ctx.textAlign = "right";
@@ -197,11 +206,11 @@ function drawDistribution(ctx, font, { title, rows, legend }, x, y, w, h, fmt, p
   });
 }
 
-function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct) {
+function drawExams(ctx, font, { title, exams, labels }, x, y, w, h, fmt, pct, upper) {
   card(ctx, x, y, w, h);
   const inX = x + 24;
   const inW = w - 48;
-  heading(ctx, font, inX, y + 38, inW, title);
+  heading(ctx, font, inX, y + 38, inW, title, upper);
 
   const top = y + 70;
   const avail = h - 70 - 12;
@@ -322,12 +331,11 @@ export async function renderStatsCard(data) {
       minimumFractionDigits: 0,
     });
   const pct = (text) => (data.locale === "en" ? `${text}%` : `%${text}`);
+  const upper = (text) => text.toLocaleUpperCase(data.locale === "en" ? "en-US" : "tr-TR");
   const fmt = (value, digits = 2) => (value == null || value === "" ? "—" : nf(digits).format(Number(value)));
 
   ctx.fillStyle = PAGE;
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = INK;
-  ctx.fillRect(0, 0, W, 8);
 
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
@@ -352,7 +360,7 @@ export async function renderStatsCard(data) {
   ctx.fillStyle = ink(0.65);
   ctx.fillText(fit(ctx, data.meta, W - PAD * 2, 27, 500, font, false, 18), PAD, PAD + 156);
 
-  const kpiBottom = drawKpis(ctx, font, data.kpis, PAD + 190);
+  const kpiBottom = drawKpis(ctx, font, data.kpis, PAD + 190, upper);
 
   const bodyTop = kpiBottom + GAP;
   const bodyBottom = H - PAD - 44;
@@ -367,19 +375,19 @@ export async function renderStatsCard(data) {
   const rightW = hasDist ? W - PAD - rightX : W - PAD * 2;
 
   if (hasDist) {
-    const weights = dists.map((d) => d.rows.length + 1.6);
+    const weights = dists.map((d, i) => d.rows.length + (i === 0 ? 2.4 : 1.6));
     const sum = weights.reduce((a, b) => a + b, 0);
     let y = bodyTop;
     dists.forEach((dist, i) => {
       const h =
         i === dists.length - 1 ? bodyBottom - y : (bodyH - GAP * (dists.length - 1)) * (weights[i] / sum);
-      drawDistribution(ctx, font, { ...dist, legend: i === 0 ? data.legend : null }, PAD, y, leftW, h, fmt, pct);
+      drawDistribution(ctx, font, { ...dist, legend: i === 0 ? data.legend : null }, PAD, y, leftW, h, fmt, pct, upper);
       y += h + GAP;
     });
   }
 
   if (hasExams) {
-    drawExams(ctx, font, { title: data.labels.exams, exams, labels: data.labels }, rightX, bodyTop, rightW, bodyH, fmt, pct);
+    drawExams(ctx, font, { title: data.labels.exams, exams, labels: data.labels }, rightX, bodyTop, rightW, bodyH, fmt, pct, upper);
   }
 
   if (!hasDist && !hasExams) {
@@ -410,6 +418,6 @@ export function canvasToBlob(canvas) {
   );
 }
 
-export const STATS_CARD_LEGEND = { pass: PASS, fail: FAIL };
+export const STATS_CARD_LEGEND = { pass: PASS, conditional: CONDITIONAL, fail: FAIL };
 
 export const STATS_CARD_SIZE = { width: W, height: H };
