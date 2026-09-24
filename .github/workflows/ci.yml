@@ -1,0 +1,64 @@
+name: matmuh-frontend ci
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-deploy
+  cancel-in-progress: true
+
+jobs:
+  frontend-build:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, packages: write }
+    env:
+      CMS_URL: ${{ vars.CMS_URL }}
+      CMS_SYNC_KEY: ${{ secrets.CMS_SYNC_KEY }}
+      DEPLOY_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check build settings
+        run: |
+          test -n "$CMS_URL" || { echo "::error::Repository variable CMS_URL is not set (e.g. https://matmuh.yusufacmaci.com/api)"; exit 1; }
+          test -n "$CMS_SYNC_KEY" || { echo "::error::Repository secret CMS_SYNC_KEY is not set"; exit 1; }
+
+      - name: Extract Clean Version
+        id: get_version
+        run: |
+          if [ "${GITHUB_REF#refs/tags/v}" != "$GITHUB_REF" ]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The sync key reaches only the build stage; provenance stays off so the
+      # public image's attestation does not record it as a build argument.
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          provenance: false
+          build-args: |
+            CMS_URL=${{ env.CMS_URL }}
+            CMS_SYNC_KEY=${{ env.CMS_SYNC_KEY }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/matmuh-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/matmuh-frontend:${{ steps.get_version.outputs.VERSION }}
+
+      - name: Trigger Dokploy deploy
+        if: env.DEPLOY_WEBHOOK != ''
+        run: curl -fsSL -X POST "$DEPLOY_WEBHOOK"
