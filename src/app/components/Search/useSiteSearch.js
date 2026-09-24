@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCmsRoute } from "inscribed";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -17,6 +18,7 @@ const HREF = {
 export const hrefForHit = (hit) => (HREF[hit.type] ?? (() => "/duyurular"))(hit);
 
 export function useSiteSearch(query, { perGroup = 3 } = {}) {
+  const { locale } = useCmsRoute();
   const [result, setResult] = useState({ term: "", groups: [], failed: false });
   const term = query.trim();
 
@@ -27,7 +29,7 @@ export function useSiteSearch(query, { perGroup = 3 } = {}) {
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(
-          `${API}/search?q=${encodeURIComponent(term)}&limit=${perGroup}`,
+          `${API}/search?q=${encodeURIComponent(term)}&limit=${perGroup}&locale=${locale}`,
           { signal: controller.signal },
         );
         if (!res.ok) throw new Error(String(res.status));
@@ -43,7 +45,7 @@ export function useSiteSearch(query, { perGroup = 3 } = {}) {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [term, perGroup]);
+  }, [term, perGroup, locale]);
 
   const settled = result.term === term;
   const groups = settled ? result.groups.filter((g) => g.items?.length > 0) : [];
