@@ -159,7 +159,7 @@ function courseBlocks(entries) {
   }
   return [...blocks.values()].map((block) => ({
     ...block,
-    badge: block.pool?.name ?? null,
+    badge: block.pool?.name ?? block.badge ?? null,
     groups: block.groups.sort((a, b) => (a.group || 0) - (b.group || 0)),
     english: block.groups.every((group) => group.english),
     online: block.groups.every((group) => group.online),

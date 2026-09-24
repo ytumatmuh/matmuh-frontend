@@ -4,7 +4,6 @@ import { CalendarDays } from "lucide-react";
 import SubHeader from "@/app/components/Header/SubHeader";
 import PageLayout from "@/app/components/PageLayout";
 import ScheduleViews from "@/app/[locale]/egitim/components/ScheduleViews";
-import { tintOf } from "@/data/schedule-colors";
 import ScheduleLegend from "@/app/[locale]/egitim/components/ScheduleLegend";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
@@ -87,8 +86,8 @@ export default function DersProgramiPage({ entries: all = [], term }) {
             legend={
               <ScheduleLegend
                 items={[
-                  { color: tintOf(false), label: t("Zorunlu") },
-                  { color: tintOf(true), label: t("Seçmeli") },
+                  { elective: false, label: t("Zorunlu ders") },
+                  { elective: true, label: t("Seçmeli ders") },
                 ]}
                 showOnline
                 showPool={entries.some((entry) => entry.pool)}

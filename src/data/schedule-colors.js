@@ -33,4 +33,4 @@ const overWhite = (rgb, alpha) =>
     .join(",")})`;
 
 export const tintOf = (elective, faded = false) =>
-  overWhite(elective ? GOLD_RGB : NAVY_RGB, faded ? 0.035 : elective ? 0.1 : 0.05);
+  overWhite(elective ? GOLD_RGB : NAVY_RGB, faded ? 0.035 : elective ? 0.2 : 0.04);

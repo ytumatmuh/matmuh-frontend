@@ -4,7 +4,6 @@ import { CalendarDays } from "lucide-react";
 import SubHeader from "@/app/components/Header/SubHeader";
 import PageLayout from "@/app/components/PageLayout";
 import ScheduleViews from "@/app/[locale]/egitim/components/ScheduleViews";
-import { tintOf } from "@/data/schedule-colors";
 import ScheduleLegend from "@/app/[locale]/egitim/components/ScheduleLegend";
 import { useT } from "@/i18n/useT";
 import { localizeTerm } from "@/i18n";
@@ -77,8 +76,8 @@ export default function LisansustuDersProgramiPage({ entries: all = [], term }) 
             legend={
               <ScheduleLegend
                 items={[
-                  { color: tintOf(false), label: t("Yüksek Lisans") },
-                  { color: tintOf(true), label: t("Doktora") },
+                  { elective: false, label: t("Yüksek Lisans") },
+                  { elective: true, label: t("Doktora") },
                 ]}
               />
             }
