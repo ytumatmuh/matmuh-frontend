@@ -6,6 +6,8 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Layers,
   MapPin,
   Plus,
@@ -268,6 +270,7 @@ function GroupDetail({ entry, single }) {
 function Strip({ entry, color, slim, fill, showRange, active, href, opensList, courseHref, onToggle }) {
   const t = useT();
   const buttonRef = useRef(null);
+  const side = usePanelSide(buttonRef, opensList);
   const elective = entry.type === "Seçmeli";
   const groups = entry.groups ?? [entry];
   const single = groups.length === 1;
@@ -329,11 +332,15 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, c
               {groupLabel(groups)}
             </span>
           )}
-          <ChevronDown
-            size={10}
-            strokeWidth={2.25}
-            className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
-          />
+          {opensList ? (
+            <SideArrow side={side} />
+          ) : (
+            <ChevronDown
+              size={10}
+              strokeWidth={2.25}
+              className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
+            />
+          )}
         </span>
         <span
           className="mt-0.5 block text-[11px] leading-snug font-medium text-primary-600"
@@ -435,6 +442,7 @@ function Strip({ entry, color, slim, fill, showRange, active, href, opensList, c
 function PoolStrip({ block, fill, showRange, active, palette, courseHref, onToggle }) {
   const t = useT();
   const buttonRef = useRef(null);
+  const side = usePanelSide(buttonRef, true);
   const limit = fill ? Math.min(Math.max(block.span + 1, 2), 6) : 2;
   const shown = block.courses.slice(0, limit);
   const rest = block.courses.length - shown.length;
@@ -471,11 +479,7 @@ function PoolStrip({ block, fill, showRange, active, palette, courseHref, onTogg
           <span className="shrink-0 font-mono text-[9px] text-primary-500/70">
             {t("{count} ders", { count: block.courses.length })}
           </span>
-          <ChevronDown
-            size={10}
-            strokeWidth={2.25}
-            className={`shrink-0 text-primary-500/70 transition-transform ${active ? "rotate-180" : ""}`}
-          />
+          <SideArrow side={side} />
         </span>
         <span className="flex flex-col gap-0.5">
           {shown.map((course) => (
@@ -521,40 +525,68 @@ const EDGE = 12;
 const SHEET_BREAKPOINT = 640;
 const SLIDE = 8;
 
-function placePanel(anchor, panel) {
+function panelSide(anchor) {
+  if (window.innerWidth < SHEET_BREAKPOINT) return "bottom";
   const box = anchor.getBoundingClientRect();
   const frame = anchor.closest("[data-schedule-grid]")?.getBoundingClientRect();
   const viewportRight = window.innerWidth - EDGE;
+  const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
+  if (box.right + PANEL_GAP + width <= Math.min(frame?.right ?? viewportRight, viewportRight)) return "right";
+  if (box.left - PANEL_GAP - width >= Math.max(frame?.left ?? EDGE, EDGE)) return "left";
+  return "below";
+}
 
-  if (window.innerWidth < SHEET_BREAKPOINT) {
-    return {
-      side: "bottom",
-      style: { left: 0, right: 0, bottom: 0, maxHeight: "70svh" },
-    };
+function placePanel(anchor, panel) {
+  const side = panelSide(anchor);
+  if (side === "bottom") {
+    return { side, style: { left: 0, right: 0, bottom: 0, maxHeight: "70svh" } };
   }
 
+  const box = anchor.getBoundingClientRect();
   const width = Math.min(PANEL_WIDTH, window.innerWidth - EDGE * 2);
   const maxHeight = Math.min(460, window.innerHeight - EDGE * 2);
   const height = Math.min(panel.scrollHeight, maxHeight);
-  const limitRight = Math.min(frame?.right ?? viewportRight, viewportRight);
-  const limitLeft = Math.max(frame?.left ?? EDGE, EDGE);
-  const right = box.right + PANEL_GAP;
-  const left = box.left - PANEL_GAP - width;
-
-  let side = "below";
-  let x = Math.min(Math.max(box.left, EDGE), viewportRight - width);
-  let y = box.bottom + PANEL_GAP;
-  if (right + width <= limitRight) {
-    side = "right";
-    x = right;
-    y = box.top;
-  } else if (left >= limitLeft) {
-    side = "left";
-    x = left;
-    y = box.top;
-  }
-  y = Math.min(Math.max(y, EDGE), window.innerHeight - EDGE - height);
+  const x =
+    side === "right"
+      ? box.right + PANEL_GAP
+      : side === "left"
+        ? box.left - PANEL_GAP - width
+        : Math.min(Math.max(box.left, EDGE), window.innerWidth - EDGE - width);
+  const top = side === "below" ? box.bottom + PANEL_GAP : box.top;
+  const y = Math.min(Math.max(top, EDGE), window.innerHeight - EDGE - height);
   return { side, style: { left: x, top: y, width, maxHeight } };
+}
+
+function usePanelSide(anchorRef, enabled) {
+  const [side, setSide] = useState("right");
+
+  useLayoutEffect(() => {
+    if (!enabled) return undefined;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (anchorRef.current) setSide(panelSide(anchorRef.current));
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+    };
+  }, [anchorRef, enabled]);
+
+  return side;
+}
+
+function SideArrow({ side }) {
+  const props = { size: 10, strokeWidth: 2.25, className: "shrink-0 text-primary-500/70" };
+  if (side === "right") return <ChevronRight {...props} />;
+  if (side === "left") return <ChevronLeft {...props} />;
+  return <ChevronDown {...props} />;
 }
 
 const OFFSETS = {
@@ -742,22 +774,33 @@ function PanelCourse({ course, color, href, open, onToggle }) {
           className={`mt-0.5 shrink-0 text-primary-500/60 transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {open && (
-        <div className="flex flex-col gap-2.5 px-3.5 pb-3 pl-14">
-          {course.groups.map((group) => (
-            <PanelGroup key={`${group.group}-${group.offeringId ?? ""}`} group={group} />
-          ))}
-          {href && (
-            <Link
-              href={href}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-secondary-700 hover:underline"
-            >
-              {t("Ders sayfası")}
-              <ArrowRight size={11} strokeWidth={2} />
-            </Link>
-          )}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="detail"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-col gap-2.5 px-3.5 pb-3 pl-14">
+              {course.groups.map((group) => (
+                <PanelGroup key={`${group.group}-${group.offeringId ?? ""}`} group={group} />
+              ))}
+              {href && (
+                <Link
+                  href={href}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-secondary-700 hover:underline"
+                >
+                  {t("Ders sayfası")}
+                  <ArrowRight size={11} strokeWidth={2} />
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </li>
   );
 }
