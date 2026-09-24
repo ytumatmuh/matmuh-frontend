@@ -150,9 +150,16 @@ export function toStaffViewModel(offerings = []) {
   const terms = new Map();
 
   for (const offering of offerings) {
+    const section = toSection(offering);
+    if (!hasStatistics(section)) continue;
     const label = termLabel(offering);
     if (!terms.has(label)) {
-      terms.set(label, { name: label, order: termOrder(offering), lectures: new Map() });
+      terms.set(label, {
+        name: label,
+        key: `${offering.academicYear}|${offering.semester}`,
+        order: termOrder(offering),
+        lectures: new Map(),
+      });
     }
     const term = terms.get(label);
 
@@ -164,12 +171,13 @@ export function toStaffViewModel(offerings = []) {
         sections: [],
       });
     }
-    term.lectures.get(key).sections.push(toSection(offering));
+    term.lectures.get(key).sections.push(section);
   }
 
   return [...terms.values()]
     .map((term) => ({
       name: term.name,
+      key: term.key,
       order: term.order,
       lectures: [...term.lectures.values()]
         .map((lecture) => ({

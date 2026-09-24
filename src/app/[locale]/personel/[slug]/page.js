@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import SubHeader from "@/app/components/Header/SubHeader";
 import { getStaff } from "@/app/lib/staff.js";
-import { getWeeklySchedule } from "@/data/schedule";
+import { getWeeklySchedule, termLabel } from "@/data/schedule";
 import { fullName, localizePerson } from "@/lib/person";
 import StaffDetail from "./components/StaffDetail";
 
@@ -29,7 +29,10 @@ export default async function Page({ params }) {
   const person = await findPerson(slug, locale);
   if (!person) notFound();
 
-  const { entries } = await getWeeklySchedule({ staffId: person.id, locale });
+  const { term, entries } = await getWeeklySchedule({ staffId: person.id, locale });
+  const currentTerm = term
+    ? { key: `${term.academicYear}|${term.semester}`, name: termLabel(term) }
+    : null;
   const name = fullName(person);
 
   return (
@@ -39,7 +42,7 @@ export default async function Page({ params }) {
         subTitle={person.role}
         lastLabel={name}
       />
-      <StaffDetail person={person} entries={entries} locale={locale} />
+      <StaffDetail person={person} entries={entries} term={currentTerm} locale={locale} />
     </>
   );
 }

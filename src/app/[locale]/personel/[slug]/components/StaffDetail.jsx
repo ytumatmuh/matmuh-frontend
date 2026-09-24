@@ -53,7 +53,7 @@ function Contact({ person, locale }) {
   );
 }
 
-export default function StaffDetail({ person, entries, locale }) {
+export default function StaffDetail({ person, entries, term, locale }) {
   const name = fullName(person);
 
   const profile = (
@@ -100,7 +100,7 @@ export default function StaffDetail({ person, entries, locale }) {
         </PageSection>
 
         <PageSection title={translate(locale, "Verdiği Dersler")}>
-          <StaffOfferings staffId={person.id} />
+          <StaffOfferings staffId={person.id} entries={entries} term={term} />
         </PageSection>
 
         <PageSection title={translate(locale, "Ders Notları")}>
