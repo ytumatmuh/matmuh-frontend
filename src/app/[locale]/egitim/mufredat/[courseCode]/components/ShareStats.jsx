@@ -163,7 +163,9 @@ export default function ShareStats(props) {
   };
 
   const button =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50";
+    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold transition-colors disabled:opacity-50";
+  const primary = `${button} bg-secondary-500 text-primary-500 hover:bg-secondary-500/80`;
+  const secondary = `${button} border border-primary-500/10 bg-white text-primary-500 hover:bg-primary-500/5`;
 
   return (
     <>
@@ -171,9 +173,9 @@ export default function ShareStats(props) {
         type="button"
         onClick={openShare}
         disabled={!stats}
-        className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-primary-500/10 bg-white px-3.5 py-2.5 text-sm font-medium text-primary-500 shadow-xs transition-colors hover:border-primary-500/20 hover:bg-primary-500/3"
+        className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-secondary-500 px-4 py-2 text-xs font-semibold text-primary-500 transition-colors hover:bg-secondary-500/80 disabled:opacity-50"
       >
-        <Share2 size={14} className="text-secondary-700" />
+        <Share2 size={14} />
         {t("Paylaş")}
       </button>
 
@@ -209,7 +211,7 @@ export default function ShareStats(props) {
 
           <div className="grid grid-cols-1 gap-2 sm:grid-flow-col sm:auto-cols-fr">
             {capabilities.share && (
-              <button type="button" onClick={share} disabled={!image} className={`${button} bg-primary-500 text-white hover:bg-primary-600`}>
+              <button type="button" onClick={share} disabled={!image} className={primary}>
                 <Share2 size={15} />
                 {t("Paylaş")}
               </button>
@@ -219,7 +221,7 @@ export default function ShareStats(props) {
                 type="button"
                 onClick={copy}
                 disabled={!image}
-                className={`${button} border border-primary-500/10 bg-white text-primary-500 hover:border-primary-500/20`}
+                className={secondary}
               >
                 {copied ? <Check size={15} className="text-secondary-700" /> : <Copy size={15} />}
                 {copied ? t("Kopyalandı") : t("Görseli kopyala")}
@@ -229,11 +231,7 @@ export default function ShareStats(props) {
               type="button"
               onClick={download}
               disabled={!image}
-              className={`${button} ${
-                capabilities.share
-                  ? "border border-primary-500/10 bg-white text-primary-500 hover:border-primary-500/20"
-                  : "bg-primary-500 text-white hover:bg-primary-600"
-              }`}
+              className={capabilities.share ? secondary : primary}
             >
               <Download size={15} />
               {t("İndir")}
