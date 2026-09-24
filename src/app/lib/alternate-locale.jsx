@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Suspense, createContext, useContext, useEffect, useMemo, useState } from "react";
+import NextLink from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const AlternateLocaleContext = createContext({ paths: {}, setPaths: () => {} });
 
@@ -26,4 +28,22 @@ export default function AlternateLocalePaths({ paths }) {
   }, [serialized, setPaths]);
 
   return null;
+}
+
+function withQuery(href, query) {
+  if (!query) return href;
+  return `${href}${href.includes("?") ? "&" : "?"}${query}`;
+}
+
+function LinkKeepingQuery({ href, ...props }) {
+  const query = useSearchParams().toString();
+  return <NextLink href={withQuery(href, query)} {...props} />;
+}
+
+export function LocaleSwitchLink(props) {
+  return (
+    <Suspense fallback={<NextLink {...props} />}>
+      <LinkKeepingQuery {...props} />
+    </Suspense>
+  );
 }

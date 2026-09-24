@@ -19,7 +19,7 @@ import {
 import { useCmsBlock, useCmsRoute } from "inscribed";
 import { useT } from "@/i18n/useT";
 import { useLocaleNav } from "@/i18n/useLocaleNav";
-import { useAlternateLocalePaths } from "@/app/lib/alternate-locale.jsx";
+import { LocaleSwitchLink, useAlternateLocalePaths } from "@/app/lib/alternate-locale.jsx";
 
 const BURGER_BAR =
   "absolute top-1/2 left-0 -mt-px h-0.5 w-full rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]";
@@ -60,7 +60,7 @@ export default function Header() {
             </a>
             <div className="w-px h-3 bg-neutral-600"></div>
             <div className="flex items-center gap-1.5 text-[11px] tracking-wide">
-              <Link
+              <LocaleSwitchLink
                 href={localeHref("tr")}
                 className={
                   locale === "tr"
@@ -69,9 +69,9 @@ export default function Header() {
                 }
               >
                 TR
-              </Link>
+              </LocaleSwitchLink>
               <span className="text-white/60 font-light">/</span>
-              <Link
+              <LocaleSwitchLink
                 href={localeHref("en")}
                 className={
                   locale === "en"
@@ -80,7 +80,7 @@ export default function Header() {
                 }
               >
                 EN
-              </Link>
+              </LocaleSwitchLink>
             </div>
           </div>
         </div>
