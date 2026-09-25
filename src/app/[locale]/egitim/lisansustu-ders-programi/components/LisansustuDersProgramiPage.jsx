@@ -43,7 +43,7 @@ export default function LisansustuDersProgramiPage({ entries: all = [], term }) 
       <PageLayout>
         <div className="space-y-4">
           <div className="rounded-xl border border-primary-500/10 shadow-xs bg-white overflow-hidden">
-            <div className="flex items-center justify-between gap-x-4 px-1 pt-1 flex-wrap">
+            <div className="flex items-center justify-between gap-x-4 px-1 pt-1">
               <div className="flex items-center overflow-x-auto no-scrollbar max-w-full">
                 {LEVELS.map((lv) => (
                   <button
@@ -68,7 +68,7 @@ export default function LisansustuDersProgramiPage({ entries: all = [], term }) 
                   </button>
                 ))}
               </div>
-              <div className="flex items-center gap-2 px-3 py-3 text-primary-500/70">
+              <div className="hidden shrink-0 items-center gap-2 px-3 py-3 text-primary-500/70 sm:flex">
                 <CalendarDays size={14} strokeWidth={1.5} />
                 <span style={{ fontSize: "0.75rem" }}>
                   {t("{count} ders bloğu", { count: entries.length })}
