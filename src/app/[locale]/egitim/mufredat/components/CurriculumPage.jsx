@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { startRouteProgress } from "@/app/components/Header/useRouteProgress";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Link from "@/app/components/LocaleLink";
+import SearchField from "@/app/components/SearchField";
+import { matchesWords, queryWords } from "@/lib/fold";
 import PageLayout from "@/app/components/PageLayout";
 import SubHeader from "@/app/components/Header/SubHeader";
 import { useCmsRoute } from "inscribed";
@@ -115,13 +117,55 @@ export default function CurriculumPage({
   const [sortDir, setSortDir] = useState("asc");
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [direction, setDirection] = useState(1);
+  const [query, setQuery] = useState("");
   const router = useRouter();
   const { href: localize } = useLocaleNav();
 
   const semester = semesters[activeTab];
   const rows = semester?.rows ?? [];
-  const sorted = sortRows(rows, sortCol, sortDir);
   const totalEcts = semester?.totalEcts ?? 0;
+
+  const results = useMemo(() => {
+    const words = queryWords(query);
+    if (words.length === 0) return null;
+    const found = new Map();
+    for (const sem of semesters) {
+      const term = locale === "en" ? `${t("Yarıyıl")} ${sem.number}` : `${sem.number}. Yarıyıl`;
+      for (const row of sem.rows) {
+        const courses = row.isGroup ? row.options.map((option) => [option, row.groupTitle]) : [[row, null]];
+        for (const [course, group] of courses) {
+          if (!matchesWords(words, course.code, course.name)) continue;
+          if (!found.has(course.code)) found.set(course.code, { course, terms: new Set(), groups: new Set() });
+          const hit = found.get(course.code);
+          hit.terms.add(term);
+          if (group) hit.groups.add(group);
+        }
+      }
+    }
+    return [...found.values()]
+      .map(({ course, terms, groups }) => ({
+        ...course,
+        context: [
+          [...terms].join(", "),
+          groups.size === 1
+            ? [...groups][0]
+            : groups.size > 1
+              ? t("{count} seçmeli grupta", { count: groups.size })
+              : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      }))
+      .sort((a, b) => a.code.localeCompare(b.code, "tr"));
+  }, [query, semesters, locale, t]);
+
+  const searching = results !== null;
+  const sorted = sortRows(searching ? results : rows, sortCol, sortDir);
+
+  function handleQuery(value) {
+    setQuery(value);
+    setExpandedGroup(null);
+  }
 
   function handleSort(col) {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -132,6 +176,7 @@ export default function CurriculumPage({
   }
 
   function handleTabChange(idx) {
+    if (searching) setQuery("");
     if (idx === activeTab && !expandedGroup) return;
     setDirection(idx > activeTab ? 1 : -1);
     setActiveTab(idx);
@@ -149,9 +194,11 @@ export default function CurriculumPage({
     setExpandedGroup(null);
   }
 
-  const panelKey = expandedGroup
-    ? `group-${expandedGroup.code}`
-    : `sem-${activeTab}`;
+  const panelKey = searching
+    ? "search"
+    : expandedGroup
+      ? `group-${expandedGroup.code}`
+      : `sem-${activeTab}`;
 
   return (
     <>
@@ -170,13 +217,13 @@ export default function CurriculumPage({
                   className="px-4 py-3 transition-all duration-200 whitespace-nowrap"
                   style={{
                     fontSize: "0.8125rem",
-                    fontWeight: activeTab === idx ? 600 : 450,
+                    fontWeight: activeTab === idx && !searching ? 600 : 450,
                     color:
-                      activeTab === idx
+                      activeTab === idx && !searching
                         ? "var(--color-primary-500)"
                         : "rgba(29,36,69,0.4)",
                     borderBottom:
-                      activeTab === idx
+                      activeTab === idx && !searching
                         ? "2px solid var(--color-secondary-500)"
                         : "2px solid transparent",
                   }}
@@ -184,11 +231,18 @@ export default function CurriculumPage({
                   {locale === "en" ? `${t("Yarıyıl")} ${sem.number}` : `${sem.number}. Yarıyıl`}
                 </button>
               ))}
+              <CurriculumSearch
+                value={query}
+                onChange={handleQuery}
+                className="ml-auto hidden w-56 shrink-0 pr-3 pb-1 sm:block"
+              />
             </div>
+
+            <CurriculumSearch value={query} onChange={handleQuery} className="px-4 pt-3 sm:hidden" />
 
             <div className="px-6 pt-4 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {expandedGroup ? (
+                {expandedGroup && !searching ? (
                   <button
                     onClick={closeGroup}
                     className="flex items-center gap-1 mr-1 transition-colors"
@@ -210,7 +264,11 @@ export default function CurriculumPage({
                     color: "var(--color-primary-500)",
                   }}
                 >
-                  {expandedGroup
+                  {searching
+                    ? results.length > 0
+                      ? t("“{query}” için {count} ders", { query: query.trim(), count: results.length })
+                      : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })
+                    : expandedGroup
                     ? expandedGroup.groupTitle
                     : semester
                       ? t("{year}. Yıl - {season} Yarıyılı", {
@@ -219,7 +277,7 @@ export default function CurriculumPage({
                         })
                       : ""}
                 </span>
-                {!expandedGroup && (
+                {!expandedGroup && !searching && (
                   <span
                     className="ml-2 px-2 py-0.5 rounded-sm"
                     style={{
@@ -237,13 +295,15 @@ export default function CurriculumPage({
               <span
                 style={{ fontSize: "0.75rem", color: "rgba(29,36,69,0.4)" }}
               >
-                {expandedGroup
+                {searching
+                  ? null
+                  : expandedGroup
                   ? t("{count} ders", { count: expandedGroup.options.length })
                   : t("{count} ders", { count: rows.length })}
               </span>
             </div>
 
-            {expandedGroup?.note && (
+            {!searching && expandedGroup?.note && (
               <div
                 className="mx-6 mb-3 px-3 py-2 rounded-lg flex items-start gap-2"
                 style={{ backgroundColor: "rgba(173,151,111,0.07)" }}
@@ -324,10 +384,25 @@ export default function CurriculumPage({
                         </caption>
                         <Colgroup />
                         <tbody>
-                          {(expandedGroup
+                          {(searching
+                            ? sorted.length > 0
+                              ? sorted
+                              : [{ _empty: true }]
+                            : expandedGroup
                             ? electiveRows(expandedGroup)
                             : sorted
                           ).map((row, idx, arr) => {
+                            if (row._empty && searching) {
+                              return (
+                                <tr key="empty">
+                                  <td colSpan={6} className="px-4 sm:px-6 py-12 text-center">
+                                    <span className="text-[13px] text-primary-500/60">
+                                      {t("Kod ya da ders adıyla arayın; tüm yarıyıllar ve seçmeli gruplar taranır.")}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            }
                             if (row._empty) {
                               return (
                                 <tr key="empty">
@@ -522,6 +597,11 @@ export default function CurriculumPage({
                                   >
                                     {row.name}
                                   </Link>
+                                  {row.context && (
+                                    <span className="mt-0.5 block text-[11px] text-primary-500/60">
+                                      {row.context}
+                                    </span>
+                                  )}
                                 </td>
                                 <td className="px-4 sm:px-6 py-3.5">
                                   <span
@@ -584,7 +664,14 @@ export default function CurriculumPage({
               style={{ borderTop: "1px solid rgba(29,36,69,0.06)" }}
             >
               <div className="flex items-center gap-3">
-                {expandedGroup ? (
+                {searching ? (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="text-[12px] font-medium text-secondary-700 hover:underline"
+                  >
+                    {t("Aramayı temizle")}
+                  </button>
+                ) : expandedGroup ? (
                   <button
                     onClick={closeGroup}
                     className="flex items-center gap-1.5 transition-colors"
@@ -645,6 +732,20 @@ export default function CurriculumPage({
         </div>
       </PageLayout>
     </>
+  );
+}
+
+function CurriculumSearch({ value, onChange, className }) {
+  const t = useT();
+  return (
+    <div className={className}>
+      <SearchField
+        value={value}
+        onChange={onChange}
+        placeholder={t("Ders kodu ya da adı")}
+        label={t("Müfredatta ara")}
+      />
+    </div>
   );
 }
 

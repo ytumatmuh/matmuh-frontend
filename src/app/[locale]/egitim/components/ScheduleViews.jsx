@@ -9,17 +9,17 @@ import {
   Layers,
   List,
   MapPin,
-  Search,
   SlidersHorizontal,
   User,
   Wifi,
-  X,
 } from "lucide-react";
 
 import { DAYS, TIME_SLOTS } from "@/data/schedule-grid";
 import { MyScheduleProvider, useMySchedule } from "@/data/useMySchedule";
 import { WINDOW_LABELS, kindOf, poolBlocks } from "@/data/schedule-pool";
 import { blockStyle, colorOf, courseColors } from "@/data/schedule-colors";
+import { matchesWords, queryWords } from "@/lib/fold";
+import SearchField from "@/app/components/SearchField";
 import WeeklySchedule from "./WeeklySchedule";
 import { useT } from "@/i18n/useT";
 
@@ -34,48 +34,23 @@ const LANGUAGES = [
   { id: "en", label: "İngilizce" },
 ];
 
-const FOLD = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u", â: "a", î: "i", û: "u" };
-
-const fold = (text) =>
-  String(text ?? "")
-    .toLocaleLowerCase("tr")
-    .replace(/[çğıöşüâîû]/g, (char) => FOLD[char]);
-
 const byQuery = (query) => {
-  const words = fold(query).split(/\s+/).filter(Boolean);
+  const words = queryWords(query);
   if (words.length === 0) return () => true;
-  return (entry) => {
-    const haystack = fold(
-      [entry.code, entry.name, entry.instructor, entry.room, entry.pool?.name].join(" "),
-    );
-    return words.every((word) => haystack.includes(word));
-  };
+  return (entry) =>
+    matchesWords(words, entry.code, entry.name, entry.instructor, entry.room, entry.pool?.name);
 };
 
-function SearchField({ value, onChange, className = "" }) {
+function ScheduleSearch({ value, onChange, className = "" }) {
   const t = useT();
   return (
-    <label className={`relative flex items-center ${className}`}>
-      <Search size={13} strokeWidth={2} className="pointer-events-none absolute left-2.5 text-primary-500/50" />
-      <input
-        type="search"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={t("Ders, öğretim elemanı")}
-        aria-label={t("Programda ara")}
-        className="h-8 w-full rounded-md border border-primary-500/12 bg-white pr-7 pl-8 text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none"
-      />
-      {value && (
-        <button
-          type="button"
-          onClick={() => onChange("")}
-          aria-label={t("Aramayı temizle")}
-          className="absolute right-1.5 rounded-sm p-0.5 text-primary-500/60 hover:bg-primary-500/6 hover:text-primary-500"
-        >
-          <X size={12} strokeWidth={2} />
-        </button>
-      )}
-    </label>
+    <SearchField
+      value={value}
+      onChange={onChange}
+      placeholder={t("Ders, öğretim elemanı")}
+      label={t("Programda ara")}
+      className={className}
+    />
   );
 }
 
@@ -570,7 +545,7 @@ function FilterPanel({
       id="schedule-filters"
       className="flex flex-col gap-3.5 rounded-xl border border-primary-500/10 bg-white px-4 py-3.5 shadow-xs"
     >
-      <SearchField value={query} onChange={onQuery} className="sm:hidden" />
+      <ScheduleSearch value={query} onChange={onQuery} className="sm:hidden" />
       <div className="flex flex-col gap-2 sm:hidden">
         <span className="text-[10.5px] font-semibold tracking-widest text-primary-500/60 uppercase">
           {t("Eğitim dili")}
@@ -718,7 +693,7 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
       <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {legend ? <div className="min-w-0">{legend}</div> : <span />}
         <div className="flex items-center gap-1.5 sm:flex-wrap sm:justify-end">
-          <SearchField value={query} onChange={setQuery} className="hidden w-48 sm:flex" />
+          <ScheduleSearch value={query} onChange={setQuery} className="hidden w-48 sm:flex" />
           <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
           <LanguageSegments language={language} onLanguage={setLanguage} className="hidden sm:flex" />
           <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
