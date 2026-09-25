@@ -105,7 +105,6 @@ function Colgroup() {
 
 export default function CurriculumPage({
   semesters,
-  summary,
   title = "Müfredat & Dersler",
   subTitle = "Lisans programı ders planı ve kredi bilgileri",
 }) {
@@ -159,48 +158,6 @@ export default function CurriculumPage({
       <SubHeader title={t(title)} subTitle={t(subTitle)} />
       <PageLayout>
         <div className="space-y-4">
-          <div className="rounded-xl overflow-hidden border border-primary-500/10 shadow-xs bg-white">
-            <div className="grid grid-cols-2 sm:grid-cols-4">
-              {[
-                { val: String(summary.termCount), lbl: t("Yarıyıl") },
-                { val: String(summary.totalEcts), lbl: t("Toplam ECTS") },
-                { val: String(summary.courseCount), lbl: t("Toplam Ders") },
-                { val: `${summary.yearCount} ${t("Yıl")}`, lbl: t("Süre") },
-              ].map((s, i) => (
-                <div
-                  key={s.lbl}
-                  className={`px-4 sm:px-6 py-4 flex items-center gap-3 border-primary-500/5 ${
-                    i % 2 === 0 ? "border-r" : ""
-                  } ${i < 2 ? "border-b" : ""} sm:border-b-0 ${
-                    i < 3 ? "sm:border-r" : "sm:border-r-0"
-                  }`}
-                >
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: "1.125rem",
-                        fontWeight: 600,
-                        color: "var(--color-primary-500)",
-                      }}
-                    >
-                      {s.val}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.6875rem",
-                        color: "rgba(29,36,69,0.45)",
-                        fontWeight: 450,
-                      }}
-                    >
-                      {s.lbl}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="rounded-xl overflow-hidden border border-primary-500/10 shadow-xs bg-white">
             <div
               className="flex items-center gap-0 overflow-x-auto no-scrollbar px-1 pt-1"

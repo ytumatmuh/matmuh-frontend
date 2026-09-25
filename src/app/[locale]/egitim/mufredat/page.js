@@ -1,4 +1,4 @@
-import { getCurriculum, getCurriculumSummary } from "@/data/curriculum";
+import { getCurriculum } from "@/data/curriculum";
 
 import CurriculumPage from "./components/CurriculumPage";
 
@@ -9,6 +9,6 @@ export const metadata = {
 
 export default async function Page({ params }) {
   const { locale } = await params;
-  const [semesters, summary] = await Promise.all([getCurriculum(locale), getCurriculumSummary()]);
-  return <CurriculumPage semesters={semesters} summary={summary} />;
+  const semesters = await getCurriculum(locale);
+  return <CurriculumPage semesters={semesters} />;
 }
