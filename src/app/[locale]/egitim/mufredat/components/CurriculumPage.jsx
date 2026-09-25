@@ -231,76 +231,46 @@ export default function CurriculumPage({
                   {locale === "en" ? `${t("Yarıyıl")} ${sem.number}` : `${sem.number}. Yarıyıl`}
                 </button>
               ))}
-              <CurriculumSearch
-                value={query}
-                onChange={handleQuery}
-                className="ml-auto hidden w-56 shrink-0 pr-3 pb-1 sm:block"
-              />
             </div>
 
-            <CurriculumSearch value={query} onChange={handleQuery} className="px-4 pt-3 sm:hidden" />
-
-            <div className="px-6 pt-4 pb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2 sm:px-6">
+              <div className="flex min-w-0 items-start gap-2">
                 {expandedGroup && !searching ? (
                   <button
                     onClick={closeGroup}
-                    className="flex items-center gap-1 mr-1 transition-colors"
-                    style={{ color: "var(--color-secondary-500)" }}
+                    aria-label={t("Yarıyıl listesine dön")}
+                    className="mt-0.5 shrink-0 text-secondary-500 transition-colors hover:text-secondary-700"
                   >
                     <ChevronLeft size={14} strokeWidth={1.5} />
                   </button>
                 ) : (
-                  <BookOpen
-                    size={14}
-                    strokeWidth={1.5}
-                    style={{ color: "var(--color-secondary-500)" }}
-                  />
+                  <BookOpen size={14} strokeWidth={1.5} className="mt-0.5 shrink-0 text-secondary-500" />
                 )}
-                <span
-                  style={{
-                    fontSize: "0.8125rem",
-                    fontWeight: 500,
-                    color: "var(--color-primary-500)",
-                  }}
-                >
-                  {searching
-                    ? results.length > 0
-                      ? t("“{query}” için {count} ders", { query: query.trim(), count: results.length })
-                      : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })
-                    : expandedGroup
-                    ? expandedGroup.groupTitle
-                    : semester
-                      ? t("{year}. Yıl - {season} Yarıyılı", {
-                          year: semester.label.year,
-                          season: t(semester.label.season),
-                        })
-                      : ""}
-                </span>
-                {!expandedGroup && !searching && (
-                  <span
-                    className="ml-2 px-2 py-0.5 rounded-sm"
-                    style={{
-                      fontSize: "0.625rem",
-                      fontWeight: 500,
-                      backgroundColor: "rgba(173,151,111,0.1)",
-                      color: "var(--color-secondary-500)",
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
-                    {totalEcts} ECTS
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[13px] font-medium text-primary-500">
+                    {searching
+                      ? results.length > 0
+                        ? t("“{query}” için {count} ders", { query: query.trim(), count: results.length })
+                        : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })
+                      : expandedGroup
+                        ? expandedGroup.groupTitle
+                        : semester
+                          ? t("{year}. Yıl - {season} Yarıyılı", {
+                              year: semester.label.year,
+                              season: t(semester.label.season),
+                            })
+                          : ""}
                   </span>
-                )}
+                  {!searching && (
+                    <span className="font-mono text-[11px] text-primary-500/60">
+                      {expandedGroup
+                        ? t("{count} ders", { count: expandedGroup.options.length })
+                        : `${totalEcts} ECTS · ${t("{count} ders", { count: rows.length })}`}
+                    </span>
+                  )}
+                </span>
               </div>
-              <span
-                style={{ fontSize: "0.75rem", color: "rgba(29,36,69,0.4)" }}
-              >
-                {searching
-                  ? null
-                  : expandedGroup
-                  ? t("{count} ders", { count: expandedGroup.options.length })
-                  : t("{count} ders", { count: rows.length })}
-              </span>
+              <CurriculumSearch value={query} onChange={handleQuery} className="w-40 shrink-0 sm:w-56" />
             </div>
 
             {!searching && expandedGroup?.note && (
@@ -659,75 +629,6 @@ export default function CurriculumPage({
               </div>
             </div>
 
-            <div
-              className="px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap"
-              style={{ borderTop: "1px solid rgba(29,36,69,0.06)" }}
-            >
-              <div className="flex items-center gap-3">
-                {searching ? (
-                  <button
-                    onClick={() => setQuery("")}
-                    className="text-[12px] font-medium text-secondary-700 hover:underline"
-                  >
-                    {t("Aramayı temizle")}
-                  </button>
-                ) : expandedGroup ? (
-                  <button
-                    onClick={closeGroup}
-                    className="flex items-center gap-1.5 transition-colors"
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--color-secondary-500)",
-                    }}
-                  >
-                    <ChevronLeft size={12} strokeWidth={1.5} />
-                    {t("Yarıyıl listesine dön")}
-                  </button>
-                ) : (
-                  <span
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "rgba(29,36,69,0.4)",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {t("Toplam {count} ders", { count: rows.length })} · {totalEcts} ECTS
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm"
-                  style={{
-                    fontSize: "0.625rem",
-                    fontWeight: 500,
-                    color: "var(--color-primary-500)",
-                    backgroundColor: "rgba(29,36,69,0.04)",
-                  }}
-                >
-                  <span
-                    className="w-2 h-2 rounded-sm inline-block"
-                    style={{ backgroundColor: "rgba(29,36,69,0.15)" }}
-                  />
-                  {t("Zorunlu")}
-                </span>
-                <span
-                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm"
-                  style={{
-                    fontSize: "0.625rem",
-                    fontWeight: 500,
-                    color: "var(--color-secondary-500)",
-                    backgroundColor: "rgba(173,151,111,0.06)",
-                  }}
-                >
-                  <span
-                    className="w-2 h-2 rounded-sm inline-block"
-                    style={{ backgroundColor: "rgba(173,151,111,0.3)" }}
-                  />
-                  {t("Seçmeli")}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </PageLayout>
@@ -742,7 +643,7 @@ function CurriculumSearch({ value, onChange, className }) {
       <SearchField
         value={value}
         onChange={onChange}
-        placeholder={t("Ders kodu ya da adı")}
+        placeholder={t("Kod ya da ad")}
         label={t("Müfredatta ara")}
       />
     </div>

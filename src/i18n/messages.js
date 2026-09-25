@@ -539,7 +539,7 @@ export const messages = {
     "Ders, öğretim elemanı": "Course, instructor",
     "Programda ara": "Search the schedule",
     "Müfredatta ara": "Search the curriculum",
-    "Ders kodu ya da adı": "Course code or name",
+    "Kod ya da ad": "Code or name",
     "{count} seçmeli grupta": "in {count} elective groups",
     "Kod ya da ders adıyla arayın; tüm yarıyıllar ve seçmeli gruplar taranır.": "Search by code or name; every semester and elective group is searched.",
     "“{query}” için {count} ders": "{count} courses for “{query}”",
