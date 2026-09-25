@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "@/app/components/LocaleLink";
 import {
   CalendarDays,
@@ -21,6 +21,7 @@ import { MyScheduleProvider, useMySchedule } from "@/data/useMySchedule";
 import { buildIcs, downloadIcs } from "@/lib/calendar-export";
 import CalendarExportMenu from "./CalendarExportMenu";
 import WeeklySchedule from "@/app/[locale]/egitim/components/WeeklySchedule";
+import { colorOf, courseColors } from "@/data/schedule-colors";
 import { useAuth } from "@/lib/auth";
 import { useLocaleNav } from "@/i18n/useLocaleNav";
 import { useT } from "@/i18n/useT";
@@ -325,7 +326,8 @@ function CalendarExportAction() {
 
 function EnrolledCourses({ onChanged }) {
   const t = useT();
-  const { rows, busyId, remove } = useMySchedule();
+  const { rows, entries, busyId, remove } = useMySchedule();
+  const palette = useMemo(() => courseColors(entries), [entries]);
 
   if (rows.length === 0) return null;
 
@@ -339,25 +341,23 @@ function EnrolledCourses({ onChanged }) {
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-primary-500/70">
         {t("Kayıtlı dersler")}
       </p>
-      <ul className="space-y-0.5">
+      <ul className="flex flex-wrap gap-1.5">
         {rows.map((row) => (
           <li
             key={row.id}
-            className="flex items-center gap-2 rounded-lg py-1 pl-2 pr-1 hover:bg-primary-500/3"
+            className="flex max-w-full items-center gap-1.5 rounded-md border border-primary-500/10 bg-white py-1 pr-1 pl-2 text-[12px] text-primary-600"
+            style={{ borderLeft: `2.5px solid ${colorOf(palette, row.lectureCode)}` }}
+            title={[row.lectureCode, row.lectureName, row.groupNumber != null ? `Gr.${row.groupNumber}` : null]
+              .filter(Boolean)
+              .join(" ")}
           >
-            <span className="min-w-0 flex-1 text-[12px] text-primary-600">
-              <span className="font-mono text-[11px] font-semibold text-secondary-700">
-                {row.lectureCode}
-              </span>
-              {row.lectureName && (
-                <span className="ml-1.5">{row.lectureName}</span>
-              )}
-              {row.groupNumber != null && (
-                <span className="ml-1.5 text-[11px] text-primary-500/70">
-                  Gr.{row.groupNumber}
-                </span>
-              )}
+            <span className="shrink-0 font-mono text-[11px] font-semibold text-secondary-700">
+              {row.lectureCode}
             </span>
+            {row.lectureName && <span className="hidden min-w-0 truncate sm:inline">{row.lectureName}</span>}
+            {row.groupNumber != null && (
+              <span className="shrink-0 font-mono text-[10.5px] text-primary-500/70">Gr.{row.groupNumber}</span>
+            )}
             <button
               type="button"
               onClick={() => void onRemove(row.offeringId)}
