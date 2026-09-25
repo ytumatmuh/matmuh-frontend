@@ -57,6 +57,13 @@ select:not(.inscribed-field) {
   font-family: inherit !important;
 }
 
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 select:not(.inscribed-field) option {
   font-family: sans-serif !important;
 }

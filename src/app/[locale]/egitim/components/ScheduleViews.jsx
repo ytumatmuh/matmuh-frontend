@@ -63,7 +63,7 @@ function SearchField({ value, onChange, className = "" }) {
         onChange={(event) => onChange(event.target.value)}
         placeholder={t("Ders, öğretim elemanı")}
         aria-label={t("Programda ara")}
-        className="h-8 w-full rounded-md border border-primary-500/12 bg-white pr-7 pl-8 text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+        className="h-8 w-full rounded-md border border-primary-500/12 bg-white pr-7 pl-8 text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none"
       />
       {value && (
         <button
