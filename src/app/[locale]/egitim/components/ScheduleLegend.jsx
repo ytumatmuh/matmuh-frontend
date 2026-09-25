@@ -114,7 +114,6 @@ export default function ScheduleLegend({
         )}
         <div
           ref={helpRef}
-          className="sm:relative"
           onPointerEnter={openLater}
           onPointerLeave={closeLater}
           onFocus={(event) => {
@@ -143,7 +142,7 @@ export default function ScheduleLegend({
             id="schedule-help"
             role="tooltip"
             aria-hidden={!help}
-            className={`absolute top-full right-0 left-0 z-30 mt-1.5 grid origin-top-left sm:right-auto sm:w-[min(40rem,calc(100vw-2rem))] gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,scale,visibility] motion-reduce:transition-none ${
+            className={`absolute top-full right-0 left-0 z-30 mt-1.5 grid origin-top-left sm:right-auto sm:w-max sm:max-w-[min(40rem,100%)] gap-2.5 rounded-lg border border-primary-500/10 bg-white px-3.5 py-3 shadow-[0_10px_28px_rgba(29,36,69,0.14)] transition-[opacity,scale,visibility] motion-reduce:transition-none ${
               help
                 ? "visible scale-100 opacity-100 duration-150 ease-out"
                 : "invisible pointer-events-none scale-[0.97] opacity-0 duration-[120ms] ease-in"
