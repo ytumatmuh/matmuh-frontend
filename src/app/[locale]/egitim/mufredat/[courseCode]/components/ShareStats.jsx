@@ -7,7 +7,7 @@ import { sectionLabel } from "@/lib/section-label";
 import { useT } from "@/i18n/useT";
 import { useCmsRoute } from "inscribed";
 import { localizeTerm } from "@/i18n";
-import { renderStatsCard, canvasToBlob, statsCardLegend, STATS_CARD_SIZE } from "@/lib/stats-card";
+import { renderStatsCard, canvasToBlob, statsCardLegend } from "@/lib/stats-card";
 
 const SITE_HOST = "matmuh.yildiz.edu.tr";
 
@@ -192,9 +192,13 @@ export default function ShareStats(props) {
   };
 
   const button =
-    "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-semibold transition-colors disabled:opacity-50";
-  const primary = `${button} bg-secondary-500 text-primary-500 hover:bg-secondary-500/80`;
-  const secondary = `${button} border border-primary-500/10 bg-white text-primary-500 hover:bg-primary-500/5`;
+    "inline-flex min-w-0 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold whitespace-nowrap transition-colors disabled:opacity-50";
+  const primary = `${button} bg-secondary-500 text-primary-600 hover:bg-secondary-500/85`;
+  const secondary = `${button} bg-white/10 text-white ring-1 ring-white/15 ring-inset hover:bg-white/15`;
+  const swatches = [
+    ["dark", "Koyu tema", "bg-primary-500 ring-1 ring-white/35 ring-inset"],
+    ["light", "Açık tema", "bg-white"],
+  ];
 
   return (
     <>
@@ -212,104 +216,82 @@ export default function ShareStats(props) {
         open={open}
         onClose={closeShare}
         label={t("İstatistiği paylaş")}
-        contentClassName="flex items-center justify-center overflow-y-auto p-4"
+        contentClassName="flex flex-col items-center gap-4 bg-primary-700/50 px-4 backdrop-blur-md pt-16 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pt-14 sm:pb-8"
       >
-        <div className="flex w-full max-w-lg flex-col gap-4 rounded-2xl bg-white p-5 shadow-xl sm:p-6">
-          <div>
-            <h2 className="text-base font-semibold text-primary-600">{t("İstatistiği paylaş")}</h2>
-            <p className="mt-1 text-sm text-primary-500/70">
-              {t("Seçili dönem, öğretim elemanı ve şubenin istatistikleri tek bir görselde.")}
-            </p>
-          </div>
+        <h2 className="absolute top-5 left-5 text-sm font-semibold text-white/85">{t("İstatistiği paylaş")}</h2>
 
-          <div
-            role="group"
-            aria-label={t("Görsel teması")}
-            className="flex self-center rounded-lg border border-primary-500/10 bg-primary-500/3 p-0.5"
-          >
-            {[
-              ["dark", "Koyu"],
-              ["light", "Açık"],
-            ].map(([name, label]) => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => chooseTheme(name)}
-                aria-pressed={theme === name}
-                className={`rounded-md px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-                  theme === name ? "bg-white text-primary-600 shadow-xs" : "text-primary-500/60 hover:text-primary-500"
-                }`}
-              >
-                {t(label)}
-              </button>
-            ))}
-          </div>
-
-          <div
-            className={`mx-auto w-full overflow-hidden rounded-xl border border-primary-500/10 ${
-              theme === "dark" ? "bg-primary-500" : "bg-[#E7EAF0]"
-            }`}
-            style={{
-              aspectRatio: `${STATS_CARD_SIZE.width} / ${STATS_CARD_SIZE.height}`,
-              maxWidth: `min(24rem, calc(52svh * ${STATS_CARD_SIZE.width / STATS_CARD_SIZE.height}))`,
-            }}
-          >
-            {image ? (
-              <img src={image.url} alt={image.data.shareText} className="size-full object-contain" />
-            ) : (
-              <div className="flex size-full items-center justify-center text-white/60">
-                <LoaderCircle size={20} className="animate-spin" aria-label={t("Hazırlanıyor")} />
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 sm:grid-flow-col sm:auto-cols-fr">
-            {capabilities.share && (
-              <button type="button" onClick={share} disabled={!image} className={primary}>
-                <Share2 size={15} />
-                {t("Paylaş")}
-              </button>
-            )}
-            {!capabilities.share && capabilities.link && (
-              <button type="button" onClick={shareLink} disabled={!image} className={secondary}>
-                <Share2 size={15} />
-                {t("Bağlantıyı paylaş")}
-              </button>
-            )}
-            {capabilities.copy && (
-              <button
-                type="button"
-                onClick={copy}
-                disabled={!image}
-                className={secondary}
-              >
-                {copied ? <Check size={15} className="text-secondary-700" /> : <Copy size={15} />}
-                {copied ? t("Kopyalandı") : t("Görseli kopyala")}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={download}
-              disabled={!image}
-              className={capabilities.share ? secondary : primary}
-            >
-              <Download size={15} />
-              {t("İndir")}
-            </button>
-          </div>
-
-          {image && !capabilities.share && (
-            <p className="text-xs text-primary-500/70">
-              {capabilities.secure
-                ? t("Bu tarayıcı görseli doğrudan paylaşamıyor; indirip ya da kopyalayıp paylaşabilirsin.")
-                : t("Görseli doğrudan paylaşmak yalnızca güvenli (https) bağlantıda çalışır; indirip paylaşabilirsin.")}
-            </p>
+        <div
+          className="flex min-h-0 w-full flex-1 items-center justify-center"
+          onClick={(event) => event.target === event.currentTarget && closeShare()}
+        >
+          {image ? (
+            <img
+              src={image.url}
+              alt={image.data.shareText}
+              className="max-h-full max-w-full rounded-xl object-contain ring-1 ring-white/12 shadow-[0_18px_48px_rgba(0,0,0,0.35)] sm:max-w-md"
+            />
+          ) : (
+            <LoaderCircle size={22} className="animate-spin text-white/60" aria-label={t("Hazırlanıyor")} />
           )}
-
-          <p className="min-h-5 text-xs text-primary-500/70" role="status" aria-live="polite">
-            {status}
-          </p>
         </div>
+
+        <div role="radiogroup" aria-label={t("Görsel teması")} className="flex shrink-0 items-center gap-3">
+          {swatches.map(([name, label, fill]) => (
+            <button
+              key={name}
+              type="button"
+              role="radio"
+              aria-checked={theme === name}
+              aria-label={t(label)}
+              title={t(label)}
+              onClick={() => chooseTheme(name)}
+              className={`size-7 rounded-full transition-shadow ${fill} ${
+                theme === name
+                  ? "shadow-[0_0_0_2px_var(--color-primary-700),0_0_0_4px_var(--color-secondary-500)]"
+                  : "hover:shadow-[0_0_0_2px_var(--color-primary-700),0_0_0_4px_rgba(255,255,255,0.3)]"
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="grid w-full max-w-md shrink-0 auto-cols-fr grid-flow-col gap-2">
+          {capabilities.share && (
+            <button type="button" onClick={share} disabled={!image} className={primary}>
+              <Share2 size={15} />
+              {t("Paylaş")}
+            </button>
+          )}
+          {!capabilities.share && capabilities.link && (
+            <button type="button" onClick={shareLink} disabled={!image} className={secondary}>
+              <Share2 size={15} />
+              {t("Bağlantıyı paylaş")}
+            </button>
+          )}
+          {capabilities.copy && (
+            <button type="button" onClick={copy} disabled={!image} className={secondary}>
+              {copied ? <Check size={15} className="text-secondary-500" /> : <Copy size={15} />}
+              {copied ? t("Kopyalandı") : t("Kopyala")}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={download}
+            disabled={!image}
+            className={capabilities.share ? secondary : primary}
+          >
+            <Download size={15} />
+            {t("İndir")}
+          </button>
+        </div>
+
+        {(status || (image && !capabilities.share)) && (
+          <p className="max-w-md shrink-0 text-center text-xs text-white/65" role="status" aria-live="polite">
+            {status ||
+              (capabilities.secure
+                ? t("Bu tarayıcı görseli doğrudan paylaşamıyor; indirip ya da kopyalayıp paylaşabilirsin.")
+                : t("Görseli doğrudan paylaşmak yalnızca güvenli (https) bağlantıda çalışır; indirip paylaşabilirsin."))}
+          </p>
+        )}
       </Modal>
     </>
   );
