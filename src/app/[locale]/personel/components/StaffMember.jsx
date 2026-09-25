@@ -14,13 +14,13 @@ export default function StaffMember({ member, idx }) {
   const isRoomNumber = office && (office.includes("-") || /^\d+$/.test(office));
 
   return (
-    <div className="group relative cursor-pointer rounded-xl p-5 bg-white border border-primary-500/10 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-primary-500/20 hover:shadow-sm">
+    <div className="group relative cursor-pointer rounded-xl border border-primary-500/10 bg-white p-5 shadow-xs transition-colors duration-200 hover:border-secondary-500/40 hover:bg-[color-mix(in_srgb,var(--color-secondary-500)_4%,white)]">
       <div className="flex flex-col items-center text-center">
         <Avatar
           name={name}
           photo={member.photo}
           idx={idx}
-          size="mb-3 h-16 w-16 transition-transform duration-300 group-hover:scale-105"
+          size="mb-3 h-16 w-16 ring-2 ring-transparent ring-offset-2 ring-offset-white transition-shadow duration-200 group-hover:ring-secondary-500/45"
           textSize="font-sans text-base tracking-wider"
         />
 
