@@ -9,9 +9,11 @@ import {
   Layers,
   List,
   MapPin,
+  Search,
   SlidersHorizontal,
   User,
   Wifi,
+  X,
 } from "lucide-react";
 
 import { DAYS, TIME_SLOTS } from "@/data/schedule-grid";
@@ -31,6 +33,51 @@ const LANGUAGES = [
   { id: "tr", label: "Türkçe" },
   { id: "en", label: "İngilizce" },
 ];
+
+const FOLD = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u", â: "a", î: "i", û: "u" };
+
+const fold = (text) =>
+  String(text ?? "")
+    .toLocaleLowerCase("tr")
+    .replace(/[çğıöşüâîû]/g, (char) => FOLD[char]);
+
+const byQuery = (query) => {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  if (words.length === 0) return () => true;
+  return (entry) => {
+    const haystack = fold(
+      [entry.code, entry.name, entry.instructor, entry.room, entry.pool?.name].join(" "),
+    );
+    return words.every((word) => haystack.includes(word));
+  };
+};
+
+function SearchField({ value, onChange, className = "" }) {
+  const t = useT();
+  return (
+    <label className={`relative flex items-center ${className}`}>
+      <Search size={13} strokeWidth={2} className="pointer-events-none absolute left-2.5 text-primary-500/50" />
+      <input
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={t("Ders, öğretim elemanı")}
+        aria-label={t("Programda ara")}
+        className="h-8 w-full rounded-md border border-primary-500/12 bg-white pr-7 pl-8 text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          aria-label={t("Aramayı temizle")}
+          className="absolute right-1.5 rounded-sm p-0.5 text-primary-500/60 hover:bg-primary-500/6 hover:text-primary-500"
+        >
+          <X size={12} strokeWidth={2} />
+        </button>
+      )}
+    </label>
+  );
+}
 
 const byLanguage = (language) => (entry) =>
   language === "all" || (language === "en" ? entry.english : !entry.english);
@@ -485,13 +532,14 @@ const SEGMENT = (active) =>
       : "text-primary-500/70 hover:bg-primary-500/4 hover:text-primary-500"
   }`;
 
-function FilterPanel({ kinds, hidden, onToggleKind, fit, onFit, onReset, active }) {
+function FilterPanel({ kinds, hidden, onToggleKind, fit, onFit, onReset, active, query, onQuery }) {
   const t = useT();
   return (
     <div
       id="schedule-filters"
       className="flex flex-col gap-3.5 rounded-xl border border-primary-500/10 bg-white px-4 py-3.5 shadow-xs"
     >
+      <SearchField value={query} onChange={onQuery} className="sm:hidden" />
       {kinds.length <= 1 && (
         <p className="text-[11.5px] text-primary-500/70">
           {t("Bu sınıfta süzülecek başka ders türü yok.")}
@@ -563,7 +611,7 @@ function FilterPanel({ kinds, hidden, onToggleKind, fit, onFit, onReset, active 
   );
 }
 
-function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) {
+function ScheduleBody({ entries = [], courseHref, note = null, legend = null, elsewhere = [], onElsewhere }) {
   const t = useT();
   const my = useMySchedule();
   const [view, setView] = useState("grid");
@@ -571,24 +619,40 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) 
   const [hidden, setHidden] = useState(() => new Set());
   const [fitOnly, setFitOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const kinds = useMemo(() => kindOptions(entries), [entries]);
   const palette = useMemo(() => courseColors(entries), [entries]);
   const canFit = my?.status === "ready" && my.rows.length > 0;
   const fitting = fitOnly && canFit;
-  const active = [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length + (fitting ? 1 : 0);
+  const searching = query.trim().length > 0;
+  const active =
+    [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length + (fitting ? 1 : 0);
 
   const shown = useMemo(
     () =>
       entries
         .filter(byLanguage(language))
+        .filter(byQuery(query))
         .filter((entry) => !hidden.has(kindOf(entry)))
         .filter(
           (entry) =>
             !fitting || my.isEnrolled(entry.offeringId) || !my.clashOf(entry),
         ),
-    [entries, language, hidden, fitting, my],
+    [entries, language, hidden, fitting, my, query],
   );
+
+  const matches = useMemo(() => new Set(shown.map((entry) => entry.code)).size, [shown]);
+  const others = useMemo(() => {
+    if (!searching) return [];
+    const match = byQuery(query);
+    return elsewhere
+      .map((scope) => ({
+        ...scope,
+        count: new Set(scope.entries.filter(match).map((entry) => entry.code)).size,
+      }))
+      .filter((scope) => scope.count > 0);
+  }, [elsewhere, searching, query]);
 
   const toggleKind = (id) =>
     setHidden((prev) => {
@@ -616,6 +680,8 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {legend ? <div className="min-w-0">{legend}</div> : <span />}
         <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
+          <SearchField value={query} onChange={setQuery} className="hidden w-48 sm:flex" />
+          <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
           <div role="group" aria-label={t("Eğitim dili")} className="flex items-center gap-1.5">
             {LANGUAGES.map((option) => (
               <button
@@ -675,7 +741,39 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null }) 
             setFitOnly(false);
           }}
           active={active}
+          query={query}
+          onQuery={setQuery}
         />
+      )}
+
+      {searching && (
+        <p role="status" className="flex flex-wrap items-center gap-x-2 px-1 text-[12px] text-primary-500/75">
+          {matches > 0
+            ? t("“{query}” için {count} ders", { query: query.trim(), count: matches })
+            : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })}
+          {others.length > 0 && (
+            <span className="flex flex-wrap items-center gap-1.5">
+              {t("Diğer sınıflarda:")}
+              {others.map((scope) => (
+                <button
+                  key={scope.id}
+                  type="button"
+                  onClick={() => onElsewhere?.(scope.id)}
+                  className="rounded-md bg-secondary-500/10 px-2 py-0.5 font-medium text-secondary-700 transition-colors hover:bg-secondary-500/20"
+                >
+                  {scope.label} · {scope.count}
+                </button>
+              ))}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="font-medium text-secondary-700 hover:underline"
+          >
+            {t("Aramayı temizle")}
+          </button>
+        </p>
       )}
 
       {view === "grid" ? (

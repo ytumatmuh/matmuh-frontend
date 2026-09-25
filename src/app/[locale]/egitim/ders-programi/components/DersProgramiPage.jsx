@@ -40,6 +40,16 @@ export default function DersProgramiPage({ entries: all = [], term }) {
     return [...seen.values()].map((pool) => ({ ...pool, years: [...pool.years].sort() }));
   }, [all]);
 
+  const elsewhere = useMemo(
+    () =>
+      CLASSES.filter((cls) => cls.id !== activeClass).map((cls) => ({
+        id: cls.id,
+        label: t("{n}. Sınıf", { n: cls.id }),
+        entries: all.filter((entry) => classOf(entry) === cls.id),
+      })),
+    [all, activeClass, t],
+  );
+
   const courseCount = useMemo(() => new Set(entries.map((entry) => entry.code)).size, [entries]);
 
   return (
@@ -87,6 +97,8 @@ export default function DersProgramiPage({ entries: all = [], term }) {
 
           <ScheduleViews
             entries={entries}
+            elsewhere={elsewhere}
+            onElsewhere={setActiveClass}
             courseHref={(code) => `/egitim/mufredat/${code}`}
             legend={
               <ScheduleLegend
