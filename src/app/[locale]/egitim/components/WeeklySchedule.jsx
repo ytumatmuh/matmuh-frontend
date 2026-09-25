@@ -743,7 +743,7 @@ function PanelCourse({ course, color, href, open, onToggle }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[12px] leading-snug font-medium text-primary-600">{course.name}</span>
-          {instructorsOf(course).length > 0 && (
+          {!open && instructorsOf(course).length > 0 && (
             <span className="mt-0.5 flex items-start gap-1 text-[11px] leading-snug text-primary-500/75">
               <User size={11} strokeWidth={1.5} className="mt-px shrink-0" />
               {instructorsOf(course).join(", ")}
