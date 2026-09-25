@@ -218,7 +218,7 @@ export default function ShareStats(props) {
           <div>
             <h2 className="text-base font-semibold text-primary-600">{t("İstatistiği paylaş")}</h2>
             <p className="mt-1 text-sm text-primary-500/70">
-              {t("Seçili dönem, hoca ve şubenin istatistikleri tek bir görselde.")}
+              {t("Seçili dönem, öğretim elemanı ve şubenin istatistikleri tek bir görselde.")}
             </p>
           </div>
 
