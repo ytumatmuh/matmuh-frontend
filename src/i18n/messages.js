@@ -496,7 +496,7 @@ export const messages = {
     "Hazırlanıyor": "Preparing",
     "Görsel oluşturulamadı.": "Couldn't create the image.",
     "Paylaşılamadı; görseli indirip paylaşabilirsin.": "Couldn't share; download the image and share it instead.",
-    "Görsel panoya kopyalandı. WhatsApp Web, Discord ya da Telegram'da yapıştırabilirsin.": "Image copied. Paste it into WhatsApp Web, Discord or Telegram.",
+    "Görsel panoya kopyalandı.": "Image copied.",
     "Kopyalanamadı; görseli indirip paylaşabilirsin.": "Couldn't copy; download the image and share it instead.",
     "Görsel indirildi.": "Image downloaded.",
     "Şube {section}": "Section {section}",

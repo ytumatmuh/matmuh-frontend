@@ -178,7 +178,7 @@ export default function ShareStats(props) {
     try {
       await navigator.clipboard.write([new window.ClipboardItem({ "image/png": image.blob })]);
       setCopied(true);
-      setStatus(t("Görsel panoya kopyalandı. WhatsApp Web, Discord ya da Telegram'da yapıştırabilirsin."));
+      setStatus(t("Görsel panoya kopyalandı."));
     } catch {
       setStatus(t("Kopyalanamadı; görseli indirip paylaşabilirsin."));
     }
