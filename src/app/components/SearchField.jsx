@@ -4,7 +4,7 @@ import { Search, X } from "lucide-react";
 
 import { useT } from "@/i18n/useT";
 
-export default function SearchField({ value, onChange, placeholder, label, className = "" }) {
+export default function SearchField({ value, onChange, placeholder, label, autoFocus, clearable = true, className = "" }) {
   const t = useT();
   return (
     <label className={`relative flex items-center ${className}`}>
@@ -15,9 +15,10 @@ export default function SearchField({ value, onChange, placeholder, label, class
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={label}
-        className="h-8 w-full rounded-md border border-primary-500/12 bg-white pr-7 pl-8 text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none"
+        autoFocus={autoFocus}
+        className={`h-8 w-full rounded-md border border-primary-500/12 bg-white pl-8 ${clearable ? "pr-7" : "pr-2.5"} text-[12px] text-primary-600 placeholder:text-primary-500/50 focus:border-secondary-500/60 focus:outline-none`}
       />
-      {value && (
+      {clearable && value && (
         <button
           type="button"
           onClick={() => onChange("")}

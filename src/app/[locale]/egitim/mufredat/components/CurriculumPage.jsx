@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { startRouteProgress } from "@/app/components/Header/useRouteProgress";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   BookOpen,
   ArrowUpDown,
@@ -11,6 +11,8 @@ import {
   Info,
   ListFilter,
   ExternalLink,
+  Search,
+  X,
 } from "lucide-react";
 import Link from "@/app/components/LocaleLink";
 import SearchField from "@/app/components/SearchField";
@@ -90,7 +92,7 @@ const COLS = [
   { key: "code", label: "Ders Kodu", w: 140 },
   { key: "name", label: "Ders Adı", w: null },
   { key: "hours", label: "T+U+L", w: 80 },
-  { key: "ects", label: "ECTS", w: 70 },
+  { key: "ects", label: "AKTS", w: 70 },
   { key: "status", label: "Durum", w: 110 },
   { key: "_action", label: "", w: 48 },
 ];
@@ -118,6 +120,8 @@ export default function CurriculumPage({
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [direction, setDirection] = useState(1);
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
   const router = useRouter();
   const { href: localize } = useLocaleNav();
 
@@ -167,6 +171,28 @@ export default function CurriculumPage({
     setExpandedGroup(null);
   }
 
+  function closeSearch() {
+    setQuery("");
+    setSearchOpen(false);
+  }
+
+  const heading = searching
+    ? results.length > 0
+      ? t("“{query}” için {count} ders", { query: query.trim(), count: results.length })
+      : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })
+    : expandedGroup
+      ? expandedGroup.groupTitle
+      : semester
+        ? t("{year}. Yıl - {season} Yarıyılı", {
+            year: semester.label.year,
+            season: t(semester.label.season),
+          })
+        : "";
+
+  const meta = searching
+    ? null
+    : t("{count} ders", { count: expandedGroup ? expandedGroup.options.length : rows.length });
+
   function handleSort(col) {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
@@ -177,6 +203,7 @@ export default function CurriculumPage({
 
   function handleTabChange(idx) {
     if (searching) setQuery("");
+    setSearchOpen(false);
     if (idx === activeTab && !expandedGroup) return;
     setDirection(idx > activeTab ? 1 : -1);
     setActiveTab(idx);
@@ -233,44 +260,67 @@ export default function CurriculumPage({
               ))}
             </div>
 
-            <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2 sm:px-6">
-              <div className="flex min-w-0 items-start gap-2">
+            <div className="relative flex min-h-13 items-center gap-3 px-4 py-2 sm:px-6">
+              <div
+                aria-hidden={searchOpen || undefined}
+                className={`flex min-w-0 flex-1 items-center gap-2 transition-opacity duration-200 sm:opacity-100 ${
+                  searchOpen ? "opacity-0" : "opacity-100"
+                }`}
+              >
                 {expandedGroup && !searching ? (
                   <button
                     onClick={closeGroup}
                     aria-label={t("Yarıyıl listesine dön")}
-                    className="mt-0.5 shrink-0 text-secondary-500 transition-colors hover:text-secondary-700"
+                    className="-ml-1 shrink-0 rounded-sm p-0.5 text-secondary-500 transition-colors hover:text-secondary-700"
                   >
-                    <ChevronLeft size={14} strokeWidth={1.5} />
+                    <ChevronLeft size={15} strokeWidth={1.75} />
                   </button>
                 ) : (
-                  <BookOpen size={14} strokeWidth={1.5} className="mt-0.5 shrink-0 text-secondary-500" />
+                  <BookOpen size={14} strokeWidth={1.5} className="shrink-0 text-secondary-500" />
                 )}
-                <span className="flex min-w-0 flex-col">
-                  <span className="text-[13px] font-medium text-primary-500">
-                    {searching
-                      ? results.length > 0
-                        ? t("“{query}” için {count} ders", { query: query.trim(), count: results.length })
-                        : t("“{query}” ile eşleşen ders yok.", { query: query.trim() })
-                      : expandedGroup
-                        ? expandedGroup.groupTitle
-                        : semester
-                          ? t("{year}. Yıl - {season} Yarıyılı", {
-                              year: semester.label.year,
-                              season: t(semester.label.season),
-                            })
-                          : ""}
+                <p className="min-w-0 truncate text-[13px] font-medium text-primary-500">{heading}</p>
+                {!searching && !expandedGroup && (
+                  <span className="shrink-0 rounded-sm bg-secondary-500/10 px-2 py-0.5 font-mono text-[10px] font-medium text-secondary-500">
+                    {totalEcts} {t("AKTS")}
                   </span>
-                  {!searching && (
-                    <span className="font-mono text-[11px] text-primary-500/60">
-                      {expandedGroup
-                        ? t("{count} ders", { count: expandedGroup.options.length })
-                        : `${totalEcts} ECTS · ${t("{count} ders", { count: rows.length })}`}
-                    </span>
-                  )}
-                </span>
+                )}
+                {meta && <span className="shrink-0 text-[12px] text-primary-500/55">· {meta}</span>}
               </div>
-              <CurriculumSearch value={query} onChange={handleQuery} className="w-40 shrink-0 sm:w-56" />
+              <CurriculumSearch value={query} onChange={handleQuery} className="hidden w-56 shrink-0 sm:block" />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label={t("Müfredatta ara")}
+                tabIndex={searchOpen ? -1 : undefined}
+                className={`shrink-0 rounded-md p-2 text-primary-500/60 transition-[opacity,color,background-color] duration-200 hover:bg-primary-500/5 hover:text-primary-500 sm:hidden ${
+                  searchOpen ? "pointer-events-none opacity-0" : "opacity-100"
+                }`}
+              >
+                <Search size={15} strokeWidth={2} />
+              </button>
+              <AnimatePresence>
+                {searchOpen && (
+                  <motion.div
+                    key="phone-search"
+                    initial={{ opacity: 0, scaleX: 0.94 }}
+                    animate={{ opacity: 1, scaleX: 1 }}
+                    exit={{ opacity: 0, scaleX: 0.94 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ originX: 1 }}
+                    className="absolute inset-y-0 right-4 left-4 flex items-center gap-2 bg-white sm:hidden"
+                  >
+                    <CurriculumSearch value={query} onChange={handleQuery} autoFocus clearable={false} className="flex-1" />
+                    <button
+                      type="button"
+                      onClick={closeSearch}
+                      aria-label={t("Aramayı kapat")}
+                      className="shrink-0 rounded-md p-2 text-primary-500/60 transition-colors hover:bg-primary-500/5 hover:text-primary-500"
+                    >
+                      <X size={15} strokeWidth={2} />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {!searching && expandedGroup?.note && (
@@ -297,10 +347,8 @@ export default function CurriculumPage({
             )}
 
             <div className="sm:hidden px-4 pb-2 text-center">
-              <span
-                style={{ fontSize: "0.6875rem", color: "rgba(29,36,69,0.4)" }}
-              >
-                {t("← Tabloyu görmek için yatay kaydırın →")}
+              <span className={searchOpen && searching ? "text-[12px] font-medium text-primary-500" : "text-[11px] text-primary-500/60"}>
+                {searchOpen && searching ? heading : t("← Tabloyu görmek için yatay kaydırın →")}
               </span>
             </div>
 
@@ -636,7 +684,7 @@ export default function CurriculumPage({
   );
 }
 
-function CurriculumSearch({ value, onChange, className }) {
+function CurriculumSearch({ value, onChange, autoFocus, clearable, className }) {
   const t = useT();
   return (
     <div className={className}>
@@ -645,6 +693,8 @@ function CurriculumSearch({ value, onChange, className }) {
         onChange={onChange}
         placeholder={t("Kod ya da ad")}
         label={t("Müfredatta ara")}
+        autoFocus={autoFocus}
+        clearable={clearable}
       />
     </div>
   );

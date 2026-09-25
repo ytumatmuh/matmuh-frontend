@@ -475,7 +475,7 @@ export default function CourseInfo({ course, sections = [] }) {
         <div className="space-y-3 pt-2">
           {[
             { label: "T+U+L", value: course.hours },
-            { label: "ECTS", value: course.ects ?? "-" },
+            { label: t("AKTS"), value: course.ects ?? "-" },
             {
               label: t("Yarıyıl"),
               value: course.semester ? t("{n}. Yarıyıl", { n: course.semester }) : "-",
