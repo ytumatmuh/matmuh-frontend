@@ -722,6 +722,12 @@ function PanelGroup({ group }) {
   );
 }
 
+const instructorsOf = (course) => [
+  ...new Set(
+    course.groups.map((group) => group.instructor).filter((name) => name && name !== "-"),
+  ),
+];
+
 function PanelCourse({ course, color, href, open, onToggle }) {
   const t = useT();
   return (
@@ -737,6 +743,12 @@ function PanelCourse({ course, color, href, open, onToggle }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[12px] leading-snug font-medium text-primary-600">{course.name}</span>
+          {instructorsOf(course).length > 0 && (
+            <span className="mt-0.5 flex items-start gap-1 text-[11px] leading-snug text-primary-500/75">
+              <User size={11} strokeWidth={1.5} className="mt-px shrink-0" />
+              {instructorsOf(course).join(", ")}
+            </span>
+          )}
           <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[10px] text-primary-500/60">
             <span style={{ color }}>{course.code}</span>
             <span>{groupLabel(course.groups)}</span>
