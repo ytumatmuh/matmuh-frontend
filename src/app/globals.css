@@ -66,6 +66,21 @@ input[type="search"]::-webkit-search-decoration {
   display: none;
 }
 
+footer:has(> .inscribed-logout) > div:first-child {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9999px !important;
+  border: 1px solid color-mix(in srgb, var(--color-secondary-500) 45%, transparent) !important;
+  background: transparent !important;
+  color: var(--color-secondary-500) !important;
+}
+
+footer:has(> .inscribed-logout) > div:first-child > span {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+}
+
 select:not(.inscribed-field) option {
   font-family: sans-serif !important;
 }
