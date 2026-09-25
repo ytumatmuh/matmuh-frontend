@@ -630,7 +630,7 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        className={`fixed z-[10061] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
+        className={`fixed z-[10061] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-popover ${
           sheet ? "rounded-t-2xl pb-[env(safe-area-inset-bottom)]" : "rounded-xl"
         }`}
         style={{

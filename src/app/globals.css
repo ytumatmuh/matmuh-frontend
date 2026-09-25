@@ -17,6 +17,8 @@
   --color-secondary-500: #ad976f;
   --color-secondary-600: #8e7b5a;
   --color-secondary-700: #6f5f45;
+
+  --shadow-popover: 0 20px 60px -15px rgba(29, 36, 69, 0.18);
 }
 
 html {

@@ -101,7 +101,7 @@ export default function HeroSearch() {
             initial={{ opacity: 0, scaleY: 0.94 }}
             animate={{ opacity: 1, scaleY: 1 }}
             transition={{ duration: reducedMotion ? 0 : 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed z-60 max-h-[70svh] overflow-y-auto overscroll-contain rounded-b-xl border border-t-0 border-white/20 bg-white shadow-lg shadow-primary-700/20"
+            className="fixed z-60 max-h-[70svh] overflow-y-auto overscroll-contain rounded-b-xl border border-t-0 border-white/20 bg-white shadow-popover"
           >
             {hasResults ? (
               <SearchResults

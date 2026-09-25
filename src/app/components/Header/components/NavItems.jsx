@@ -234,7 +234,7 @@ export default function NavItems({ item, children }) {
                 : undefined,
             }}
           >
-            <div className="bg-white rounded-xl shadow-[0_20px_60px_-15px_rgba(29,36,69,0.18),0_0_0_1px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="bg-white rounded-xl shadow-popover ring-1 ring-primary-500/10 overflow-hidden">
               <div className="h-0.75 bg-secondary-400" />
 
               {categorized ? (

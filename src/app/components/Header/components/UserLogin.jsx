@@ -164,7 +164,7 @@ export default function UserLogin() {
             animate="shown"
             exit="exit"
             transition={{ duration: 0.16, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed right-3 top-(--header-h) z-50 w-[min(20rem,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-xl bg-white shadow-xl shadow-primary-500/25 ring-1 ring-primary-500/10 sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[clamp(15rem,88vw,21rem)]"
+            className="fixed right-3 top-(--header-h) z-50 w-[min(20rem,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-xl bg-white shadow-popover ring-1 ring-primary-500/10 sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[clamp(15rem,88vw,21rem)]"
           >
             <div className="flex items-start gap-3 px-4 pt-4 pb-3">
               <span className="w-9 h-9 shrink-0 rounded-full border border-secondary-500/35 bg-secondary-500/10 text-secondary-600 flex items-center justify-center text-xs font-semibold tracking-tight">

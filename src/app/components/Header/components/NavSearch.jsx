@@ -90,7 +90,7 @@ export default function NavSearch({ open, onOpen, onClose }) {
       </button>
 
       {showPanel && (
-        <div className="absolute right-0 top-full mt-2 w-[min(32rem,60vw)] max-h-[70svh] overflow-y-auto overscroll-contain rounded-xl border border-primary-500/10 bg-white shadow-2xl shadow-primary-700/30">
+        <div className="absolute right-0 top-full mt-2 w-[min(32rem,60vw)] max-h-[70svh] overflow-y-auto overscroll-contain rounded-xl border border-primary-500/10 bg-white shadow-popover">
           {hasResults ? (
             <SearchResults id={listId} groups={groups} term={term} onNavigate={onClose} />
           ) : (
