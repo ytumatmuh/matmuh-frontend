@@ -532,7 +532,38 @@ const SEGMENT = (active) =>
       : "text-primary-500/70 hover:bg-primary-500/4 hover:text-primary-500"
   }`;
 
-function FilterPanel({ kinds, hidden, onToggleKind, fit, onFit, onReset, active, query, onQuery }) {
+function LanguageSegments({ language, onLanguage, className = "" }) {
+  const t = useT();
+  return (
+    <div role="group" aria-label={t("Eğitim dili")} className={`items-center gap-1.5 ${className}`}>
+      {LANGUAGES.map((option) => (
+        <button
+          key={option.id}
+          type="button"
+          onClick={() => onLanguage(option.id)}
+          aria-pressed={language === option.id}
+          className={SEGMENT(language === option.id)}
+        >
+          {t(option.label)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function FilterPanel({
+  kinds,
+  hidden,
+  onToggleKind,
+  fit,
+  onFit,
+  onReset,
+  active,
+  query,
+  onQuery,
+  language,
+  onLanguage,
+}) {
   const t = useT();
   return (
     <div
@@ -540,6 +571,12 @@ function FilterPanel({ kinds, hidden, onToggleKind, fit, onFit, onReset, active,
       className="flex flex-col gap-3.5 rounded-xl border border-primary-500/10 bg-white px-4 py-3.5 shadow-xs"
     >
       <SearchField value={query} onChange={onQuery} className="sm:hidden" />
+      <div className="flex flex-col gap-2 sm:hidden">
+        <span className="text-[10.5px] font-semibold tracking-widest text-primary-500/60 uppercase">
+          {t("Eğitim dili")}
+        </span>
+        <LanguageSegments language={language} onLanguage={onLanguage} className="flex" />
+      </div>
       {kinds.length <= 1 && (
         <p className="text-[11.5px] text-primary-500/70">
           {t("Bu sınıfta süzülecek başka ders türü yok.")}
@@ -628,6 +665,7 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
   const searching = query.trim().length > 0;
   const active =
     [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length + (fitting ? 1 : 0);
+  const phoneActive = active + (language === "all" ? 0 : 1);
 
   const shown = useMemo(
     () =>
@@ -677,25 +715,13 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {legend ? <div className="min-w-0">{legend}</div> : <span />}
-        <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
+        <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
           <SearchField value={query} onChange={setQuery} className="hidden w-48 sm:flex" />
           <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
-          <div role="group" aria-label={t("Eğitim dili")} className="flex items-center gap-1.5">
-            {LANGUAGES.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => setLanguage(option.id)}
-                aria-pressed={language === option.id}
-                className={SEGMENT(language === option.id)}
-              >
-                {t(option.label)}
-              </button>
-            ))}
-          </div>
-          <span aria-hidden className="mx-1 h-4 w-px bg-primary-500/10" />
+          <LanguageSegments language={language} onLanguage={setLanguage} className="hidden sm:flex" />
+          <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
           <button
             type="button"
             onClick={() => setFiltersOpen((prev) => !prev)}
@@ -705,8 +731,13 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
           >
             <SlidersHorizontal size={13} strokeWidth={2} />
             {t("Filtreler")}
+            {phoneActive > 0 && (
+              <span className="rounded-full bg-secondary-500 px-1.5 text-[10.5px] leading-4 font-semibold text-primary-600 sm:hidden">
+                {phoneActive}
+              </span>
+            )}
             {active > 0 && (
-              <span className="rounded-full bg-secondary-500 px-1.5 text-[10.5px] leading-4 font-semibold text-primary-600">
+              <span className="hidden rounded-full bg-secondary-500 px-1.5 text-[10.5px] leading-4 font-semibold text-primary-600 sm:inline">
                 {active}
               </span>
             )}
@@ -719,10 +750,12 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
                 type="button"
                 onClick={() => setView(id)}
                 aria-pressed={view === id}
+                aria-label={t(label)}
+                title={t(label)}
                 className={`inline-flex items-center gap-1.5 ${SEGMENT(view === id)}`}
               >
                 <Icon size={13} strokeWidth={2} />
-                {t(label)}
+                <span className="hidden sm:inline">{t(label)}</span>
               </button>
             ))}
           </div>
@@ -739,8 +772,11 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
           onReset={() => {
             setHidden(new Set());
             setFitOnly(false);
+            setLanguage("all");
           }}
-          active={active}
+          active={phoneActive}
+          language={language}
+          onLanguage={setLanguage}
           query={query}
           onQuery={setQuery}
         />

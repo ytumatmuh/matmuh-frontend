@@ -45,9 +45,9 @@ function StripesSample() {
   );
 }
 
-function Item({ sample, children }) {
+function Item({ sample, className = "inline-flex", children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11.5px] leading-tight text-primary-500/75">
+    <span className={`${className} items-center gap-1.5 text-[11.5px] leading-tight text-primary-500/75`}>
       {sample}
       {children}
     </span>
@@ -93,15 +93,16 @@ export default function ScheduleLegend({
   }, [help]);
 
   return (
-    <div className="relative px-1">
+    <div className="px-1 sm:relative">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {items.map((item) => (
-          <Item key={item.label} sample={<Sample elective={item.elective} bar={COURSE_COLORS[item.elective ? 2 : 1]} />}>
+          <Item key={item.label} className="hidden sm:inline-flex" sample={<Sample elective={item.elective} bar={COURSE_COLORS[item.elective ? 2 : 1]} />}>
             {item.label}
           </Item>
         ))}
         {showEnglish && (
           <Item
+            className="hidden sm:inline-flex"
             sample={
               <span className="font-mono text-[9.5px] font-semibold tracking-wide text-secondary-700">EN</span>
             }
@@ -110,7 +111,7 @@ export default function ScheduleLegend({
           </Item>
         )}
         {showOnline && (
-          <Item sample={<Wifi size={12} strokeWidth={2} className="text-secondary-700" />}>{t("Çevrimiçi")}</Item>
+          <Item className="hidden sm:inline-flex" sample={<Wifi size={12} strokeWidth={2} className="text-secondary-700" />}>{t("Çevrimiçi")}</Item>
         )}
         <div
           ref={helpRef}
@@ -148,6 +149,25 @@ export default function ScheduleLegend({
                 : "invisible pointer-events-none scale-[0.97] opacity-0 duration-[120ms] ease-in"
             }`}
           >
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-primary-500/8 pb-2.5 sm:hidden">
+            {items.map((item) => (
+              <Item key={item.label} sample={<Sample elective={item.elective} bar={COURSE_COLORS[item.elective ? 2 : 1]} />}>
+                {item.label}
+              </Item>
+            ))}
+            {showEnglish && (
+              <Item
+                sample={
+                  <span className="font-mono text-[9.5px] font-semibold tracking-wide text-secondary-700">EN</span>
+                }
+              >
+                {t("İngilizce")}
+              </Item>
+            )}
+            {showOnline && (
+              <Item sample={<Wifi size={12} strokeWidth={2} className="text-secondary-700" />}>{t("Çevrimiçi")}</Item>
+            )}
+            </div>
             <Item sample={<StripesSample />}>{t("Sol şeridin rengi dersi gösterir; aynı ders her yerde aynı renktedir.")}</Item>
             <Item sample={<JoinedSample />}>{t("Aynı saatte birden çok ders varsa tek kutuda alt alta durur.")}</Item>
             {showPool && (
