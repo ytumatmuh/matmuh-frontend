@@ -45,9 +45,13 @@ function buildCardData({ t, locale, theme, course, termName, instructor, stats, 
       {
         label: t("Sınıf Ortalaması"),
         value: num(stats.summary?.average),
-        sub: t("Sınıf Düzeyi: {level}", { level: summary.avgLevel }),
+        sub: summary.averageNote ?? t("Sınıf Düzeyi: {level}", { level: summary.avgLevel }),
       },
-      { label: t("Standart Sapma"), value: num(stats.summary?.stdDev), sub: t("σ dağılımı") },
+      {
+        label: t("Standart Sapma"),
+        value: num(stats.summary?.stdDev),
+        sub: summary.stdDevNote ?? t("σ dağılımı"),
+      },
       {
         label: t("Dersi Alan"),
         value: hasDistribution ? num(summary.enrolled, 0) : "—",

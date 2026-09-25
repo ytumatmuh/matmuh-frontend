@@ -37,11 +37,11 @@ const instructorLabel = (offering) => {
 const instructorKey = (offering) =>
   offering.staff?.id ? `staff:${offering.staff.id}` : `name:${instructorLabel(offering)}`;
 
-const byScoreRange = (a, b) => {
-  if (a.minScore == null) return 1;
-  if (b.minScore == null) return -1;
-  return b.minScore - a.minScore;
-};
+const LAST_GRADES = ["F0"];
+
+const byLetter = (a, b) =>
+  LAST_GRADES.includes(a.letterGrade) - LAST_GRADES.includes(b.letterGrade) ||
+  String(a.letterGrade).localeCompare(String(b.letterGrade), "en");
 
 const resultOf = (offering, period) => {
   if (period === "NORMAL" && offering.finalResult) return offering.finalResult;
@@ -50,7 +50,7 @@ const resultOf = (offering, period) => {
 };
 
 const toDistribution = (result) =>
-  [...(result?.gradeDistributions ?? [])].sort(byScoreRange).map((row) => ({
+  [...(result?.gradeDistributions ?? [])].sort(byLetter).map((row) => ({
     grade: row.letterGrade,
     start: row.minScore,
     end: row.maxScore,
@@ -71,14 +71,17 @@ const toExams = (offering) =>
       failedByAbsence: exam.failedByAbsenceCount ?? null,
     }));
 
+const entered = (value, result) =>
+  value == null || (result?.evaluationMethod === "MANUAL" && Number(value) === 0) ? null : value;
+
 const toSection = (offering) => {
   const final = resultOf(offering, "NORMAL");
   return {
     section: String(offering.groupNumber ?? 1),
     language: offering.language ?? null,
     summary: {
-      average: final?.classAverage ?? null,
-      stdDev: final?.standardDeviation ?? null,
+      average: entered(final?.classAverage, final),
+      stdDev: entered(final?.standardDeviation, final),
       participantCount: final?.participantCount ?? null,
       evaluationMethod: final?.evaluationMethod ?? null,
       resultDate: final?.resultDate ?? null,

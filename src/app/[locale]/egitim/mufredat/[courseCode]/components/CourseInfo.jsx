@@ -400,16 +400,22 @@ export default function CourseInfo({ course, sections = [] }) {
       .filter((g) => !isLowGrade(g.grade))
       .reduce((acc, curr) => acc + (Number(curr.count) || 0), 0);
 
-    const average = activeStats.summary?.average || 0;
+    const average = activeStats.summary?.average ?? null;
+    const stdDev = activeStats.summary?.stdDev ?? null;
+    const manual = activeStats.summary?.evaluationMethod === "MANUAL";
+    const missing = manual ? t("Manuel girişte hesaplanmamış") : t("Veri Yok");
 
     return {
-      average: average,
-      stdDev: activeStats.summary?.stdDev || 0,
+      average: average ?? "—",
+      stdDev: stdDev ?? "—",
+      averageNote: average == null ? missing : null,
+      stdDevNote: stdDev == null ? missing : null,
       enrolled: enrolled,
       passed: passed,
       failed: enrolled - passed,
       passRate: enrolled > 0 ? ((passed / enrolled) * 100).toFixed(1) : 0,
-      avgLevel: average >= 65 ? t("Yüksek") : average >= 45 ? t("Orta") : t("Düşük"),
+      avgLevel:
+        average == null ? null : average >= 65 ? t("Yüksek") : average >= 45 ? t("Orta") : t("Düşük"),
     };
   }, [activeStats, t]);
 
@@ -812,13 +818,15 @@ export default function CourseInfo({ course, sections = [] }) {
                         {
                           label: t("Sınıf Ortalaması"),
                           val: statsSummary.average,
-                          sub: t("Sınıf Düzeyi: {level}", { level: statsSummary.avgLevel }),
+                          sub:
+                            statsSummary.averageNote ??
+                            t("Sınıf Düzeyi: {level}", { level: statsSummary.avgLevel }),
                           icon: GraduationCap,
                         },
                         {
                           label: t("Standart Sapma"),
                           val: statsSummary.stdDev,
-                          sub: t("σ dağılımı"),
+                          sub: statsSummary.stdDevNote ?? t("σ dağılımı"),
                           icon: Sigma,
                         },
                         {
