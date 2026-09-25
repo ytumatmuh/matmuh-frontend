@@ -1,13 +1,8 @@
-import { TIME_SLOTS } from "./schedule-grid.js";
-
 const WINDOW_STARTS = [4, 9];
 
 export const WINDOW_LABELS = ["Sabah", "Öğleden sonra", "Akşam"];
 
 export const windowOf = (slot) => WINDOW_STARTS.filter((start) => slot >= start).length;
-
-const windowLast = (index) =>
-  index < WINDOW_STARTS.length ? WINDOW_STARTS[index] - 1 : TIME_SLOTS.length - 1;
 
 const englishFirst = (block) => (/ingilizce|english/i.test(block.name ?? "") ? 0 : 1);
 
@@ -48,10 +43,7 @@ export function poolBlocks(blocks) {
       continue;
     }
     const slot = Math.min(...bucket.courses.map((course) => course.slot));
-    const last = Math.min(
-      Math.max(...bucket.courses.map((course) => course.slot + course.span - 1)),
-      windowLast(bucket.window),
-    );
+    const last = Math.max(...bucket.courses.map((course) => course.slot + course.span - 1));
     plain.push({
       kind: "pool",
       day: bucket.day,

@@ -192,7 +192,13 @@ function buildClusters(entries) {
       }
     }
     for (const cluster of out) {
-      cluster.blocks.sort((a, b) => poolLast(a) - poolLast(b) || a.slot - b.slot);
+      cluster.blocks.sort(
+        (a, b) =>
+          a.slot - b.slot ||
+          a.slot + a.span - (b.slot + b.span) ||
+          poolLast(a) - poolLast(b) ||
+          a.code.localeCompare(b.code, "tr"),
+      );
     }
     clusters.set(day, out);
   }
@@ -608,7 +614,7 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
       {sheet && (
         <div
           aria-hidden
-          className="fixed inset-0 z-[10039] bg-primary-700/80"
+          className="fixed inset-0 z-[10060] bg-primary-700/80"
           style={{
             opacity: visible ? 1 : 0,
             transition: reduceMotion ? "none" : `opacity ${SHEET_MS}ms ease-out`,
@@ -624,7 +630,7 @@ function AnchoredPanel({ anchorRef, label, onClose, children }) {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
-        className={`fixed z-[10040] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
+        className={`fixed z-[10061] flex flex-col overflow-hidden border border-primary-500/12 bg-white shadow-[0_12px_32px_rgba(29,36,69,0.18)] ${
           sheet ? "rounded-t-2xl pb-[env(safe-area-inset-bottom)]" : "rounded-xl"
         }`}
         style={{
