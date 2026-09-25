@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Link from "@/app/components/LocaleLink";
 import { useRouter } from "next/navigation";
 import { ExternalLink, Plus } from "lucide-react";
@@ -18,6 +18,13 @@ import RecordPreview from "./RecordPreview";
 import { useIsEditor } from "@/app/lib/cms-provider.jsx";
 import { useLocaleNav } from "@/i18n/useLocaleNav";
 import { useT } from "@/i18n/useT";
+
+const filled = (value) =>
+  Array.isArray(value)
+    ? value.length > 0
+    : typeof value === "string"
+      ? value.replace(/<[^>]*>/g, "").trim() !== ""
+      : value != null && value !== false;
 
 const PANES = [
   { id: "form", label: "Form" },
@@ -130,22 +137,26 @@ function ComposerPanes({ collectionKey, schema, locales, submitLabel, onCreated 
     active: isDraftWriter,
   });
 
-  const primaryValues = create.valuesFor(primary);
   const shownLocale = create.added.includes(previewLocale) ? previewLocale : primary;
   const several = create.added.length > 1;
+  const datePicked = useRef(false);
+  const stampsDate = schema?.fields?.some((f) => f.name === "publishedAt");
 
-  useEffect(() => {
-    if (
-      schema?.fields?.some((f) => f.name === "publishedAt") &&
-      primaryValues &&
-      !primaryValues.publishedAt &&
-      !create.hasServerDraft
-    ) {
-      const now = new Date();
-      now.setSeconds(0, 0);
-      create.setField(primary, "publishedAt", now.toISOString());
-    }
-  }, [schema, primaryValues, create, primary]);
+  const fieldsCreate = {
+    ...create,
+    setField: (code, name, value) => {
+      if (name === "publishedAt") datePicked.current = true;
+      else if (stampsDate && !datePicked.current && filled(value)) {
+        const current = create.valuesFor(primary);
+        if (!current.publishedAt || !filled(current.title)) {
+          const now = new Date();
+          now.setSeconds(0, 0);
+          create.setField(primary, "publishedAt", now.toISOString());
+        }
+      }
+      create.setField(code, name, value);
+    },
+  };
 
   return (
     <>
@@ -185,7 +196,7 @@ function ComposerPanes({ collectionKey, schema, locales, submitLabel, onCreated 
               />
             </div>
           )}
-          <MultilingualFields fields={schema.fields} create={create} needsSlug={false} />
+          <MultilingualFields fields={schema.fields} create={fieldsCreate} needsSlug={false} />
         </div>
 
         <div
