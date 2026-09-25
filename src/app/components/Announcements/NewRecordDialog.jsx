@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "@/app/components/LocaleLink";
 import { useRouter } from "next/navigation";
 import { ExternalLink, Plus } from "lucide-react";
 import { useMyCollections } from "inscribed/collections";
-import { CollectionFieldsForm, useCollectionCreate } from "inscribed/compose";
+import { useCmsRoute } from "inscribed";
+import {
+  LanguageChips,
+  MultilingualFields,
+  useCreateDraftRole,
+  useMultilingualCreate,
+} from "inscribed/compose";
 
 import Modal from "@/app/components/Modal";
 import RecordPreview from "./RecordPreview";
@@ -100,25 +106,46 @@ function Composer({ collection, submitLabel, onCreated }) {
       key={collection}
       collectionKey={collection}
       schema={meta.schema}
+      locales={meta.locales}
       submitLabel={submitLabel}
       onCreated={onCreated}
     />
   );
 }
 
-function ComposerPanes({ collectionKey, schema, submitLabel, onCreated }) {
+function ComposerPanes({ collectionKey, schema, locales, submitLabel, onCreated }) {
   const t = useT();
+  const { locale } = useCmsRoute();
   const [pane, setPane] = useState("form");
-  const { values, setValues, submit, reset, deleteDraft, hasServerDraft, isPending, error } =
-    useCollectionCreate({ collectionKey, schema });
+  const languages = locales?.length ? locales : [locale];
+  const primary = languages.includes(locale) ? locale : languages[0];
+  const [previewLocale, setPreviewLocale] = useState(primary);
+  const scopeId = useId();
+  const isDraftWriter = useCreateDraftRole(collectionKey, scopeId);
+  const create = useMultilingualCreate({
+    collectionKey,
+    schema,
+    languages,
+    primary,
+    active: isDraftWriter,
+  });
+
+  const primaryValues = create.valuesFor(primary);
+  const shownLocale = create.added.includes(previewLocale) ? previewLocale : primary;
+  const several = create.added.length > 1;
 
   useEffect(() => {
-    if (schema?.fields?.some((f) => f.name === "publishedAt") && values && !values.publishedAt && !hasServerDraft) {
+    if (
+      schema?.fields?.some((f) => f.name === "publishedAt") &&
+      primaryValues &&
+      !primaryValues.publishedAt &&
+      !create.hasServerDraft
+    ) {
       const now = new Date();
       now.setSeconds(0, 0);
-      setValues({ ...values, publishedAt: now.toISOString() });
+      create.setField(primary, "publishedAt", now.toISOString());
     }
-  }, [schema, values, setValues, hasServerDraft]);
+  }, [schema, primaryValues, create, primary]);
 
   return (
     <>
@@ -145,12 +172,20 @@ function ComposerPanes({ collectionKey, schema, submitLabel, onCreated }) {
             pane === "form" ? "block" : "hidden"
           }`}
         >
-          <CollectionFieldsForm
-            fields={schema.fields}
-            values={values}
-            onChange={setValues}
-            disabled={isPending}
-          />
+          {languages.length > 1 && (
+            <div className="mb-4">
+              <LanguageChips
+                languages={languages}
+                added={create.added}
+                statusOf={create.statusOf}
+                hasDraft={create.hasDraft}
+                onAdd={create.add}
+                onRemove={create.remove}
+                disabled={create.isPending}
+              />
+            </div>
+          )}
+          <MultilingualFields fields={schema.fields} create={create} needsSlug={false} />
         </div>
 
         <div
@@ -158,25 +193,41 @@ function ComposerPanes({ collectionKey, schema, submitLabel, onCreated }) {
             pane === "preview" ? "block" : "hidden"
           }`}
         >
-          <RecordPreview values={values} collection={collectionKey} />
+          {several && (
+            <div role="group" aria-label={t("Önizleme dili")} className="mb-3 flex gap-1">
+              {create.added.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setPreviewLocale(code)}
+                  aria-pressed={shownLocale === code}
+                  className={`rounded-md px-2.5 py-1 font-mono text-[11px] font-semibold uppercase transition-colors ${
+                    shownLocale === code
+                      ? "bg-secondary-500/12 text-secondary-700"
+                      : "text-primary-500/60 hover:bg-primary-500/5 hover:text-primary-500"
+                  }`}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+          )}
+          <RecordPreview values={create.valuesFor(shownLocale)} collection={collectionKey} />
         </div>
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-t border-primary-500/8 px-5 py-3">
-        {error && (
+        {create.error && (
           <p role="alert" className="flex-1 text-[12px] leading-snug text-red-700">
-            {error}
+            {create.error}
           </p>
         )}
         <div className="ml-auto flex items-center gap-2">
-          {hasServerDraft && (
+          {create.hasServerDraft && (
             <button
               type="button"
-              onClick={() => {
-                reset();
-                deleteDraft();
-              }}
-              disabled={isPending}
+              onClick={create.discard}
+              disabled={create.isPending}
               className="rounded-md px-3 py-1.5 text-[12px] font-medium text-primary-500/70 transition-colors hover:bg-primary-500/5 hover:text-primary-500 disabled:opacity-40"
             >
               {t("Taslağı temizle")}
@@ -184,11 +235,15 @@ function ComposerPanes({ collectionKey, schema, submitLabel, onCreated }) {
           )}
           <button
             type="button"
-            onClick={() => submit(onCreated)}
-            disabled={isPending}
+            onClick={() => create.submit(onCreated)}
+            disabled={create.isPending}
             className="rounded-md bg-secondary-500/10 px-4 py-1.5 text-[12px] font-medium text-secondary-700 transition-colors hover:bg-secondary-500/15 disabled:opacity-40"
           >
-            {isPending ? t("Kaydediliyor…") : t(submitLabel)}
+            {create.isPending
+              ? t("Kaydediliyor…")
+              : several
+                ? `${t(submitLabel)} (${create.added.map((code) => code.toUpperCase()).join(", ")})`
+                : t(submitLabel)}
           </button>
         </div>
       </div>

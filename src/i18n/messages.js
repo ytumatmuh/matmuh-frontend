@@ -538,6 +538,7 @@ export const messages = {
     "Koyu tema": "Dark theme",
     "Ders, öğretim elemanı": "Course, instructor",
     "Programda ara": "Search the schedule",
+    "Önizleme dili": "Preview language",
     "Müfredatta ara": "Search the curriculum",
     "Kod ya da ad": "Code or name",
     "{count} seçmeli grupta": "in {count} elective groups",
