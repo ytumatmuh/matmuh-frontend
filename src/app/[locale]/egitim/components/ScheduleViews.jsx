@@ -717,7 +717,7 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
     <div className="flex flex-col gap-3">
       <div className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {legend ? <div className="min-w-0">{legend}</div> : <span />}
-        <div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+        <div className="flex items-center gap-1.5 sm:flex-wrap sm:justify-end">
           <SearchField value={query} onChange={setQuery} className="hidden w-48 sm:flex" />
           <span aria-hidden className="mx-1 hidden h-4 w-px bg-primary-500/10 sm:block" />
           <LanguageSegments language={language} onLanguage={setLanguage} className="hidden sm:flex" />
@@ -727,12 +727,12 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
             onClick={() => setFiltersOpen((prev) => !prev)}
             aria-expanded={filtersOpen}
             aria-controls="schedule-filters"
-            className={`inline-flex items-center gap-1.5 ${SEGMENT(filtersOpen)}`}
+            className={`relative inline-flex items-center gap-1.5 ${SEGMENT(filtersOpen)}`}
           >
             <SlidersHorizontal size={13} strokeWidth={2} />
             {t("Filtreler")}
             {phoneActive > 0 && (
-              <span className="rounded-full bg-secondary-500 px-1.5 text-[10.5px] leading-4 font-semibold text-primary-600 sm:hidden">
+              <span className="absolute -top-1.5 -right-1.5 min-w-4 rounded-full bg-secondary-500 px-1 text-center text-[10px] leading-4 font-semibold text-primary-600 ring-2 ring-background sm:hidden">
                 {phoneActive}
               </span>
             )}
