@@ -111,6 +111,8 @@ export default function ShareStats(props) {
 
   useEffect(() => releaseUrls, []);
 
+
+
   const generate = async (name, run) => {
     try {
       const data = buildCardData({ t, locale, theme: name, course, termName, instructor, stats, summary, showSection });
@@ -121,12 +123,6 @@ export default function ShareStats(props) {
       const url = URL.createObjectURL(blob);
       urlsRef.current.push(url);
       setImages((prev) => ({ ...prev, [name]: { url, blob, file, data } }));
-      setCapabilities({
-        share: typeof navigator.canShare === "function" && navigator.canShare({ files: [file] }),
-        link: typeof navigator.share === "function",
-        copy: typeof window.ClipboardItem === "function" && !!navigator.clipboard?.write,
-        secure: window.isSecureContext,
-      });
     } catch {
       if (run === runRef.current) setStatus(t("Görsel oluşturulamadı."));
     }
@@ -134,6 +130,13 @@ export default function ShareStats(props) {
 
   const openShare = () => {
     const run = ++runRef.current;
+    const probe = new File([new Uint8Array(1)], "probe.png", { type: "image/png" });
+    setCapabilities({
+      share: typeof navigator.canShare === "function" && navigator.canShare({ files: [probe] }),
+      link: typeof navigator.share === "function",
+      copy: typeof window.ClipboardItem === "function" && !!navigator.clipboard?.write,
+      secure: window.isSecureContext,
+    });
     releaseUrls();
     setImages({});
     setTheme("dark");
