@@ -140,8 +140,6 @@ export default function Header() {
               onClose={() => setSearchOpen(false)}
             />
 
-            <div className="hidden lg:block w-[0.5px] h-6 bg-neutral-600"></div>
-
             <UserLogin />
 
             <button

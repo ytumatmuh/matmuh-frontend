@@ -82,6 +82,10 @@ export const messages = {
     "Kapat": "Close",
 
     "Giriş": "Sign In",
+    "Yönetici Girişi": "Editor Sign-in",
+    "Bu sayfa site içeriğini düzenleyen yöneticiler ve editörler içindir.": "This page is for the administrators and editors who maintain the site's content.",
+    "Giriş tamamlanamadı. Bu hesapla siteye giriş yapılamıyor.": "Sign-in could not be completed. This account cannot sign in to the site.",
+    "Bu hesabın sitede düzenleme yetkisi yok.": "This account has no editing rights on this site.",
     "Çıkış Yap": "Sign Out",
     "Düzenleme modu": "Editing mode",
     "Admin": "Admin",
