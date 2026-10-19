@@ -1,12 +1,8 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useState } from "react";
-import Link from "@/app/components/LocaleLink";
 import {
   CalendarDays,
-  Download,
-  Eye,
-  FileText,
   Info,
   MapPin,
   TriangleAlert,
@@ -15,21 +11,16 @@ import {
 } from "lucide-react";
 
 import Modal from "@/app/components/Modal";
-import DocumentPreview, { canPreview } from "@/app/components/DocumentPreview";
-import { deleteNote, noteTypeLabel } from "@/data/lecture-notes";
 import { MyScheduleProvider, useMySchedule } from "@/data/useMySchedule";
 import { buildIcs, downloadIcs } from "@/lib/calendar-export";
 import CalendarExportMenu from "./CalendarExportMenu";
 import WeeklySchedule from "@/app/[locale]/egitim/components/WeeklySchedule";
 import { colorOf, courseColors } from "@/data/schedule-colors";
 import { useAuth } from "@/lib/auth";
-import { useLocaleNav } from "@/i18n/useLocaleNav";
 import { useT } from "@/i18n/useT";
 import { useCmsRoute } from "inscribed";
 import { formatDate } from "@/lib/date";
 import {
-  NOTE_STATUS,
-  fetchMyNotes,
   fetchMySchedule,
   scheduleDays,
   weekdayOf,
@@ -54,213 +45,6 @@ function Empty({ children }) {
       <Info size={18} strokeWidth={1.5} className="text-primary-500/70" />
       {children}
     </div>
-  );
-}
-
-function NoteThumb({ note }) {
-  const t = useT();
-  const [preview, setPreview] = useState(false);
-  const kind = String(note.extension ?? "").toLowerCase();
-  const previewable = canPreview(note.href, kind, note.previewHref);
-
-  const face = (
-    <>
-      <FileText size={15} strokeWidth={1.5} className="text-primary-700" />
-      <span className="text-[7px] font-bold tracking-wide text-primary-500/70">
-        {note.extension}
-      </span>
-    </>
-  );
-
-  if (!previewable) {
-    return (
-      <span className="mt-0.5 flex size-9 shrink-0 flex-col items-center justify-center rounded-lg bg-primary-500/5">
-        {face}
-      </span>
-    );
-  }
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setPreview(true)}
-        aria-label={t("{title} dosyasını önizle", { title: note.title })}
-        className="mt-0.5 flex size-9 shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg bg-primary-500/5 transition-colors hover:bg-secondary-500/15"
-      >
-        {face}
-      </button>
-      <DocumentPreview
-        open={preview}
-        onClose={() => setPreview(false)}
-        label={note.title}
-        href={note.href}
-        kind={kind}
-        previewHref={note.previewHref}
-      />
-    </>
-  );
-}
-
-const NOTE_FILTERS = [
-  { id: "all", label: "Tümü" },
-  { id: "APPROVED", label: "Yayında" },
-  { id: "PENDING", label: "Bekleyen" },
-  { id: "REJECTED", label: "Reddedilen" },
-];
-
-function NotesBody({
-  items,
-  busyId,
-  confirmId,
-  onRemove,
-  onConfirm,
-  onNavigate,
-}) {
-  const t = useT();
-  const { locale } = useCmsRoute();
-  const { href } = useLocaleNav();
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
-
-  if (items.length === 0) return <Empty>{t("Henüz not yüklemediniz.")}</Empty>;
-
-  const needle = query.toLocaleLowerCase("tr");
-  const shown = items.filter(
-    (note) =>
-      (status === "all" || note.status === status) &&
-      (needle === "" ||
-        `${note.title} ${note.lectureCode ?? ""}`
-          .toLocaleLowerCase("tr")
-          .includes(needle)),
-  );
-
-  return (
-    <>
-      {items.length > 3 && (
-        <div className="sticky top-0 z-10 space-y-2 border-b border-primary-500/6 bg-white px-4 py-2.5">
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t("Not veya ders kodu ara…")}
-            aria-label={t("Notlarımda ara")}
-            className="w-full rounded-lg border border-primary-500/10 bg-primary-500/2 px-3 py-1.5 text-[13px] text-primary-600 outline-none! focus:border-secondary-500/50"
-          />
-          <div className="flex flex-wrap gap-1.5">
-            {NOTE_FILTERS.map((filter) => (
-              <button
-                key={filter.id}
-                type="button"
-                onClick={() => setStatus(filter.id)}
-                className={`rounded-md px-2 py-0.5 text-[11px] font-medium transition-colors ${
-                  status === filter.id
-                    ? "bg-secondary-500/12 text-secondary-700"
-                    : "text-primary-500/70 hover:text-primary-500"
-                }`}
-              >
-                {t(filter.label)}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {shown.length === 0 ? (
-        <Empty>{t("Bu koşullara uyan not yok.")}</Empty>
-      ) : (
-        <ul className="divide-y divide-primary-500/6">
-          {shown.map((note) => {
-            const badge = NOTE_STATUS[note.status] ?? NOTE_STATUS.PENDING;
-            const draft = note.status !== "APPROVED";
-            return (
-              <li key={note.id} className="flex items-start gap-3 px-4 py-3">
-                <NoteThumb note={note} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="text-[13px] font-medium text-primary-600">
-                      {note.title}
-                    </span>
-                    <span
-                      className={`rounded-sm px-1.5 py-0.5 text-[10px] font-semibold ${badge.tone}`}
-                    >
-                      {t(badge.label)}
-                    </span>
-                    {note.type !== "OTHER" && noteTypeLabel(note.type) && (
-                      <span className="rounded-sm bg-primary-500/6 px-1.5 py-0.5 text-[10px] font-semibold text-primary-500/70">
-                        {t(noteTypeLabel(note.type))}
-                      </span>
-                    )}
-                  </span>
-                  <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-primary-500/70">
-                    {note.lectureCode && (
-                      <>
-                        <Link
-                          href={href(`/egitim/mufredat/${note.lectureCode}`)}
-                          onClick={onNavigate}
-                          className="font-mono font-semibold text-secondary-700 hover:underline"
-                        >
-                          {note.lectureCode}
-                        </Link>
-                        <span aria-hidden>·</span>
-                      </>
-                    )}
-                    {formatDate(note.createdAt, locale)}
-                    {note.offering?.instructor && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className="wrap-break-word">
-                          {note.offering.instructor}
-                        </span>
-                      </>
-                    )}
-                    {note.status === "APPROVED" && (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Eye size={11} strokeWidth={1.5} />
-                          {note.viewCount} görüntülenme
-                        </span>
-                      </>
-                    )}
-                  </span>
-                </span>
-
-                {confirmId === note.id ? (
-                  <span className="flex shrink-0 items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onRemove(note)}
-                      disabled={busyId === note.id}
-                      className="rounded-md bg-red-600 px-2 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-40"
-                    >
-                      {busyId === note.id ? "…" : "Onayla"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onConfirm(null)}
-                      className="rounded-md px-2 py-1 text-[11px] font-medium text-primary-500/70 transition-colors hover:text-primary-500"
-                    >
-                      {t("Vazgeç")}
-                    </button>
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      draft ? onRemove(note) : onConfirm(note.id)
-                    }
-                    className="shrink-0 rounded-md px-2 py-1 text-[11px] font-medium text-primary-500/70 transition-colors hover:bg-red-50 hover:text-red-700"
-                  >
-                    {draft ? "İptal et" : "Kaldır"}
-                  </button>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </>
   );
 }
 
@@ -488,12 +272,6 @@ function DatedSchedule({ items }) {
 }
 
 const VIEWS = {
-  notes: {
-    label: "Notlarım",
-    icon: FileText,
-    load: fetchMyNotes,
-    Body: NotesBody,
-  },
   schedule: {
     label: "Ders Programım",
     icon: CalendarDays,
@@ -513,28 +291,7 @@ export default function ProfilePanel({ view, onClose }) {
     status: "loading",
     items: [],
   });
-  const [busyId, setBusyId] = useState(null);
-  const [actionError, setActionError] = useState(null);
-  const [confirmId, setConfirmId] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-
-  async function removeNote(note) {
-    setBusyId(note.id);
-    setActionError(null);
-    try {
-      const token = await getAccessToken();
-      await deleteNote(note.id, token);
-      setState((current) => ({
-        ...current,
-        items: current.items.filter((item) => item.id !== note.id),
-      }));
-    } catch (err) {
-      setActionError(err.message);
-    } finally {
-      setBusyId(null);
-      setConfirmId(null);
-    }
-  }
 
   useEffect(() => {
     if (!view) return undefined;
@@ -587,22 +344,12 @@ export default function ProfilePanel({ view, onClose }) {
             </span>
           </div>
 
-          {actionError && (
-            <p className="shrink-0 border-b border-red-500/15 bg-red-50 px-4 py-2 text-[11px] text-red-700">
-              {actionError}
-            </p>
-          )}
-
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {status === "loading" && <Skeleton />}
             {status === "error" && <Empty>{t("Bilgiler alınamadı.")}</Empty>}
             {status === "ready" && (
               <Body
                 items={state.items}
-                busyId={busyId}
-                confirmId={confirmId}
-                onRemove={removeNote}
-                onConfirm={setConfirmId}
                 onNavigate={onClose}
                 onChanged={() => setReloadKey((n) => n + 1)}
               />

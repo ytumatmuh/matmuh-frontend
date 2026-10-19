@@ -6,7 +6,6 @@ import PageLayout from "@/app/components/PageLayout";
 import PageSection from "@/app/components/PageSection";
 import StaffSchedule from "./StaffSchedule";
 import StaffOfferings from "./StaffOfferings";
-import StaffNotes from "./StaffNotes";
 import { fullName } from "@/lib/person";
 import { safeHref } from "@/lib/href";
 import { translate } from "@/i18n";
@@ -104,10 +103,6 @@ export default function StaffDetail({ person, entries, term, locale }) {
             <StaffOfferings entries={entries} term={term} />
           </PageSection>
         )}
-
-        <PageSection title={translate(locale, "Ders Notları")}>
-          <StaffNotes staffId={person.id} />
-        </PageSection>
       </div>
     </PageLayout>
   );

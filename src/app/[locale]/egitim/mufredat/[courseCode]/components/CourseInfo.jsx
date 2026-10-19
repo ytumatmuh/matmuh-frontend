@@ -1,10 +1,8 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock,
   Library,
-  NotebookPen,
   Calendar,
   ChevronDown,
   GraduationCap,
@@ -19,9 +17,7 @@ import MainCard from "@/app/components/MainCard";
 import Collapse from "@/app/components/Collapse";
 import Link from "@/app/components/LocaleLink";
 
-import LectureNotes from "./LectureNotes";
 import SectionEnroll from "./SectionEnroll";
-import { useAuth } from "@/lib/auth";
 import { useT } from "@/i18n/useT";
 
 const RESOURCES_SHOWN = 5;
@@ -283,23 +279,13 @@ const initials = (name) =>
 export default function CourseInfo({ course, sections = [] }) {
   const t = useT();
   const [activeTab, setActiveTab] = useState(0);
-  const { isAuthenticated, signIn } = useAuth();
-
-  const onSignIn = useCallback(() => signIn(), [signIn]);
-
   if (!course) return null;
 
   const weekCount = course.syllabus?.length ?? 0;
 
   const tabs = [
-    { label: "Genel", icon: GraduationCap, locked: false },
-    { label: "Müfredat", icon: Library, locked: false },
-    {
-      label: "Ders Notları",
-      icon: NotebookPen,
-      badge: course.noteCount > 0 ? String(course.noteCount) : null,
-      locked: !isAuthenticated,
-    },
+    { label: "Genel", icon: GraduationCap },
+    { label: "Müfredat", icon: Library },
   ];
 
   const tabVariants = {
@@ -387,21 +373,6 @@ export default function CourseInfo({ course, sections = [] }) {
                 />
               )}
               {t(tab.label)}
-              {tab.badge && (
-                <span className="bg-primary-500/5 text-primary-500/70 text-[10px] px-2 py-0.5 rounded-md font-bold ml-1 font-mono">
-                  {tab.badge}
-                </span>
-              )}
-              {tab.locked && (
-                <Lock
-                  size={14}
-                  className={
-                    activeTab === idx
-                      ? "text-secondary-700"
-                      : "text-primary-500/70"
-                  }
-                />
-              )}
             </button>
           ))}
         </div>
@@ -532,20 +503,6 @@ export default function CourseInfo({ course, sections = [] }) {
                     </div>
                   )}
                 </div>
-              </motion.div>
-            )}
-
-            {activeTab === 2 && (
-              <motion.div
-                key="tab2"
-                variants={tabVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={tabTransition}
-                className="w-full"
-              >
-                <LectureNotes lectureId={course.id} onSignIn={onSignIn} />
               </motion.div>
             )}
           </AnimatePresence>

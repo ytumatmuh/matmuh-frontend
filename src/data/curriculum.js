@@ -191,7 +191,6 @@ function lectureView(lecture, locale) {
       midterm == null
         ? null
         : { midterm: { weight: midterm }, final: { weight: lecture.finalWeight ?? 0 } },
-    noteCount: lecture.noteCount ?? 0,
     bolognaLink: bolognaHref(lecture.bolognaLink, locale) ?? null,
     notesLink: lecture.notesLink ?? null,
   };

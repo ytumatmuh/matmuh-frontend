@@ -5,9 +5,7 @@ import {
   LogIn,
   ChevronDown,
   LogOut,
-  ClipboardCheck,
   PencilLine,
-  FileText,
   CalendarDays,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,8 +13,6 @@ import { useAuth } from "@/lib/auth";
 import { useCmsEditing } from "@/app/lib/cms-provider.jsx";
 import { useT } from "@/i18n/useT";
 import ProfilePanel from "@/app/components/Profile/ProfilePanel";
-import { NOTES_PANEL_LABEL } from "@/app/components/CmsPanels/notes-panel-meta";
-import { fetchPendingNoteCount } from "@/data/lecture-notes";
 
 const ROLE_LABELS = {
   ROLE_ADMIN: "Admin",
@@ -36,29 +32,20 @@ const MENU_MOTION = {
 };
 
 export default function UserLogin() {
-  const { user, isAuthenticated, isLoading, signIn, signOut, getAccessToken } =
-    useAuth();
-  const { canEdit, editing, setEditing, openPanel } = useCmsEditing();
+  const { user, isAuthenticated, isLoading, signIn, signOut } = useAuth();
+  const { canEdit, editing, setEditing } = useCmsEditing();
 
   const t = useT();
   const [open, setOpen] = useState(false);
   const [instantClose, setInstantClose] = useState(false);
   const [holdBackdrop, setHoldBackdrop] = useState(false);
   const [panel, setPanel] = useState(null);
-  const [pending, setPending] = useState(null);
   const ref = useRef(null);
-
-  const moderates = Boolean(user?.authorities?.includes("ROLE_ADMIN"));
 
   const toggle = () => {
     const next = !open;
     if (next) setInstantClose(false);
     setOpen(next);
-    if (!next || !moderates) return;
-    getAccessToken()
-      .then(fetchPendingNoteCount)
-      .then(setPending)
-      .catch(() => setPending(null));
   };
 
   useEffect(() => {
@@ -197,7 +184,6 @@ export default function UserLogin() {
 
             <div className="p-1.5 border-t border-primary-500/8">
               {[
-                { id: "notes", label: t("Notlarım"), icon: FileText },
                 {
                   id: "schedule",
                   label: t("Ders Programım"),
@@ -227,32 +213,6 @@ export default function UserLogin() {
                 <span className="block px-2.5 pb-1 text-[10px] font-semibold uppercase tracking-widest text-primary-500/70">
                   {t("Yönetim")}
                 </span>
-                {moderates && editing && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(false);
-                      openPanel(NOTES_PANEL_LABEL);
-                    }}
-                    className="flex items-center gap-2 w-full px-2.5 py-2 text-[12px] text-primary-500/70 hover:bg-primary-500/4 transition-colors rounded-lg"
-                  >
-                    <ClipboardCheck
-                      size={14}
-                      className="shrink-0 text-secondary-700"
-                    />
-                    <span className="flex-1 text-left">
-                      {t("Not Yönetimi")}
-                    </span>
-                    {pending > 0 && (
-                      <span
-                        className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-amber-700"
-                        aria-label={t("{count} not onay bekliyor", { count: pending })}
-                      >
-                        {pending}
-                      </span>
-                    )}
-                  </button>
-                )}
                 <button
                   type="button"
                   role="switch"

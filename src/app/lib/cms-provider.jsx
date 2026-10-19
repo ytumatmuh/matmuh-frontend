@@ -5,7 +5,6 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
   useSyncExternalStore,
 } from "react";
 import { CmsProvider } from "inscribed";
@@ -64,8 +63,6 @@ const EditingContext = createContext({
   canEdit: false,
   editing: true,
   setEditing: () => {},
-  openPanel: () => {},
-  openRequest: 0,
 });
 
 export function useCmsEditing() {
@@ -77,9 +74,8 @@ export function useIsEditor() {
   return canEdit && editing;
 }
 
-export function AppCmsProvider({ panels, ...props }) {
+export function AppCmsProvider(props) {
   const { user, getAccessToken, signOut } = useAuth();
-  const [openRequest, setOpenRequest] = useState(0);
   const editing = useSyncExternalStore(
     subscribe,
     getSnapshot,
@@ -90,44 +86,14 @@ export function AppCmsProvider({ panels, ...props }) {
     DEV_FORCE_ADMIN ||
     !!user?.authorities?.some((role) => EDIT_ROLES.includes(role));
 
-  // A panel's `requiresRole` is ours, not inscribed's: the drawer mounts for
-  // every editor, so an area only some of them may open has to be dropped
-  // before it becomes a rail button that opens a 403.
-  const allowedPanels = useMemo(() => {
-    const kept = (panels ?? []).filter(
-      (panel) =>
-        !panel.requiresRole ||
-        DEV_FORCE_ADMIN ||
-        user?.authorities?.includes(panel.requiresRole),
-    );
-    return kept.length ? kept : undefined;
-  }, [panels, user]);
-
-  const openPanel = useCallback((panelLabel) => {
-    setOpenRequest((n) => n + 1);
-    const handle = document.querySelector(".inscribed-handle");
-    const select = () =>
-      document
-        .querySelector(`.inscribed-rail-btn[aria-label="${panelLabel}"]`)
-        ?.click();
-
-    if (handle?.getAttribute("aria-expanded") === "true") {
-      select();
-      return;
-    }
-
-    handle?.click();
-    requestAnimationFrame(select);
-  }, []);
-
   const setEditing = useCallback((next) => {
     storage()?.setItem(STORAGE_KEY, next ? "1" : "0");
     notify();
   }, []);
 
   const editingValue = useMemo(
-    () => ({ canEdit, editing, setEditing, openPanel, openRequest }),
-    [canEdit, editing, setEditing, openPanel, openRequest],
+    () => ({ canEdit, editing, setEditing }),
+    [canEdit, editing, setEditing],
   );
 
   const userInfo = useMemo(
@@ -141,7 +107,6 @@ export function AppCmsProvider({ panels, ...props }) {
     <EditingContext.Provider value={editingValue}>
       <CmsProvider
         {...props}
-        panels={allowedPanels}
         isAdmin={canEdit && editing}
         getAccessToken={getAccessToken}
         userInfo={userInfo}

@@ -1,14 +1,6 @@
-import { sameOrigin, toOffering } from "./lecture-notes";
-
 const API = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 const GUN = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-
-export const NOTE_STATUS = {
-  APPROVED: { label: "Yayında", tone: "text-emerald-700 bg-emerald-500/12" },
-  PENDING: { label: "Onay bekliyor", tone: "text-amber-700 bg-amber-500/15" },
-  REJECTED: { label: "Reddedildi", tone: "text-red-700 bg-red-500/12" },
-};
 
 export function weekdayOf(iso) {
   if (!iso) return "";
@@ -32,23 +24,6 @@ async function get(path, token) {
   });
   if (!res.ok) throw new Error(`${path} -> ${res.status}`);
   return res.json();
-}
-
-export async function fetchMyNotes(token) {
-  const body = await get("/lecture-notes/me?size=50&sort=createdAt,desc", token);
-  return (body?.data?.content ?? []).map((note) => ({
-    id: note.id,
-    title: note.title || note.file?.fileName || "Adsız not",
-    status: note.status ?? "PENDING",
-    createdAt: note.createdAt,
-    lectureCode: note.lecture?.code ?? null,
-    lectureName: note.lecture?.name ?? null,
-    href: sameOrigin(note.file?.fileUrl) ?? null,
-    previewHref: sameOrigin(note.previewUrl) ?? null,
-    extension: (note.file?.fileName?.split(".").pop() ?? "").toUpperCase(),
-    viewCount: note.viewCount ?? 0,
-    offering: toOffering(note.offering),
-  }));
 }
 
 export async function fetchMySchedule(token, range = currentWeek()) {
