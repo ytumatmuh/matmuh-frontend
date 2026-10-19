@@ -120,6 +120,7 @@ export const messages = {
     "Tür": "Type",
     "Başlık": "Title",
     "AVESİS profili": "AVESIS profile",
+    "Görüşme Saatleri": "Office Hours",
     Profil: "Profile",
     Oda: "Office",
     "Bu dönem için ders programı girilmemiş.":

@@ -1,4 +1,4 @@
-import { CalendarOff, Mail, ExternalLink, Phone, MapPin } from "lucide-react";
+import { CalendarOff, Clock, Mail, ExternalLink, Phone, MapPin } from "lucide-react";
 
 import Avatar from "@/app/components/Avatar";
 import MainCard from "@/app/components/MainCard";
@@ -6,6 +6,7 @@ import PageLayout from "@/app/components/PageLayout";
 import PageSection from "@/app/components/PageSection";
 import StaffSchedule from "./StaffSchedule";
 import StaffOfferings from "./StaffOfferings";
+import { DAY_KEYS, DAYS } from "@/data/schedule-grid";
 import { fullName } from "@/lib/person";
 import { safeHref } from "@/lib/href";
 import { translate } from "@/i18n";
@@ -52,6 +53,45 @@ function Contact({ person, locale }) {
   );
 }
 
+const dayIndex = (key) => {
+  const index = DAY_KEYS.indexOf(key);
+  return index === -1 ? DAY_KEYS.length : index;
+};
+
+function OfficeHours({ hours, locale }) {
+  const rows = [...(hours ?? [])]
+    .filter((hour) => hour?.dayOfWeek && hour.startTime && hour.endTime)
+    .sort((a, b) => dayIndex(a.dayOfWeek) - dayIndex(b.dayOfWeek) || a.startTime.localeCompare(b.startTime));
+
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="mt-5 border-t border-primary-500/10 pt-5">
+      <h3 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary-500/70">
+        <Clock className="size-3.5 text-secondary-700" />
+        {translate(locale, "Görüşme Saatleri")}
+      </h3>
+      <ul className="mt-3 flex flex-col gap-2.5">
+        {rows.map((hour, index) => (
+          <li key={index} className="flex flex-col gap-0.5 text-[13px]">
+            <span className="flex items-baseline justify-between gap-3">
+              <span className="font-medium text-primary-600">
+                {translate(locale, DAYS[dayIndex(hour.dayOfWeek)] ?? "Pazar")}
+              </span>
+              <span className="shrink-0 font-mono text-[12px] text-primary-500/80">
+                {hour.startTime.slice(0, 5)}–{hour.endTime.slice(0, 5)}
+              </span>
+            </span>
+            {hour.description && (
+              <span className="text-[12px] leading-snug text-primary-500/70">{hour.description}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function StaffDetail({ person, entries, term, locale }) {
   const name = fullName(person);
 
@@ -80,6 +120,7 @@ export default function StaffDetail({ person, entries, term, locale }) {
         <div className="mt-5 border-t border-primary-500/10 pt-5">
           <Contact person={person} locale={locale} />
         </div>
+        <OfficeHours hours={person.officeHours} locale={locale} />
       </MainCard>
     </div>
   );
