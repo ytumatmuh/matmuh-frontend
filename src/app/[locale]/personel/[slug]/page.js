@@ -30,9 +30,7 @@ export default async function Page({ params }) {
   if (!person) notFound();
 
   const { term, entries } = await getWeeklySchedule({ staffId: person.id, locale });
-  const currentTerm = term
-    ? { key: `${term.academicYear}|${term.semester}`, name: termLabel(term) }
-    : null;
+  const currentTerm = term ? { name: termLabel(term) } : null;
   const name = fullName(person);
 
   return (

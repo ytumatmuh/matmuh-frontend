@@ -99,9 +99,11 @@ export default function StaffDetail({ person, entries, term, locale }) {
           )}
         </PageSection>
 
-        <PageSection title={translate(locale, "Verdiği Dersler")}>
-          <StaffOfferings staffId={person.id} entries={entries} term={term} />
-        </PageSection>
+        {entries.length > 0 && (
+          <PageSection title={translate(locale, "Verdiği Dersler")}>
+            <StaffOfferings entries={entries} term={term} />
+          </PageSection>
+        )}
 
         <PageSection title={translate(locale, "Ders Notları")}>
           <StaffNotes staffId={person.id} />
