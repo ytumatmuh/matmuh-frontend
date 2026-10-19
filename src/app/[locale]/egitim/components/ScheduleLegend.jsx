@@ -188,7 +188,7 @@ export default function ScheduleLegend({
                 </span>
               }
             >
-              {t("Öğretim elemanı, derslik ve programa ekleme için kutuya tıklayın.")}
+              {t("Öğretim elemanı ve derslik için kutuya tıklayın.")}
             </Item>
           </div>
         </div>

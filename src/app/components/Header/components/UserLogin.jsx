@@ -6,13 +6,11 @@ import {
   ChevronDown,
   LogOut,
   PencilLine,
-  CalendarDays,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import { useCmsEditing } from "@/app/lib/cms-provider.jsx";
 import { useT } from "@/i18n/useT";
-import ProfilePanel from "@/app/components/Profile/ProfilePanel";
 
 const ROLE_LABELS = {
   ROLE_ADMIN: "Admin",
@@ -22,13 +20,10 @@ const ROLE_LABELS = {
 
 const SLOT = "w-9 h-9 sm:w-16";
 
-const BACKDROP_HOLD = 220;
-
 const MENU_MOTION = {
   hidden: { opacity: 0, y: -6, scale: 0.97 },
   shown: { opacity: 1, y: 0, scale: 1 },
-  exit: (instant) =>
-    instant ? { opacity: 0, transition: { duration: 0 } } : { opacity: 0, y: -6, scale: 0.97 },
+  exit: { opacity: 0, y: -6, scale: 0.97 },
 };
 
 export default function UserLogin() {
@@ -37,16 +32,7 @@ export default function UserLogin() {
 
   const t = useT();
   const [open, setOpen] = useState(false);
-  const [instantClose, setInstantClose] = useState(false);
-  const [holdBackdrop, setHoldBackdrop] = useState(false);
-  const [panel, setPanel] = useState(null);
   const ref = useRef(null);
-
-  const toggle = () => {
-    const next = !open;
-    if (next) setInstantClose(false);
-    setOpen(next);
-  };
 
   useEffect(() => {
     function handlePointerDown(e) {
@@ -98,7 +84,7 @@ export default function UserLogin() {
   return (
     <div ref={ref} className="relative z-30">
       <button
-        onClick={toggle}
+        onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="menu"
         title={name}
@@ -128,7 +114,7 @@ export default function UserLogin() {
       </button>
 
       <AnimatePresence>
-        {(open || holdBackdrop) && (
+        {open && (
           <motion.div
             aria-hidden
             initial={{ opacity: 0 }}
@@ -141,11 +127,10 @@ export default function UserLogin() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence custom={instantClose}>
+      <AnimatePresence>
         {open && (
           <motion.div
             role="menu"
-            custom={instantClose}
             variants={MENU_MOTION}
             initial="hidden"
             animate="shown"
@@ -181,32 +166,6 @@ export default function UserLogin() {
                 ))}
               </div>
             )}
-
-            <div className="p-1.5 border-t border-primary-500/8">
-              {[
-                {
-                  id: "schedule",
-                  label: t("Ders Programım"),
-                  icon: CalendarDays,
-                },
-              ].map(({ id, label, icon: Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => {
-                    setPanel(id);
-                    setInstantClose(true);
-                    setHoldBackdrop(true);
-                    setOpen(false);
-                    setTimeout(() => setHoldBackdrop(false), BACKDROP_HOLD);
-                  }}
-                  className="flex items-center gap-2 w-full px-2.5 py-2 text-[12px] text-primary-500/70 hover:bg-primary-500/4 transition-colors rounded-lg"
-                >
-                  <Icon size={14} className="shrink-0 text-secondary-700" />
-                  <span className="flex-1 text-left">{label}</span>
-                </button>
-              ))}
-            </div>
 
             {canEdit && (
               <div className="p-1.5 border-t border-primary-500/8">
@@ -257,8 +216,6 @@ export default function UserLogin() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <ProfilePanel view={panel} onClose={() => setPanel(null)} />
     </div>
   );
 }

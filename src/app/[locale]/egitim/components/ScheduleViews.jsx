@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { DAYS, TIME_SLOTS } from "@/data/schedule-grid";
-import { MyScheduleProvider, useMySchedule } from "@/data/useMySchedule";
 import { WINDOW_LABELS, kindOf, poolBlocks } from "@/data/schedule-pool";
 import { blockStyle, colorOf, courseColors } from "@/data/schedule-colors";
 import { matchesWords, queryWords } from "@/lib/fold";
@@ -475,14 +474,6 @@ function ScheduleTable({ entries, courseHref, note, palette: fixedPalette }) {
   );
 }
 
-export default function ScheduleViews(props) {
-  return (
-    <MyScheduleProvider>
-      <ScheduleBody {...props} />
-    </MyScheduleProvider>
-  );
-}
-
 const KIND_LABELS = { required: "Zorunlu", elective: "Bölüm seçmelisi" };
 const KIND_ORDER = (id) => (id === "required" ? 0 : id === "elective" ? 1 : 2);
 
@@ -530,8 +521,6 @@ function FilterPanel({
   kinds,
   hidden,
   onToggleKind,
-  fit,
-  onFit,
   onReset,
   active,
   query,
@@ -589,27 +578,6 @@ function FilterPanel({
         </div>
       )}
 
-      {fit.available ? (
-        <label className="flex cursor-pointer items-start gap-2.5">
-          <input
-            type="checkbox"
-            checked={fit.on}
-            onChange={(event) => onFit(event.target.checked)}
-            className="mt-0.5 size-4 shrink-0 accent-[var(--color-secondary-600)]"
-          />
-          <span className="flex flex-col">
-            <span className="text-[12.5px] font-medium text-primary-600">
-              {t("Yalnızca programımla çakışmayanlar")}
-            </span>
-            <span className="text-[11.5px] text-primary-500/70">
-              {t("Programına eklediğin derslerle aynı saatte olanlar gizlenir.")}
-            </span>
-          </span>
-        </label>
-      ) : (
-        fit.hint && <p className="text-[11.5px] text-primary-500/70">{t(fit.hint)}</p>
-      )}
-
       {active > 0 && (
         <button
           type="button"
@@ -623,23 +591,18 @@ function FilterPanel({
   );
 }
 
-function ScheduleBody({ entries = [], courseHref, note = null, legend = null, elsewhere = [], onElsewhere }) {
+export default function ScheduleViews({ entries = [], courseHref, note = null, legend = null, elsewhere = [], onElsewhere }) {
   const t = useT();
-  const my = useMySchedule();
   const [view, setView] = useState("grid");
   const [language, setLanguage] = useState("all");
   const [hidden, setHidden] = useState(() => new Set());
-  const [fitOnly, setFitOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   const kinds = useMemo(() => kindOptions(entries), [entries]);
   const palette = useMemo(() => courseColors(entries), [entries]);
-  const canFit = my?.status === "ready" && my.rows.length > 0;
-  const fitting = fitOnly && canFit;
   const searching = query.trim().length > 0;
-  const active =
-    [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length + (fitting ? 1 : 0);
+  const active = [...hidden].filter((id) => kinds.some((kind) => kind.id === id)).length;
   const phoneActive = active + (language === "all" ? 0 : 1);
 
   const shown = useMemo(
@@ -647,12 +610,8 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
       entries
         .filter(byLanguage(language))
         .filter(byQuery(query))
-        .filter((entry) => !hidden.has(kindOf(entry)))
-        .filter(
-          (entry) =>
-            !fitting || my.isEnrolled(entry.offeringId) || !my.clashOf(entry),
-        ),
-    [entries, language, hidden, fitting, my, query],
+        .filter((entry) => !hidden.has(kindOf(entry))),
+    [entries, language, hidden, query],
   );
 
   const matches = useMemo(() => new Set(shown.map((entry) => entry.code)).size, [shown]);
@@ -674,19 +633,6 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
       else next.add(id);
       return next;
     });
-
-  const fit = {
-    available: canFit,
-    on: fitOnly,
-    hint:
-      my?.status === "signed-out"
-        ? "Giriş yapıp programına ders eklersen yalnızca çakışmayanları gösterebilirsin."
-        : my?.status === "ready"
-          ? "Programına ders ekledikçe yalnızca çakışmayanları gösterebilirsin."
-          : my?.status === "error"
-            ? "Programın alınamadı; çakışma süzgeci şu an kullanılamıyor."
-            : "Programın yükleniyor…",
-  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -742,11 +688,8 @@ function ScheduleBody({ entries = [], courseHref, note = null, legend = null, el
           kinds={kinds}
           hidden={hidden}
           onToggleKind={toggleKind}
-          fit={fit}
-          onFit={setFitOnly}
           onReset={() => {
             setHidden(new Set());
-            setFitOnly(false);
             setLanguage("all");
           }}
           active={phoneActive}

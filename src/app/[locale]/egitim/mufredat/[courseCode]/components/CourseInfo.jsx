@@ -17,7 +17,6 @@ import MainCard from "@/app/components/MainCard";
 import Collapse from "@/app/components/Collapse";
 import Link from "@/app/components/LocaleLink";
 
-import SectionEnroll from "./SectionEnroll";
 import { useT } from "@/i18n/useT";
 
 const RESOURCES_SHOWN = 5;
@@ -255,11 +254,6 @@ function SectionRow({ section, defaultOpen }) {
               </div>
             </div>
           ))}
-
-          <SectionEnroll
-            offeringId={section.offeringId}
-            schedule={section.schedule}
-          />
         </div>
       </Collapse>
     </div>

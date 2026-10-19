@@ -13,20 +13,16 @@ import Link from "@/app/components/LocaleLink";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Layers,
   MapPin,
-  Plus,
-  TriangleAlert,
   User,
   Wifi,
   X,
 } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useMySchedule } from "@/data/useMySchedule";
 import { DAYS, TIME_SLOTS, visibleDayIndexes } from "@/data/schedule-grid";
 import { WINDOW_LABELS, poolBlocks } from "@/data/schedule-pool";
 import { useT } from "@/i18n/useT";
@@ -46,102 +42,6 @@ const endOf = (slot) => TIME_SLOTS[slot]?.split(" - ")[1] ?? "";
 const spanOf = (entry) => Math.max(1, entry.span || 1);
 const rangeOf = (entry) =>
   `${startOf(entry.slot)} – ${endOf(entry.slot + spanOf(entry) - 1)}`;
-
-const MINI_BUTTON =
-  "inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[9.5px] font-semibold transition-colors disabled:opacity-40";
-
-function EnrollAction({ entry }) {
-  const t = useT();
-  const my = useMySchedule();
-  const [clash, setClash] = useState(null);
-
-  if (!my || my.status !== "ready" || !entry.offeringId) return null;
-
-  const busy = my.busyId === entry.offeringId;
-  const failed = my.failedId === entry.offeringId;
-
-  if (my.isEnrolled(entry.offeringId)) {
-    return (
-      <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold text-secondary-700">
-          <Check size={9} strokeWidth={2.5} />
-          {t("Programımda")}
-        </span>
-        <button
-          type="button"
-          onClick={() => void my.remove(entry.offeringId)}
-          disabled={busy}
-          className={`${MINI_BUTTON} text-primary-500/70 hover:bg-primary-500/6 hover:text-primary-500`}
-        >
-          {busy ? "…" : t("Kaldır")}
-        </button>
-      </span>
-    );
-  }
-
-  const onAdd = () => {
-    if (!clash) {
-      const found = my.clashOf(entry);
-      if (found) {
-        setClash(found);
-        return;
-      }
-    }
-    void my.add(entry).then((ok) => ok && setClash(null));
-  };
-
-  return (
-    <span className="mt-1.5 block">
-      {clash && (
-        <span className="mb-1 flex items-start gap-1 rounded-sm bg-amber-50 px-1.5 py-1 text-[9.5px] leading-snug text-amber-800">
-          <TriangleAlert size={9} strokeWidth={2.25} className="mt-px shrink-0" />
-          <span>
-            {t("{day} {range} · {code} Gr.{group} ile çakışıyor.", {
-              day: t(DAYS[clash.day]),
-              range: rangeOf(clash),
-              code: clash.code,
-              group: clash.group,
-            })}
-          </span>
-        </span>
-      )}
-
-      <span className="flex flex-wrap items-center gap-1">
-        <button
-          type="button"
-          onClick={onAdd}
-          disabled={busy}
-          className={`${MINI_BUTTON} border border-secondary-500/40 text-secondary-700 hover:bg-secondary-500/10`}
-        >
-          {busy ? (
-            "…"
-          ) : (
-            <>
-              <Plus size={9} strokeWidth={2.5} />
-              {clash ? t("Yine de ekle") : t("Programıma ekle")}
-            </>
-          )}
-        </button>
-        {clash && (
-          <button
-            type="button"
-            onClick={() => setClash(null)}
-            className={`${MINI_BUTTON} text-primary-500/70 hover:text-primary-500`}
-          >
-            <X size={9} strokeWidth={2.5} />
-            {t("Vazgeç")}
-          </button>
-        )}
-      </span>
-
-      {failed && (
-        <span className="mt-1 block text-[9.5px] text-red-700/75">
-          {t("İşlem tamamlanamadı.")}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function metaOf(entry) {
   return [
@@ -723,7 +623,6 @@ function PanelGroup({ group }) {
           )}
         </span>
       )}
-      <EnrollAction entry={group} />
     </span>
   );
 }
@@ -880,7 +779,6 @@ function Cluster({
   column,
   palette,
   courseHref,
-  clash,
   openId,
   onOpen,
   expanded,
@@ -889,7 +787,6 @@ function Cluster({
   const t = useT();
   const items = cluster.blocks;
   const single = items.length === 1;
-  const conflict = clash && !single;
   const overflow = items.length > VISIBLE + 1;
   const shown = overflow && !expanded ? items.slice(0, VISIBLE) : items;
 
@@ -899,16 +796,8 @@ function Cluster({
       style={{
         gridColumn: column + 2,
         gridRow: `${rowStart} / ${rowEnd + 1}`,
-        backgroundColor: conflict ? "rgba(180,120,20,0.05)" : undefined,
       }}
     >
-      {conflict && (
-        <span className="flex items-center gap-1 px-0.5 text-[9px] font-semibold tracking-wide text-amber-700 uppercase">
-          <TriangleAlert size={9} strokeWidth={2.25} />
-          {t("Çakışma")}
-        </span>
-      )}
-
       <div
         className={
           single
@@ -991,7 +880,6 @@ export default function WeeklySchedule({
   palette: fixedPalette = null,
   courseHref,
   note = null,
-  clash = false,
 }) {
   const t = useT();
   const [openId, setOpenId] = useState(null);
@@ -1168,7 +1056,6 @@ export default function WeeklySchedule({
                     column={col}
                     palette={palette}
                     courseHref={courseHref}
-                    clash={clash}
                     openId={openId}
                     onOpen={setOpenId}
                     expanded={expanded.has(key)}
