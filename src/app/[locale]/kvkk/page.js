@@ -11,9 +11,9 @@ const BODY = `
 <h2>Veri sorumlusu</h2>
 <p>Yıldız Teknik Üniversitesi</p>
 <h2>İşlenen kişisel veriler</h2>
-<p>Kimlik ve iletişim bilgileri (ad-soyad, e-posta adresi) ile ders notu yükleyen kullanıcıların yükleme kayıtları işlenir.</p>
+<p>Siteye giriş yapan kullanıcıların kimlik ve iletişim bilgileri (ad-soyad, e-posta adresi) işlenir.</p>
 <h2>İşleme amacı</h2>
-<p>Veriler, siteye giriş yapan kullanıcının kimliğinin doğrulanması, yüklenen ders notlarının incelenmesi ve yayımlanması amacıyla işlenir.</p>
+<p>Veriler, siteye giriş yapan kullanıcının kimliğinin doğrulanması ve içerik düzenleme yetkisinin belirlenmesi amacıyla işlenir.</p>
 <h2>Aktarım</h2>
 <p>Kişisel veriler üçüncü kişilerle paylaşılmaz.</p>
 <h2>Haklarınız</h2>
