@@ -1,15 +1,26 @@
 name: matmuh-frontend ci
 
+# Deploy targets:
+#   prod     - push to main, v* tags (and dispatch on them): :latest + :main-<sha7>
+#              or :<version>, deployed through DOKPLOY_DEPLOY_WEBHOOK.
+#   official - push or dispatch on feat/official-site: :official + :official-<sha7>,
+#              deployed through DOKPLOY_OFFICIAL_WEBHOOK. Never :latest.
+#   branch   - dispatch on any other ref: only :<branch-slug>-<sha7>, no deploy.
 on:
   push:
     branches:
       - main
+      - feat/official-site
     tags:
       - 'v*'
   workflow_dispatch:
 
+# Separate groups so an official or branch build never cancels a prod deploy.
 concurrency:
-  group: frontend-deploy
+  group: >-
+    ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && 'frontend-deploy'
+    || github.ref == 'refs/heads/feat/official-site' && 'frontend-official'
+    || format('frontend-branch-{0}', github.ref) }}
   cancel-in-progress: true
 
 jobs:
@@ -17,25 +28,87 @@ jobs:
     runs-on: ubuntu-latest
     permissions: { contents: read, packages: write }
     env:
-      CMS_URL: ${{ vars.CMS_URL }}
-      CMS_SYNC_KEY: ${{ secrets.CMS_SYNC_KEY }}
-      DEPLOY_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
+      IMAGE: ghcr.io/${{ github.repository_owner }}/matmuh-frontend
+      OFFICIAL_BRANCH: feat/official-site
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check build settings
+      - name: Resolve deploy target
+        id: target
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          HAS_PROD_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK != '' }}
+          HAS_OFFICIAL_WEBHOOK: ${{ secrets.DOKPLOY_OFFICIAL_WEBHOOK != '' }}
         run: |
-          test -n "$CMS_URL" || { echo "::error::Repository variable CMS_URL is not set (e.g. https://matmuh.yusufacmaci.com/api)"; exit 1; }
-          test -n "$CMS_SYNC_KEY" || { echo "::error::Repository secret CMS_SYNC_KEY is not set"; exit 1; }
-
-      - name: Extract Clean Version
-        id: get_version
-        run: |
-          if [ "${GITHUB_REF#refs/tags/v}" != "$GITHUB_REF" ]; then
-            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          sha7="${GITHUB_SHA::7}"
+          if [ "$REF_TYPE" = tag ] && [ "${REF_NAME#v}" != "$REF_NAME" ]; then
+            target=prod
+            tags="$IMAGE:latest"$'\n'"$IMAGE:${REF_NAME#v}"
+            deploy=$HAS_PROD_WEBHOOK
+          elif [ "$REF_TYPE" = branch ] && [ "$REF_NAME" = main ]; then
+            target=prod
+            tags="$IMAGE:latest"$'\n'"$IMAGE:main-$sha7"
+            deploy=$HAS_PROD_WEBHOOK
+          elif [ "$REF_TYPE" = branch ] && [ "$REF_NAME" = "$OFFICIAL_BRANCH" ]; then
+            target=official
+            tags="$IMAGE:official"$'\n'"$IMAGE:official-$sha7"
+            deploy=$HAS_OFFICIAL_WEBHOOK
           else
-            echo "VERSION=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+            # Any other dispatched ref: a traceable image for manual testing only.
+            slug=$(printf '%s' "$REF_NAME" | tr '[:upper:]' '[:lower:]' \
+              | sed -e 's/[^a-z0-9._-]/-/g' -e 's/--*/-/g' -e 's/^[.-]*//' | cut -c1-100)
+            slug="${slug%-}"
+            test -n "$slug" || slug=ref
+            target=branch
+            tags="$IMAGE:$slug-$sha7"
+            deploy=false
           fi
+          {
+            echo "target=$target"
+            echo "deploy=$deploy"
+            echo "tags<<EOF_TAGS"
+            echo "$tags"
+            echo "EOF_TAGS"
+          } >> "$GITHUB_OUTPUT"
+          echo "Target: $target, deploy: $deploy"
+          echo "Tags:"; echo "$tags"
+
+      # The official site requires its own OFFICIAL_* settings, with no fallback
+      # to prod: prebuild cms-sync would push its manifest into the prod backend.
+      - name: Check build settings
+        env:
+          TARGET: ${{ steps.target.outputs.target }}
+          PROD_CMS_URL: ${{ vars.CMS_URL }}
+          PROD_CMS_SYNC_KEY: ${{ secrets.CMS_SYNC_KEY }}
+          OFFICIAL_CMS_URL: ${{ vars.OFFICIAL_CMS_URL }}
+          OFFICIAL_CMS_SYNC_KEY: ${{ secrets.OFFICIAL_CMS_SYNC_KEY }}
+        run: |
+          if [ "$TARGET" = official ]; then
+            cms_url="$OFFICIAL_CMS_URL"
+            cms_sync_key="$OFFICIAL_CMS_SYNC_KEY"
+            url_name="OFFICIAL_CMS_URL"
+            key_name="OFFICIAL_CMS_SYNC_KEY"
+            url_hint=" (no fallback to prod: cms-sync would sync the official manifest into the prod backend)"
+            key_hint="$url_hint"
+          else
+            cms_url="$PROD_CMS_URL"
+            cms_sync_key="$PROD_CMS_SYNC_KEY"
+            url_name="CMS_URL"
+            key_name="CMS_SYNC_KEY"
+            url_hint=" (e.g. https://matmuh.yusufacmaci.com/api)"
+            key_hint=""
+          fi
+          test -n "$cms_url" || { echo "::error::Repository variable $url_name is not set$url_hint"; exit 1; }
+          test -n "$cms_sync_key" || { echo "::error::Repository secret $key_name is not set$key_hint"; exit 1; }
+          {
+            echo "CMS_URL<<EOF_CMS_URL"
+            echo "$cms_url"
+            echo "EOF_CMS_URL"
+            echo "CMS_SYNC_KEY<<EOF_CMS_SYNC_KEY"
+            echo "$cms_sync_key"
+            echo "EOF_CMS_SYNC_KEY"
+          } >> "$GITHUB_ENV"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -55,10 +128,21 @@ jobs:
           build-args: |
             CMS_URL=${{ env.CMS_URL }}
             CMS_SYNC_KEY=${{ env.CMS_SYNC_KEY }}
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/matmuh-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/matmuh-frontend:${{ steps.get_version.outputs.VERSION }}
+          tags: ${{ steps.target.outputs.tags }}
 
+      # Skipped when the target's webhook secret is unset. The URL is picked in
+      # the shell so a missing official webhook can never fall back to prod.
       - name: Trigger Dokploy deploy
-        if: env.DEPLOY_WEBHOOK != ''
-        run: curl -fsSL -X POST "$DEPLOY_WEBHOOK"
+        if: steps.target.outputs.deploy == 'true'
+        env:
+          TARGET: ${{ steps.target.outputs.target }}
+          PROD_WEBHOOK: ${{ secrets.DOKPLOY_DEPLOY_WEBHOOK }}
+          OFFICIAL_WEBHOOK: ${{ secrets.DOKPLOY_OFFICIAL_WEBHOOK }}
+        run: |
+          case "$TARGET" in
+            prod) webhook="$PROD_WEBHOOK" ;;
+            official) webhook="$OFFICIAL_WEBHOOK" ;;
+            *) echo "::error::No deploy webhook for target $TARGET"; exit 1 ;;
+          esac
+          test -n "$webhook" || { echo "::error::Webhook secret for target $TARGET is empty"; exit 1; }
+          curl -fsSL -X POST "$webhook"
