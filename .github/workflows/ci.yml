@@ -74,8 +74,8 @@ jobs:
           echo "Target: $target, deploy: $deploy"
           echo "Tags:"; echo "$tags"
 
-      # The official site may later get its own backend, so it prefers the
-      # OFFICIAL_* settings and falls back to the prod ones.
+      # The official site requires its own OFFICIAL_* settings, with no fallback
+      # to prod: prebuild cms-sync would push its manifest into the prod backend.
       - name: Check build settings
         env:
           TARGET: ${{ steps.target.outputs.target }}
@@ -85,18 +85,22 @@ jobs:
           OFFICIAL_CMS_SYNC_KEY: ${{ secrets.OFFICIAL_CMS_SYNC_KEY }}
         run: |
           if [ "$TARGET" = official ]; then
-            cms_url="${OFFICIAL_CMS_URL:-$PROD_CMS_URL}"
-            cms_sync_key="${OFFICIAL_CMS_SYNC_KEY:-$PROD_CMS_SYNC_KEY}"
-            url_name="OFFICIAL_CMS_URL (or fallback CMS_URL)"
-            key_name="OFFICIAL_CMS_SYNC_KEY (or fallback CMS_SYNC_KEY)"
+            cms_url="$OFFICIAL_CMS_URL"
+            cms_sync_key="$OFFICIAL_CMS_SYNC_KEY"
+            url_name="OFFICIAL_CMS_URL"
+            key_name="OFFICIAL_CMS_SYNC_KEY"
+            url_hint=" (no fallback to prod: cms-sync would sync the official manifest into the prod backend)"
+            key_hint="$url_hint"
           else
             cms_url="$PROD_CMS_URL"
             cms_sync_key="$PROD_CMS_SYNC_KEY"
             url_name="CMS_URL"
             key_name="CMS_SYNC_KEY"
+            url_hint=" (e.g. https://matmuh.yusufacmaci.com/api)"
+            key_hint=""
           fi
-          test -n "$cms_url" || { echo "::error::Repository variable $url_name is not set (e.g. https://matmuh.yusufacmaci.com/api)"; exit 1; }
-          test -n "$cms_sync_key" || { echo "::error::Repository secret $key_name is not set"; exit 1; }
+          test -n "$cms_url" || { echo "::error::Repository variable $url_name is not set$url_hint"; exit 1; }
+          test -n "$cms_sync_key" || { echo "::error::Repository secret $key_name is not set$key_hint"; exit 1; }
           {
             echo "CMS_URL<<EOF_CMS_URL"
             echo "$cms_url"
